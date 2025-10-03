@@ -14,4 +14,10 @@ export class Journals {
   date!: Date
   @IsString({ message: 'description must be a string' })
   description!: string
+  @IsString({ message: 'referensi must be a string' })
+  referensi?: string
+  @IsString({ message: 'lampiran must be a string' })
+  lampiran?: string
+  @IsString({ message: 'nomor_bukti must be a string' })
+  nomor_bukti!: string
 }

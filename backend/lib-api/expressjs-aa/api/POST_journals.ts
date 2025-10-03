@@ -10,12 +10,21 @@ class POST_journals_Req_Headers {
   authorization!: string
 }
 class POST_journals_Req_Body {
+  @IsNotEmpty({ message: 'nomor_bukti cannot be empty' })
+  @IsString({ message: 'nomor_bukti must be a string' })
+  nomor_bukti!: string
   @IsNotEmpty({ message: 'date cannot be empty' })
   @IsString({ message: 'date must be a string' })
   date!: string
   @IsOptional()
   @IsString({ message: 'description must be a string' })
   description?: string
+  @IsOptional()
+  @IsString({ message: 'lampiran must be a string' })
+  lampiran?: string
+  @IsOptional()
+  @IsString({ message: 'referensi must be a string' })
+  referensi?: string
   @IsNotEmpty({ message: 'entries cannot be empty' })
   @IsArray()
   @ValidateNested({ each: true })

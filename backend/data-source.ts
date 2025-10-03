@@ -1,12 +1,14 @@
 import { DataSource, DataSourceOptions } from "typeorm";
+import * as dotenv from "dotenv";
+dotenv.config();
  
 const config: DataSourceOptions = {
   type: "postgres",
-  host: 'db.pagonila.id',
-  port: 47001,
-  username: 'lrntz_gambitsch',
-  password: '6a2bfa7b8a',
-  database: 'web_akuntansi_1c5edb1fc5fe47b59326d96d786175f1', // <-- nama database
+  host: process.env.HOST,
+  port: Number(process.env.PORT),
+  username: process.env.USERNAME,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE, // <-- nama database
   synchronize: false,
   logging: false,
   migrations: [

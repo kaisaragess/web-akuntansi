@@ -29,4 +29,22 @@ export class Journals extends BaseEntity {
     nullable: false,
   })
   description!: string;
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  referensi?: string;
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  lampiran?: string;
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+  })
+  nomor_bukti!: string;
 }
