@@ -6,7 +6,7 @@ const config: DataSourceOptions = {
   type: "postgres",
   host: process.env.HOST,
   port: Number(process.env.PORT),
-  username: process.env.USERNAME,
+  username: process.env.PAGONILA_USERNAME,
   password: process.env.PASSWORD,
   database: process.env.DATABASE, // <-- nama database
   synchronize: false,
