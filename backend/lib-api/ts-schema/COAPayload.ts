@@ -18,7 +18,7 @@ export class COAPayload {
   @IsNotEmpty({ message: 'normal_balance cannot be empty' })
   @IsString({ message: 'normal_balance must be a string' })
   normal_balance!: string
-  @IsNotEmpty({ message: 'created cannot be empty' })
-  @IsString({ message: 'created must be a string' })
-  created!: string
+  @IsNotEmpty({ message: 'created_by cannot be empty' })
+  @IsString({ message: 'created_by must be a string' })
+  created_by!: string
 }
