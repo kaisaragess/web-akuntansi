@@ -10,13 +10,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_coa = implement_POST_coa;
+const Coa_1 = require("../model/table/Coa");
+const verifyToken_1 = require("../../fn/verifyToken");
+const Token_1 = require("../model/table/Token");
 function implement_POST_coa(engine) {
     engine.implement({
         endpoint: 'POST /coa',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // 
-                return {};
+                const { authorization } = param.headers;
+                const user = yield (0, verifyToken_1.verifyToken)(authorization);
+                if (!user) {
+                    throw new Error("Unauthorized");
+                }
+                if (!Token_1.Token) { // Pengecekan keamanan
+                    throw new Error("Unauthorized: Invalid token or missing user ID");
+                }
+                const tokenString = authorization.split(' ')[1];
+                const tokenRecord = yield Token_1.Token.findOneBy({
+                    token: tokenString,
+                });
+                if (!tokenRecord) {
+                    throw new Error("Unauthorized: Token not found");
+                }
+                const id_user = tokenRecord.id_user;
+                const { account, code_account, jenis, description, normal_balance, created_by // Ganti nama untuk menghindari konflik 
+                 } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
+                try {
+                    const newCoa = new Coa_1.Coa();
+                    newCoa.code_account = code_account;
+                    newCoa.account = account;
+                    newCoa.jenis = jenis;
+                    newCoa.description = description;
+                    newCoa.normal_balance = normal_balance;
+                    newCoa.created_by = id_user;
+                    yield newCoa.save();
+                    console.log(account);
+                    console.log(code_account);
+                    console.log(jenis);
+                    console.log(description);
+                    console.log(normal_balance);
+                    console.log(created_by);
+                    return {
+                        account,
+                        code_account,
+                        jenis,
+                        description,
+                        normal_balance,
+                        created_by
+                    };
+                }
+                catch (error) {
+                    console.error('Error creating Coa:', error);
+                    throw new Error('Gagal membuat Chart of Account (Coa) baru.');
+                }
             });
         }
     });

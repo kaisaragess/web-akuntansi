@@ -40,7 +40,7 @@ __decorate([
     __metadata("design:type", String)
 ], COAPayload.prototype, "normal_balance", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'created cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'created must be a string' }),
+    (0, class_validator_1.IsNotEmpty)({ message: 'created_by cannot be empty' }),
+    (0, class_validator_1.IsString)({ message: 'created_by must be a string' }),
     __metadata("design:type", String)
-], COAPayload.prototype, "created", void 0);
+], COAPayload.prototype, "created_by", void 0);
