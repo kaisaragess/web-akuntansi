@@ -10,39 +10,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.COAPayload = void 0;
-const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class COAPayload {
 }
 exports.COAPayload = COAPayload;
-__decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'account cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'account must be a string' }),
-    __metadata("design:type", String)
-], COAPayload.prototype, "account", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'code_account cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'code_account must be a string' }),
     __metadata("design:type", String)
 ], COAPayload.prototype, "code_account", void 0);
 __decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: 'account cannot be empty' }),
+    (0, class_validator_1.IsString)({ message: 'account must be a string' }),
+    __metadata("design:type", String)
+], COAPayload.prototype, "account", void 0);
+__decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'jenis cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'jenis must be a string' }),
     __metadata("design:type", String)
 ], COAPayload.prototype, "jenis", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'description_coa cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'description_coa must be a string' }),
+    (0, class_validator_1.IsNotEmpty)({ message: 'description cannot be empty' }),
+    (0, class_validator_1.IsString)({ message: 'description must be a string' }),
     __metadata("design:type", String)
-], COAPayload.prototype, "description_coa", void 0);
+], COAPayload.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'normal_balance cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'normal_balance must be a string' }),
     __metadata("design:type", String)
 ], COAPayload.prototype, "normal_balance", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'created_by cannot be empty' }),
-    (0, class_transformer_1.Transform)((param) => ((param === null || param === void 0 ? void 0 : param.value) === null || (param === null || param === void 0 ? void 0 : param.value) === undefined || (param === null || param === void 0 ? void 0 : param.value) === '') ? null : parseFloat(param.value)),
-    (0, class_validator_1.IsNumber)({}, { message: 'created_by must be a number (decimal)' }),
-    __metadata("design:type", Number)
-], COAPayload.prototype, "created_by", void 0);
+    (0, class_validator_1.IsNotEmpty)({ message: 'created cannot be empty' }),
+    (0, class_validator_1.IsString)({ message: 'created must be a string' }),
+    __metadata("design:type", String)
+], COAPayload.prototype, "created", void 0);

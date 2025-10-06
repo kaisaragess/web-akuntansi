@@ -34,9 +34,21 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
+<<<<<<< HEAD
 const typeorm_1 = require("typeorm");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
+=======
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
+const typeorm_1 = require("typeorm");
+console.log('--- MEMERIKSA VARIABEL ENV UNTUK DATABASE ---');
+console.log('USERNAME:', process.env.PAGONILA_USERNAME);
+console.log('PASSWORD:', process.env.PASSWORD ? '****** (ada isinya)' : undefined); // Jangan log password asli
+console.log('HOST:', process.env.HOST);
+console.log('DATABASE:', process.env.DATABASE);
+console.log('-------------------------------------------');
+>>>>>>> dbe8a9a2aa8ba3655cbba3c93a05f82fd33d3221
 const config = {
     type: "postgres",
     host: process.env.HOST,

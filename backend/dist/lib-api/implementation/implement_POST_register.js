@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+<<<<<<< HEAD
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,11 +17,16 @@ exports.implement_POST_register = implement_POST_register;
 const User_1 = require("../model/table/User");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+=======
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.implement_POST_register = implement_POST_register;
+>>>>>>> dbe8a9a2aa8ba3655cbba3c93a05f82fd33d3221
 function implement_POST_register(engine) {
     engine.implement({
         endpoint: 'POST /register',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
                 const { username, password, fullname, role } = param.body;
                 // cek apakah username sudah dipakai
                 const existing = yield User_1.User.findOne({ where: { username } });
@@ -50,5 +56,11 @@ function implement_POST_register(engine) {
                 };
             });
         },
+=======
+                // register user dengan  username,  password
+                return {};
+            });
+        }
+>>>>>>> dbe8a9a2aa8ba3655cbba3c93a05f82fd33d3221
     });
 }

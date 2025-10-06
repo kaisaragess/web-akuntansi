@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+<<<<<<< HEAD
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,11 +18,16 @@ const User_1 = require("../model/table/User");
 const Token_1 = require("../model/table/Token");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+=======
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.implement_POST_login = implement_POST_login;
+>>>>>>> dbe8a9a2aa8ba3655cbba3c93a05f82fd33d3221
 function implement_POST_login(engine) {
     engine.implement({
         endpoint: 'POST /login',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
+<<<<<<< HEAD
                 const { username, password } = param.body;
                 const foundUser = yield User_1.User.findOne({ where: { username } });
                 if (!foundUser) {
@@ -46,6 +52,10 @@ function implement_POST_login(engine) {
                     token: jwtToken,
                     user: foundUser,
                 };
+=======
+                // login dengan username
+                return {};
+>>>>>>> dbe8a9a2aa8ba3655cbba3c93a05f82fd33d3221
             });
         }
     });
