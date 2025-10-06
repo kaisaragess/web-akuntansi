@@ -9,7 +9,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "generate-migration": "npm run typeorm migration:generate -- $1 -d ./data-source.ts",
     "migrate": "npm run typeorm migration:run -- -d ./data-source.ts",
-    "dev" : "npx tsc && node dist"
+    "dev": "npx tsc && node dist"
+
   },
   "keywords": [],
   "author": "",

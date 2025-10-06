@@ -32,10 +32,25 @@ __decorate([
     __metadata("design:type", String)
 ], JournalRes.prototype, "date", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'description cannot be empty' }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'description must be a string' }),
     __metadata("design:type", String)
 ], JournalRes.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: 'nomor_bukti cannot be empty' }),
+    (0, class_validator_1.IsString)({ message: 'nomor_bukti must be a string' }),
+    __metadata("design:type", String)
+], JournalRes.prototype, "nomor_bukti", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: 'lampiran must be a string' }),
+    __metadata("design:type", String)
+], JournalRes.prototype, "lampiran", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: 'referensi must be a string' }),
+    __metadata("design:type", String)
+], JournalRes.prototype, "referensi", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'entries cannot be empty' }),
     (0, class_validator_1.IsArray)(),

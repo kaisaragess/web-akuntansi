@@ -26,9 +26,9 @@ export class Journals extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
   })
-  description!: string;
+  description?: string;
   @Column({
     type: 'varchar',
     length: 255,
