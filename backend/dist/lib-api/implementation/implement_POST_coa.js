@@ -11,15 +11,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_coa = implement_POST_coa;
 const Coa_1 = require("../model/table/Coa");
+const verifyToken_1 = require("../../fn/verifyToken");
+const Token_1 = require("../model/table/Token");
 function implement_POST_coa(engine) {
     engine.implement({
         endpoint: 'POST /coa',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // **Akses Data dari Skema Body:**
-                //    Variabel 'data' sekarang berisi properti-properti skema yang Anda butuhkan.
+                const { authorization } = param.headers;
+                const user = yield (0, verifyToken_1.verifyToken)(authorization);
+                if (!user) {
+                    throw new Error("Unauthorized");
+                }
+                if (!Token_1.Token) { // Pengecekan keamanan
+                    throw new Error("Unauthorized: Invalid token or missing user ID");
+                }
+                if (!authorization || !authorization.startsWith('Bearer ')) {
+                    throw new Error("Header tidak valid atau hilang");
+                }
+                const tokenString = authorization.split(' ')[1];
+                const tokenRecord = yield Token_1.Token.findOneBy({
+                    token: tokenString,
+                });
+                if (!tokenRecord) {
+                    throw new Error("Unauthorized: Token not found");
+                }
+                const id_user = tokenRecord.id_user;
+                // const userId = await Token.findOneBy({ }); // Gunakan ID user yang terverifikasi
                 const data = param.body.data;
-                const { account, code_account, jenis, description_coa, normal_balance, created_by } = data; // <-- Lakukan destructuring dari objek 'data'
+                const { account, code_account, jenis, description_coa, normal_balance, created_by // Ganti nama untuk menghindari konflik 
+                 } = data; // <-- Lakukan destructuring dari objek 'data'
                 try {
                     // ... (Logika TypeORM untuk membuat entitas) ...
                     const newCoa = new Coa_1.Coa();
@@ -29,10 +50,20 @@ function implement_POST_coa(engine) {
                     // Mapping 'description_coa' (API) ke 'description' (Model/Table)
                     newCoa.description = description_coa;
                     newCoa.normal_balance = normal_balance;
-                    newCoa.created_by = created_by;
+                    newCoa.created_by = id_user;
                     const savedCoa = yield newCoa.save();
                     // Kembalikan data yang disimpan dalam format COAPayload
-                    const response = {
+                    // const response: COAPayload = {
+                    //   // id: savedCoa.id,
+                    //   account: savedCoa.account,
+                    //   code_account: savedCoa.code_account,
+                    //   jenis: savedCoa.jenis,
+                    //   // Mapping kembali 'description' (Model/Table) ke 'description_coa' (Response API)
+                    //   description_coa: savedCoa.description, 
+                    //   normal_balance: savedCoa.normal_balance,
+                    //   created_by: savedCoa.created_by,
+                    // };
+                    return {
                         // id: savedCoa.id,
                         account: savedCoa.account,
                         code_account: savedCoa.code_account,
@@ -42,7 +73,6 @@ function implement_POST_coa(engine) {
                         normal_balance: savedCoa.normal_balance,
                         created_by: savedCoa.created_by,
                     };
-                    return response;
                 }
                 catch (error) {
                     console.error('Error creating Coa:', error);
