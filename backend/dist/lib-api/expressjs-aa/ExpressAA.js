@@ -19,26 +19,26 @@ const cors_1 = __importDefault(require("cors"));
 const Utility_1 = require("./Utility");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-const POST_login_1 = require("../expressjs-aa/api/POST_login");
-const POST_register_1 = require("../expressjs-aa/api/POST_register");
 const POST_journals_1 = require("../expressjs-aa/api/POST_journals");
 const GET_journals_1 = require("../expressjs-aa/api/GET_journals");
 const GET_journals__id_1 = require("../expressjs-aa/api/GET_journals__id");
 const PUT_journals__id_1 = require("../expressjs-aa/api/PUT_journals__id");
 const DELETE_journals__id_1 = require("../expressjs-aa/api/DELETE_journals__id");
+const POST_login_1 = require("../expressjs-aa/api/POST_login");
+const POST_register_1 = require("../expressjs-aa/api/POST_register");
 const POST_coa_1 = require("../expressjs-aa/api/POST_coa");
 const GET_coa_1 = require("../expressjs-aa/api/GET_coa");
 const GET_coa__id_1 = require("../expressjs-aa/api/GET_coa__id");
 const PUT_coa__id_1 = require("../expressjs-aa/api/PUT_coa__id");
 const DELETE_coa__id_1 = require("../expressjs-aa/api/DELETE_coa__id");
 const classmap = {
-    'POST /login': POST_login_1.POST_login_Req,
-    'POST /register': POST_register_1.POST_register_Req,
     'POST /journals': POST_journals_1.POST_journals_Req,
     'GET /journals': GET_journals_1.GET_journals_Req,
     'GET /journals/:id': GET_journals__id_1.GET_journals__id_Req,
     'PUT /journals/:id': PUT_journals__id_1.PUT_journals__id_Req,
     'DELETE /journals/:id': DELETE_journals__id_1.DELETE_journals__id_Req,
+    'POST /login': POST_login_1.POST_login_Req,
+    'POST /register': POST_register_1.POST_register_Req,
     'POST /coa': POST_coa_1.POST_coa_Req,
     'GET /coa': GET_coa_1.GET_coa_Req,
     'GET /coa/:id': GET_coa__id_1.GET_coa__id_Req,

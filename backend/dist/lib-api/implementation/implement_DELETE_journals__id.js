@@ -10,12 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_DELETE_journals__id = implement_DELETE_journals__id;
+const verifyToken_1 = require("../../fn/verifyToken");
 function implement_DELETE_journals__id(engine) {
     engine.implement({
         endpoint: 'DELETE /journals/:id',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
+                const { authorization } = param.headers;
+                const authheader = (0, verifyToken_1.verifyToken)(authorization);
+                if (!authheader) {
+                    throw new Error("Unauthorized: Invalid token");
+                }
+                const { id } = param.paths;
+                if (!id) {
+                    throw new Error("Bad Request: Missing Journal ID");
+                }
                 return {};
             });
         }

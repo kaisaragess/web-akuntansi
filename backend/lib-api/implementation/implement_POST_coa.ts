@@ -20,17 +20,17 @@ export function implement_POST_coa(engine: ExpressAA) {
       }
       
   
-      const tokenString = authorization.split(' ')[1];
+      // const tokenString = authorization.split(' ')[1];
     
-      const tokenRecord = await Token.findOneBy({
-        token: tokenString,
-      });
+      // const tokenRecord = await Token.findOneBy({
+      //   token: tokenString,
+      // });
 
-      if (!tokenRecord) {
-       throw new Error("Unauthorized: Token not found");
-      }
+      // if (!tokenRecord) {
+      //  throw new Error("Unauthorized: Token not found");
+      // }
 
-      const id_user = tokenRecord.id_user;
+      // const id_user = tokenRecord.id_user;
 
       const { 
         account, 
@@ -48,7 +48,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         newCoa.jenis = jenis;
         newCoa.description = description; 
         newCoa.normal_balance = normal_balance;
-        newCoa.created_by = id_user;
+        newCoa.created_by = created_by;
         
         await newCoa.save();
 

@@ -4,51 +4,51 @@ import cors from 'cors';
 import { Utility } from './Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator"
-import { POST_login } from '../expressjs-aa/api/POST_login';
-import { POST_register } from '../expressjs-aa/api/POST_register';
 import { POST_journals } from '../expressjs-aa/api/POST_journals';
 import { GET_journals } from '../expressjs-aa/api/GET_journals';
 import { GET_journals__id } from '../expressjs-aa/api/GET_journals__id';
 import { PUT_journals__id } from '../expressjs-aa/api/PUT_journals__id';
 import { DELETE_journals__id } from '../expressjs-aa/api/DELETE_journals__id';
+import { POST_login } from '../expressjs-aa/api/POST_login';
+import { POST_register } from '../expressjs-aa/api/POST_register';
 import { POST_coa } from '../expressjs-aa/api/POST_coa';
 import { GET_coa } from '../expressjs-aa/api/GET_coa';
 import { GET_coa__id } from '../expressjs-aa/api/GET_coa__id';
 import { PUT_coa__id } from '../expressjs-aa/api/PUT_coa__id';
 import { DELETE_coa__id } from '../expressjs-aa/api/DELETE_coa__id';
-import { POST_login_Req } from '../expressjs-aa/api/POST_login';
-import { POST_register_Req } from '../expressjs-aa/api/POST_register';
 import { POST_journals_Req } from '../expressjs-aa/api/POST_journals';
 import { GET_journals_Req } from '../expressjs-aa/api/GET_journals';
 import { GET_journals__id_Req } from '../expressjs-aa/api/GET_journals__id';
 import { PUT_journals__id_Req } from '../expressjs-aa/api/PUT_journals__id';
 import { DELETE_journals__id_Req } from '../expressjs-aa/api/DELETE_journals__id';
+import { POST_login_Req } from '../expressjs-aa/api/POST_login';
+import { POST_register_Req } from '../expressjs-aa/api/POST_register';
 import { POST_coa_Req } from '../expressjs-aa/api/POST_coa';
 import { GET_coa_Req } from '../expressjs-aa/api/GET_coa';
 import { GET_coa__id_Req } from '../expressjs-aa/api/GET_coa__id';
 import { PUT_coa__id_Req } from '../expressjs-aa/api/PUT_coa__id';
 import { DELETE_coa__id_Req } from '../expressjs-aa/api/DELETE_coa__id';
 
-type Endpoints = POST_login
-  | POST_register
-  | POST_journals
+type Endpoints = POST_journals
   | GET_journals
   | GET_journals__id
   | PUT_journals__id
   | DELETE_journals__id
+  | POST_login
+  | POST_register
   | POST_coa
   | GET_coa
   | GET_coa__id
   | PUT_coa__id
   | DELETE_coa__id;
 const classmap: any = {
-  'POST /login': POST_login_Req,
-  'POST /register': POST_register_Req,
   'POST /journals': POST_journals_Req,
   'GET /journals': GET_journals_Req,
   'GET /journals/:id': GET_journals__id_Req,
   'PUT /journals/:id': PUT_journals__id_Req,
   'DELETE /journals/:id': DELETE_journals__id_Req,
+  'POST /login': POST_login_Req,
+  'POST /register': POST_register_Req,
   'POST /coa': POST_coa_Req,
   'GET /coa': GET_coa_Req,
   'GET /coa/:id': GET_coa__id_Req,
