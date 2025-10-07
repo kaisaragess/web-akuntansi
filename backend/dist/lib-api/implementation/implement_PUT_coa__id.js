@@ -47,7 +47,6 @@ function implement_PUT_coa__id(engine) {
                     coaToUpdate.normal_balance = payload.normal_balance;
                 // 5. Simpan perubahan ke database
                 const updatedCoa = yield Coa_1.Coa.save(coaToUpdate);
-                console.log("COA record updated successfully:", updatedCoa);
                 return updatedCoa;
             });
         }

@@ -26,9 +26,6 @@ function implement_POST_journals(engine) {
                 if (!token) { // Pengecekan keamanan
                     throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
-                if (!authorization || !authorization.startsWith('Bearer ')) {
-                    throw new Error("Header tidak valid atau hilang");
-                }
                 const tokenString = authorization.split(' ')[1];
                 const tokenRecord = yield Token_1.Token.findOneBy({
                     token: tokenString,
@@ -43,6 +40,10 @@ function implement_POST_journals(engine) {
                 }
                 if (!Array.isArray(entries) || entries.length === 0) {
                     throw new Error("Bad Request: entries must be a non-empty array");
+                }
+                const journalDate = new Date(date);
+                if (isNaN(journalDate.getTime())) {
+                    throw new Error("Bad Request: Invalid date format");
                 }
                 // Validasi logika akuntansi
                 let totalDebit = 0;
@@ -65,7 +66,7 @@ function implement_POST_journals(engine) {
                     // Langkah 1: Buat instance baru dari entity Journals
                     const journal = new Journals_1.Journals();
                     journal.id_user = id_user;
-                    journal.date = new Date(date);
+                    journal.date = journalDate;
                     journal.description = description;
                     journal.referensi = referensi;
                     journal.lampiran = lampiran;
