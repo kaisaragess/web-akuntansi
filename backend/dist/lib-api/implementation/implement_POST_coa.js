@@ -26,9 +26,6 @@ function implement_POST_coa(engine) {
                 if (!Token_1.Token) { // Pengecekan keamanan
                     throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
-                if (!authorization || !authorization.startsWith('Bearer ')) {
-                    throw new Error("Header tidak valid atau hilang");
-                }
                 const tokenString = authorization.split(' ')[1];
                 const tokenRecord = yield Token_1.Token.findOneBy({
                     token: tokenString,
@@ -37,41 +34,24 @@ function implement_POST_coa(engine) {
                     throw new Error("Unauthorized: Token not found");
                 }
                 const id_user = tokenRecord.id_user;
-                // const userId = await Token.findOneBy({ }); // Gunakan ID user yang terverifikasi
-                const data = param.body.data;
-                const { account, code_account, jenis, description_coa, normal_balance, created_by // Ganti nama untuk menghindari konflik 
-                 } = data; // <-- Lakukan destructuring dari objek 'data'
+                const { account, code_account, jenis, description, normal_balance, created_by // Ganti nama untuk menghindari konflik 
+                 } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
                 try {
-                    // ... (Logika TypeORM untuk membuat entitas) ...
                     const newCoa = new Coa_1.Coa();
                     newCoa.code_account = code_account;
                     newCoa.account = account;
                     newCoa.jenis = jenis;
-                    // Mapping 'description_coa' (API) ke 'description' (Model/Table)
-                    newCoa.description = description_coa;
+                    newCoa.description = description;
                     newCoa.normal_balance = normal_balance;
                     newCoa.created_by = id_user;
-                    const savedCoa = yield newCoa.save();
-                    // Kembalikan data yang disimpan dalam format COAPayload
-                    // const response: COAPayload = {
-                    //   // id: savedCoa.id,
-                    //   account: savedCoa.account,
-                    //   code_account: savedCoa.code_account,
-                    //   jenis: savedCoa.jenis,
-                    //   // Mapping kembali 'description' (Model/Table) ke 'description_coa' (Response API)
-                    //   description_coa: savedCoa.description, 
-                    //   normal_balance: savedCoa.normal_balance,
-                    //   created_by: savedCoa.created_by,
-                    // };
+                    yield newCoa.save();
                     return {
-                        // id: savedCoa.id,
-                        account: savedCoa.account,
-                        code_account: savedCoa.code_account,
-                        jenis: savedCoa.jenis,
-                        // Mapping kembali 'description' (Model/Table) ke 'description_coa' (Response API)
-                        description_coa: savedCoa.description,
-                        normal_balance: savedCoa.normal_balance,
-                        created_by: savedCoa.created_by,
+                        account,
+                        code_account,
+                        jenis,
+                        description,
+                        normal_balance,
+                        created_by
                     };
                 }
                 catch (error) {
