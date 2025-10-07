@@ -10,13 +10,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_DELETE_coa__id = implement_DELETE_coa__id;
+const verifyToken_1 = require("../../fn/verifyToken");
+const Coa_1 = require("../model/table/Coa");
 function implement_DELETE_coa__id(engine) {
     engine.implement({
         endpoint: 'DELETE /coa/:id',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
-                return {};
+                const { authorization } = param.headers;
+                const authheader = (0, verifyToken_1.verifyToken)(authorization);
+                if (!authheader) {
+                    throw new Error("Unauthorized: Invalid token");
+                }
+                const { id } = param.paths;
+                if (!id) {
+                    throw new Error("Bad Request: Missing COA ID");
+                }
+                const CoaToDelete = yield Coa_1.Coa.findOneBy({ id: Number(id) });
+                if (!CoaToDelete) {
+                    throw new Error("Not Found: COA record does not exist");
+                }
+                yield Coa_1.Coa.remove(CoaToDelete);
+                return CoaToDelete;
             });
         }
     });
