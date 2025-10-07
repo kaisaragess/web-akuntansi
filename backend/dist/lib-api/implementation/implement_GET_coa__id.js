@@ -10,13 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_GET_coa__id = implement_GET_coa__id;
+const Coa_1 = require("../model/table/Coa");
+const verifyToken_1 = require("../../fn/verifyToken");
 function implement_GET_coa__id(engine) {
     engine.implement({
         endpoint: 'GET /coa/:id',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // 
-                return {};
+                const { authorization } = param.headers;
+                const user = yield (0, verifyToken_1.verifyToken)(authorization);
+                if (!user) {
+                    throw new Error("Unauthorized");
+                }
+                const coaId = param.paths.id;
+                const detailCoa = yield Coa_1.Coa.findOne({
+                    where: { id: coaId },
+                });
+                if (!detailCoa) {
+                    throw new Error(`Coa with id ${coaId} not found`);
+                }
+                return detailCoa; // Kembalikan detail Coa yang ditemukan
             });
         }
     });
