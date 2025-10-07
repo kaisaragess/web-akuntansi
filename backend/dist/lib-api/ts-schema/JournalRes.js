@@ -18,13 +18,15 @@ class JournalRes {
 exports.JournalRes = JournalRes;
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'id cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'id must be a string' }),
-    __metadata("design:type", String)
+    (0, class_transformer_1.Transform)((param) => ((param === null || param === void 0 ? void 0 : param.value) === null || (param === null || param === void 0 ? void 0 : param.value) === undefined || (param === null || param === void 0 ? void 0 : param.value) === '') ? null : parseFloat(param.value)),
+    (0, class_validator_1.IsNumber)({}, { message: 'id must be a number (decimal)' }),
+    __metadata("design:type", Number)
 ], JournalRes.prototype, "id", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'id_user cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'id_user must be a string' }),
-    __metadata("design:type", String)
+    (0, class_transformer_1.Transform)((param) => ((param === null || param === void 0 ? void 0 : param.value) === null || (param === null || param === void 0 ? void 0 : param.value) === undefined || (param === null || param === void 0 ? void 0 : param.value) === '') ? null : parseFloat(param.value)),
+    (0, class_validator_1.IsNumber)({}, { message: 'id_user must be a number (decimal)' }),
+    __metadata("design:type", Number)
 ], JournalRes.prototype, "id_user", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'date cannot be empty' }),

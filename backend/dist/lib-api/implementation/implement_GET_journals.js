@@ -10,12 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_GET_journals = implement_GET_journals;
+const verifyToken_1 = require("../../fn/verifyToken");
 function implement_GET_journals(engine) {
     engine.implement({
         endpoint: 'GET /journals',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
+                const { authorization } = param.headers;
+                const token = (0, verifyToken_1.verifyToken)(authorization);
+                if (!token) {
+                    throw new Error("Unauthorized: Missing token");
+                }
                 return {};
             });
         }

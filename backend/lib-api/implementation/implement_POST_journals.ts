@@ -103,8 +103,8 @@ export function implement_POST_journals(engine: ExpressAA) {
 
 
       return {
-        id: String(newJournal.id),
-        id_user: String(newJournal.id_user),
+        id: newJournal.id,
+        id_user: newJournal.id_user,
         date: newJournal.date.toISOString(),
         description: newJournal.description || '',
         referensi: newJournal.referensi || '',
