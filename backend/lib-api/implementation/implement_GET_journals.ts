@@ -14,6 +14,8 @@ export function implement_GET_journals(engine: ExpressAA) {
       if (!token) {
         throw new Error("Unauthorized: Missing token");
       }
+
+      
       return {} as any;
     }
   });
