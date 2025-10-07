@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.COAPayload = void 0;
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class COAPayload {
 }
@@ -41,6 +42,12 @@ __decorate([
 ], COAPayload.prototype, "normal_balance", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'created_by cannot be empty' }),
+<<<<<<< HEAD
     (0, class_validator_1.IsString)({ message: 'created_by must be a string' }),
     __metadata("design:type", String)
+=======
+    (0, class_transformer_1.Transform)((param) => ((param === null || param === void 0 ? void 0 : param.value) === null || (param === null || param === void 0 ? void 0 : param.value) === undefined || (param === null || param === void 0 ? void 0 : param.value) === '') ? null : parseFloat(param.value)),
+    (0, class_validator_1.IsNumber)({}, { message: 'created_by must be a number (decimal)' }),
+    __metadata("design:type", Number)
+>>>>>>> c692fb2005170c91ee1a8b443428f6a1aab9969e
 ], COAPayload.prototype, "created_by", void 0);
