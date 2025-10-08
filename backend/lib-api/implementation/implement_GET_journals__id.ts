@@ -50,7 +50,7 @@ export function implement_GET_journals__id(engine: ExpressAA) {
         description: existingJournal.description,
         lampiran: existingJournal.lampiran,
         referensi: existingJournal.referensi,
-        entries: existingJournal_with_entries .map(entry => ({
+        entries: existingJournal_with_entries.map(entry => ({
           id_coa: entry.code_coa,
           debit: entry.debit,
           credit: entry.credit
