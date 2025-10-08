@@ -12,8 +12,8 @@ export function implement_POST_journals(engine: ExpressAA) {
   engine.implement({
     endpoint: 'POST /journals',
     async fn(param: POST_journals_Req): Promise<JournalRes> {
-      // 
-       const { authorization } = param.headers;
+      // Verifikasi token dan dapatkan id_user
+      const { authorization } = param.headers;
       const token = verifyToken(authorization);
       if (!token) {
         throw new Error("Unauthorized: Invalid token or missing user ID");
@@ -31,6 +31,7 @@ export function implement_POST_journals(engine: ExpressAA) {
 
       const id_user = tokenRecord.id_user;
 
+      // Validasi payload
       const {
         nomor_bukti,
         date,
