@@ -1,0 +1,99 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+
+const Sidebar = () => {
+  const router = useRouter();
+  const pathname = usePathname(); // <-- ini ganti router.pathname
+
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/auth/login");
+  };
+
+  const menuItems = [
+    { name: "Dashboard", path: "/user/dashboard" },
+    { name: "COA", path: "/user/coa" },
+    { name: "Jurnal Umum", path: "/user/jurnal_umum" },
+    { name: "Buku Besar", path: "/user/buku_besar" },
+    { name: "Neraca Saldo", path: "/user/neraca_saldo" },
+    {
+      name: "Laporan Keuangan",
+      children: [
+        { name: "Laporan Laba Rugi", path: "/user/laporan/laba_rugi" },
+        { name: "Laporan Neraca", path: "/user/laporan/neraca" },
+        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
+      ],
+    },
+  ];
+
+  const toggleDropdown = (name: string) => {
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  return (
+    <aside className="bg-black text-white w-64 min-h-screen flex flex-col">
+      <div className="p-4 text-center text-xl font-bold border-b border-gray-700">
+        Kas<span className="text-lime-500">ku.)</span>
+      </div>
+
+      <nav className="flex-1">
+        {menuItems.map((item) =>
+          item.children ? (
+            <div key={item.name}>
+              <button
+                onClick={() => toggleDropdown(item.name)}
+                className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-800 transition ${
+                  openDropdown === item.name ? "bg-gray-800" : ""
+                }`}
+              >
+                {item.name}
+                <span>{openDropdown === item.name ? "▲" : "▼"}</span>
+              </button>
+
+              {openDropdown === item.name && (
+                <div className="pl-6 bg-gray-900">
+                  {item.children.map((child) => (
+                    <button
+                      key={child.name}
+                      onClick={() => router.push(child.path)}
+                      className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition ${
+                        pathname === child.path ? "bg-gray-700" : ""
+                      }`}
+                    >
+                      {child.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              key={item.name}
+              onClick={() => router.push(item.path)}
+              className={`flex items-center w-full px-4 py-3 text-left hover:bg-gray-800 transition ${
+                pathname === item.path ? "bg-gray-800" : ""
+              }`}
+            >
+              {item.name}
+            </button>
+          )
+        )}
+      </nav>
+
+      <div className="p-4 border-t border-gray-700">
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full px-4 py-3 text-left hover:bg-red-600 transition"
+        >
+          Keluar
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;

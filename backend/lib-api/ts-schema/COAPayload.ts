@@ -18,8 +18,4 @@ export class COAPayload {
   @IsNotEmpty({ message: 'normal_balance cannot be empty' })
   @IsString({ message: 'normal_balance must be a string' })
   normal_balance!: string
-  @IsNotEmpty({ message: 'created_by cannot be empty' })
-  @Transform((param?: any): number | null => (param?.value === null || param?.value === undefined || param?.value === '') ? null : parseFloat(param.value))
-  @IsNumber({}, { message: 'created_by must be a number (decimal)' })
-  created_by!: number
 }

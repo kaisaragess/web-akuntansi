@@ -1,4 +1,4 @@
-import { getJournals } from '../../ts-schema/getJournals'
+import { JournalRes } from '../../ts-schema/JournalRes'
 import { Utility } from '../Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator";
@@ -33,5 +33,5 @@ export class GET_journals_Req {
 }
 export interface GET_journals {
   endpoint: 'GET /journals'
-  fn: (param: GET_journals_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<getJournals[]>
+  fn: (param: GET_journals_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<JournalRes[]>
 }
