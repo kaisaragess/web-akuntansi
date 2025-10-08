@@ -1,5 +1,8 @@
 import { COAPayload } from '../../ts-schema/COAPayload'
+<<<<<<< HEAD
 import { COAPayload } from '../../ts-schema/COAPayload'
+=======
+>>>>>>> 37ba4f5c03610a9e46bd7c7491d75ae9daa99fec
 import { Utility } from '../Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator";

@@ -37,7 +37,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         code_account, 
         jenis, 
         description,
-        normal_balance
+        normal_balance,  
       } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
 
       try {

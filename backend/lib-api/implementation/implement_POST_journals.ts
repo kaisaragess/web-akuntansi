@@ -15,13 +15,10 @@ export function implement_POST_journals(engine: ExpressAA) {
       // 
        const { authorization } = param.headers;
       const token = verifyToken(authorization);
-      if (!token) { // Pengecekan keamanan
+      if (!token) {
         throw new Error("Unauthorized: Invalid token or missing user ID");
       }
       
-      if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new Error("Header tidak valid atau hilang");
-      }
       const tokenString = authorization.split(' ')[1];
     
       const tokenRecord = await Token.findOneBy({
@@ -50,6 +47,11 @@ export function implement_POST_journals(engine: ExpressAA) {
         throw new Error("Bad Request: entries must be a non-empty array");
       }
 
+      const journalDate = new Date(date);
+      if (isNaN(journalDate.getTime())) {
+          throw new Error("Bad Request: Invalid date format");
+      }
+
       // Validasi logika akuntansi
       let totalDebit = 0;
       let totalCredit = 0;
@@ -73,7 +75,7 @@ export function implement_POST_journals(engine: ExpressAA) {
         // Langkah 1: Buat instance baru dari entity Journals
         const journal = new Journals();
         journal.id_user = id_user; 
-        journal.date = new Date(date);
+        journal.date = journalDate;
         journal.description = description;
         journal.referensi = referensi;
         journal.lampiran = lampiran;
@@ -82,11 +84,13 @@ export function implement_POST_journals(engine: ExpressAA) {
         // Simpan record utama ke tabel "Journals"
         await transactionalEntityManager.save(journal);
 
+        
+
         // Langkah 2: Buat array dari instance Journal_Entries
         const journalEntriesArray = entries.map(entry => {
           const newEntry = new Journal_Entries();
           newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-          newEntry.code_coa = entry.id_coa;
+          newEntry.code_coa = entry.code_account;
           newEntry.debit = entry.debit;
           newEntry.credit = entry.credit;
           return newEntry;
@@ -98,18 +102,18 @@ export function implement_POST_journals(engine: ExpressAA) {
         // Return jurnal yang baru dibuat beserta entries-nya
         return { ...journal, entries: journalEntriesArray };
       });
-
+      
 
       return {
-        id: String(newJournal.id),
-        id_user: String(newJournal.id_user),
+        id: newJournal.id,
+        id_user: newJournal.id_user,
         date: newJournal.date.toISOString(),
         description: newJournal.description || '',
         referensi: newJournal.referensi || '',
         lampiran: newJournal.lampiran || '',
         nomor_bukti: newJournal.nomor_bukti || '',
         entries: newJournal.entries.map(e => ({
-            id_coa: e.code_coa,
+            code_account: e.code_coa,
             debit: e.debit,
             credit: e.credit
         })),
