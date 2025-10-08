@@ -12,12 +12,6 @@ class GET_journals_Req_Query {
   @Transform((param?: any): number | null => (param?.value === null || param?.value === undefined || param?.value === '') ? null : parseFloat(param.value))
   @IsNumber({}, { message: 'page must be a number (decimal)' })
   page?: number
-  @IsOptional()
-  @IsString({ message: 'start_date must be a string' })
-  start_date?: string
-  @IsOptional()
-  @IsString({ message: 'end_date must be a string' })
-  end_date?: string
 }
 class GET_journals_Req_Headers {
   @IsNotEmpty({ message: 'authorization cannot be empty' })
