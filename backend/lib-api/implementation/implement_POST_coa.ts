@@ -37,8 +37,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         code_account, 
         jenis, 
         description,
-        normal_balance, 
-        created_by // Ganti nama untuk menghindari konflik 
+        normal_balance,  
       } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
 
       try {
@@ -57,8 +56,7 @@ export function implement_POST_coa(engine: ExpressAA) {
           code_account,
           jenis,
           description, 
-          normal_balance,
-          created_by
+          normal_balance
         };
 
       } catch (error) {
