@@ -51,7 +51,7 @@ export function implement_GET_journals__id(engine: ExpressAA) {
         lampiran: existingJournal.lampiran,
         referensi: existingJournal.referensi,
         entries: existingJournal_with_entries.map(entry => ({
-          code_account: entry.code_coa,
+          code_account: entry.code_account,
           debit: entry.debit,
           credit: entry.credit
         })) // Placeholder, implement fetching entries if needed

@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_GET_journals = implement_GET_journals;
-const typeorm_1 = require("typeorm");
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journals_1 = require("../model/table/Journals");
+const Journal_Entries_1 = require("../model/table/Journal_Entries");
 function implement_GET_journals(engine) {
     engine.implement({
         endpoint: 'GET /journals',
@@ -20,52 +20,39 @@ function implement_GET_journals(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
                 const { authorization } = param.headers;
-                if (!(0, verifyToken_1.verifyToken)(authorization)) {
-                    throw new Error("Unauthorized: Invalid or missing token");
+                const token = (0, verifyToken_1.verifyToken)(authorization);
+                if (!token) {
+                    throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
-                // 2. Ambil parameter query
-                const { end_date, limit = 10, page = 1, start_date } = param.query;
-                const skip = (page - 1) * limit;
-                // 3. Buat kondisi filter tanggal secara dinamis
-                const where = {};
-                if (start_date && end_date) {
-                    where.date = (0, typeorm_1.Between)(new Date(start_date), new Date(end_date));
-                }
-                else if (start_date) {
-                    where.date = (0, typeorm_1.MoreThanOrEqual)(new Date(start_date));
-                }
-                else if (end_date) {
-                    where.date = (0, typeorm_1.LessThanOrEqual)(new Date(end_date));
-                }
-                // 4. Ambil data jurnal DAN entri-nya dalam satu query
-                const [journals, totalCount] = yield Journals_1.Journals.findAndCount({
-                    where,
-                    take: limit,
+                const { limit, page } = param.query;
+                // Pagination
+                const take = limit ? parseInt(limit, 10) : 10;
+                const parsedPage = page ? parseInt(page, 10) : 1;
+                const skip = (parsedPage - 1) * take;
+                const JournalsRecords = yield Journals_1.Journals.find({
+                    where: {},
+                    take,
                     skip,
-                    order: {
-                        date: 'DESC',
-                        id: 'DESC'
-                    },
-                    // KUNCI UTAMA: Ambil relasi 'entries' secara efisien
-                    // relations: {
-                    //   entries: true,
-                    // },
+                    order: { date: 'DESC' }
                 });
-                // 5. Format data sesuai dengan skema yang diinginkan
-                return journals.map(journal => ({
-                    id: journal.id,
-                    id_user: journal.id_user,
-                    nomor_bukti: journal.nomor_bukti,
-                    date: journal.date.toISOString(),
-                    description: journal.description,
-                    lampiran: journal.lampiran,
-                    referensi: journal.referensi,
-                    entries: journal.entries.map((entry) => ({
-                        id_coa: entry.code_coa,
-                        debit: entry.debit,
-                        credit: entry.credit
-                    }))
-                }));
+                const result = [];
+                for (const journal of JournalsRecords) {
+                    const entries = yield Journal_Entries_1.Journal_Entries.find({
+                        where: { id_journal: journal.id },
+                        relations: { "otm_id_journal": true }
+                    });
+                    result.push({
+                        id: journal.id,
+                        id_user: journal.id_user,
+                        date: journal.date.toISOString().split('T')[0],
+                        description: journal.description || '',
+                        referensi: journal.referensi || '',
+                        lampiran: journal.lampiran || '',
+                        nomor_bukti: journal.nomor_bukti || '',
+                        entries: entries
+                    });
+                }
+                return result;
             });
         }
     });

@@ -34,8 +34,7 @@ function implement_POST_coa(engine) {
                     throw new Error("Unauthorized: Token not found");
                 }
                 const id_user = tokenRecord.id_user;
-                const { account, code_account, jenis, description, normal_balance, created_by // Ganti nama untuk menghindari konflik 
-                 } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
+                const { account, code_account, jenis, description, normal_balance, } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
                 try {
                     const newCoa = new Coa_1.Coa();
                     newCoa.code_account = code_account;
@@ -50,8 +49,7 @@ function implement_POST_coa(engine) {
                         code_account,
                         jenis,
                         description,
-                        normal_balance,
-                        created_by
+                        normal_balance
                     };
                 }
                 catch (error) {

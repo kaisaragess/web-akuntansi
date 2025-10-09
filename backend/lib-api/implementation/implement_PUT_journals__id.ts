@@ -55,7 +55,7 @@ export function implement_PUT_journals__id(engine: ExpressAA) {
         const newEntries = payload.entries.map(entry => {
           const newEntry = new Journal_Entries();
           newEntry.id_journal = id; // Gunakan ID jurnal yang ada
-          newEntry.code_coa = entry.code_account;
+          newEntry.code_account = entry.code_account;
           newEntry.debit = entry.debit;
           newEntry.credit = entry.credit;
           return newEntry;
@@ -83,7 +83,7 @@ export function implement_PUT_journals__id(engine: ExpressAA) {
         referensi: updatedJournal.referensi || '',
         lampiran: updatedJournal.lampiran || '',
         entries: updatedJournal.entries.map(e => ({
-          code_account: e.code_coa,
+          code_account: e.code_account,
           debit: e.debit,
           credit: e.credit
         })),

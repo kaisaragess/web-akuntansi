@@ -91,7 +91,7 @@ export function implement_POST_journals(engine: ExpressAA) {
         const journalEntriesArray = entries.map(entry => {
           const newEntry = new Journal_Entries();
           newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-          newEntry.code_coa = entry.code_account;
+          newEntry.code_account = entry.code_account;
           newEntry.debit = entry.debit;
           newEntry.credit = entry.credit;
           return newEntry;
@@ -114,7 +114,7 @@ export function implement_POST_journals(engine: ExpressAA) {
         lampiran: newJournal.lampiran || '',
         nomor_bukti: newJournal.nomor_bukti || '',
         entries: newJournal.entries.map(e => ({
-            code_account: e.code_coa,
+            code_account: e.code_account,
             debit: e.debit,
             credit: e.credit
         })),
