@@ -12,7 +12,7 @@ export function implement_GET_journals__id(engine: ExpressAA) {
       // 
 
       const { authorization } = param.headers;
-      const token = verifyToken(authorization);
+      const token = await verifyToken(authorization);
       if (!token) {
         throw new Error("Unauthorized: Missing token");
       }

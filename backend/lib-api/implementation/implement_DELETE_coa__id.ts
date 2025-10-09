@@ -10,7 +10,7 @@ export function implement_DELETE_coa__id(engine: ExpressAA) {
       // 
       
       const { authorization } = param.headers;
-      const authheader = verifyToken(authorization);
+      const authheader = await verifyToken(authorization);
       if (!authheader) {
         throw new Error("Unauthorized: Invalid token");
       }

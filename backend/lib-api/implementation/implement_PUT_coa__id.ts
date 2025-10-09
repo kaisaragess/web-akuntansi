@@ -10,8 +10,9 @@ export function implement_PUT_coa__id(engine: ExpressAA) {
     endpoint: 'PUT /coa/:id',
     async fn(param: PUT_coa__id_Req): Promise<Coa> {
       // 
-       const { authorization } = param.headers;
-      if (!verifyToken(authorization)) {
+      const { authorization } = param.headers;
+      const token = await verifyToken(authorization);
+      if (!token) {
         throw new Error("Unauthorized: Invalid or missing token");
       }
 

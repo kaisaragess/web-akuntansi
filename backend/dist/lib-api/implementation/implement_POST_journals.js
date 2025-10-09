@@ -14,7 +14,6 @@ const data_source_1 = require("../../data-source");
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
-const Token_1 = require("../model/table/Token");
 function implement_POST_journals(engine) {
     engine.implement({
         endpoint: 'POST /journals',
@@ -22,18 +21,20 @@ function implement_POST_journals(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // Verifikasi token dan dapatkan id_user
                 const { authorization } = param.headers;
-                const token = (0, verifyToken_1.verifyToken)(authorization);
+                const token = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!token) {
-                    throw new Error("Unauthorized: Invalid token or missing user ID");
+                    throw new Error("Unauthorized: Invalid token or missing user ID ");
                 }
-                const tokenString = authorization.split(' ')[1];
-                const tokenRecord = yield Token_1.Token.findOneBy({
-                    token: tokenString,
-                });
-                if (!tokenRecord) {
-                    throw new Error("Unauthorized: Token not found");
-                }
-                const id_user = tokenRecord.id_user;
+                // console.log("Token verified:", token);
+                // const tokenString = authorization.split(' ')[1];
+                // const tokenRecord = await Token.findOneBy({
+                //   token: tokenString,
+                // });
+                // if (!tokenRecord) {
+                //  throw new Error("Unauthorized: Token not found");
+                // }
+                const id_user = Number(token);
+                console.log("User ID from token:", id_user);
                 // Validasi payload
                 const { nomor_bukti, date, description, lampiran, referensi, entries } = param.body;
                 if (!nomor_bukti || !date || !entries) {

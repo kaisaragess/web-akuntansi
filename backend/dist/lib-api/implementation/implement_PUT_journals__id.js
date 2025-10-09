@@ -21,7 +21,7 @@ function implement_PUT_journals__id(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
                 const { authorization } = param.headers;
-                const token = (0, verifyToken_1.verifyToken)(authorization);
+                const token = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!token) {
                     throw new Error("Unauthorized: Missing token");
                 }

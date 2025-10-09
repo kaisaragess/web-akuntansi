@@ -12,7 +12,7 @@ export function implement_DELETE_journals__id(engine: ExpressAA) {
     async fn(param: DELETE_journals__id_Req): Promise<JournalRes> {
       // 
       const { authorization } = param.headers;
-      const authheader = verifyToken(authorization);
+      const authheader = await verifyToken(authorization);
       if (!authheader) {
         throw new Error("Unauthorized: Invalid token");
       }

@@ -14,24 +14,13 @@ export function implement_POST_journals(engine: ExpressAA) {
     async fn(param: POST_journals_Req): Promise<JournalRes> {
       // Verifikasi token dan dapatkan id_user
       const { authorization } = param.headers;
-      const token = verifyToken(authorization);
+      const token = await verifyToken(authorization);
       if (!token) {
-        throw new Error("Unauthorized: Invalid token or missing user ID");
-      }
-      
-      const tokenString = authorization.split(' ')[1];
-    
-      const tokenRecord = await Token.findOneBy({
-        token: tokenString,
-      });
-
-      if (!tokenRecord) {
-       throw new Error("Unauthorized: Token not found");
+        throw new Error("Unauthorized: Invalid token or missing user ID ");
       }
 
-      const id_user = tokenRecord.id_user;
+      const id_user = Number(token);
 
-      // Validasi payload
       const {
         nomor_bukti,
         date,

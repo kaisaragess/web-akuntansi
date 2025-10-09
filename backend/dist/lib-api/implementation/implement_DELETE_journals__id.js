@@ -21,7 +21,7 @@ function implement_DELETE_journals__id(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
                 const { authorization } = param.headers;
-                const authheader = (0, verifyToken_1.verifyToken)(authorization);
+                const authheader = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!authheader) {
                     throw new Error("Unauthorized: Invalid token");
                 }

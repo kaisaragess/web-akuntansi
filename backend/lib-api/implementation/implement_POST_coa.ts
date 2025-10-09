@@ -19,19 +19,6 @@ export function implement_POST_coa(engine: ExpressAA) {
       if (!Token) { // Pengecekan keamanan
         throw new Error("Unauthorized: Invalid token or missing user ID");
       }
-      
-  
-      // const tokenString = authorization.split(' ')[1];
-    
-      // const tokenRecord = await Token.findOneBy({
-      //   token: tokenString,
-      // });
-
-      // if (!tokenRecord) {
-      //  throw new Error("Unauthorized: Token not found");
-      // }
-
-      // const id_user = token.id_user;
 
       const { 
         account, 

@@ -14,7 +14,7 @@ export function implement_GET_journals(engine: ExpressAA) {
       // 
 
       const { authorization } = param.headers;
-      const token = verifyToken(authorization);
+      const token = await verifyToken(authorization);
       if (!token) {
         throw new Error("Unauthorized: Invalid token or missing user ID");
       }
