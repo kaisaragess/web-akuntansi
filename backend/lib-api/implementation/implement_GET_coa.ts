@@ -29,11 +29,6 @@ export function implement_GET_coa(engine: ExpressAA) {
           take,
           skip, 
           order: {id: 'DESC'}
-          // relations: {
-          //    // Jika Anda ingin mengambil data User yang membuat Coa
-          //    // Pastikan 'created_by' adalah relasi ke tabel 'User' di model Coa Anda
-          //    // user: true, 
-          // }
         });
         
         return coaRecords; 

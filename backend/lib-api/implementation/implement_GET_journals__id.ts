@@ -22,7 +22,8 @@ export function implement_GET_journals__id(engine: ExpressAA) {
         throw new Error("Bad Request: Missing Journal ID");
       }
 
-      const existingJournal = await Journals.findOneBy({ 
+      try {
+        const existingJournal = await Journals.findOneBy({ 
         id: Number(id)
       });
 
@@ -54,8 +55,13 @@ export function implement_GET_journals__id(engine: ExpressAA) {
           code_account: entry.code_account,
           debit: entry.debit,
           credit: entry.credit
-        })) // Placeholder, implement fetching entries if needed
-      }; // Kembalikan detail jurnal yang ditemukan
+        }))
+      }; 
+      } catch (error) {
+        throw new Error('Gagal mendapatkan detail jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
+
+      
     }
   });
 }

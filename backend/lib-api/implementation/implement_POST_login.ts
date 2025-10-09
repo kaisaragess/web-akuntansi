@@ -25,11 +25,9 @@ export function implement_POST_login(engine: ExpressAA) {
       const JWT_SECRET = process.env.JWT_SECRET || 'kunci_rahasia_yang_sangat_aman_dan_panjang_sekali_123!@#';
 
       const jwtToken = jwt.sign({ 
-        // ARGUMEN 1: PAYLOAD
         id: foundUser.id,
         username: foundUser.username}, 
-        JWT_SECRET, // ARGUMEN 2: KUNCI RAHASIA (SECRET)
-        // ARGUMEN 3 (OPSIONAL): OPSI SEPERTI MASA BERLAKU (expiresIn)
+        JWT_SECRET
         )
 
       const newToken        = new Token();

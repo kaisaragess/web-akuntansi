@@ -29,7 +29,8 @@ export function implement_GET_journals(engine: ExpressAA) {
       const parsedPage = page ? parseInt(page as unknown as string, 10) : 1;
       const skip = (parsedPage - 1) * take;
 
-      const JournalsRecords = await Journals.find({
+      try {
+                const JournalsRecords = await Journals.find({
         where: {} as FindOptionsWhere<Journals>, 
         take,
         skip,
@@ -56,6 +57,11 @@ export function implement_GET_journals(engine: ExpressAA) {
         });
     }
       return result;
+      } catch (error) {
+        throw new Error('Gagal mengambil daftar jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
+
+
     }
   });
 }

@@ -16,33 +16,32 @@ export function implement_PUT_coa__id(engine: ExpressAA) {
         throw new Error("Unauthorized: Invalid or missing token");
       }
 
-      // 2. Validasi Input ID
       const id = Number(param.paths.id);
       if (isNaN(id) || !Number.isInteger(id) || id <= 0) {
         throw new Error("Bad Request: Invalid ID format. Must be a positive integer.");
       }
       
-      // 3. Validasi Payload
       const payload = param.body.data;
       if (!payload || Object.keys(payload).length === 0) {
         throw new Error("Bad Request: Missing or empty payload data");
       }
 
-      // 4. Cari entitas di database
-      const coaToUpdate = await Coa.findOneBy({ id });
-      if (!coaToUpdate) {
-        throw new Error("Not Found: COA record with this ID does not exist");
-      }
-      
-      if (payload.code_account) coaToUpdate.code_account = payload.code_account;
-      if (payload.account) coaToUpdate.account = payload.account;
-      if (payload.jenis) coaToUpdate.jenis = payload.jenis;
-      if (payload.normal_balance) coaToUpdate.normal_balance = payload.normal_balance as 'Debit' | 'Kredit';
+      try {
+        const coaToUpdate = await Coa.findOneBy({ id });
+        if (!coaToUpdate) {
+          throw new Error("Not Found: COA record with this ID does not exist");
+        }
+        
+        if (payload.code_account) coaToUpdate.code_account = payload.code_account;
+        if (payload.account) coaToUpdate.account = payload.account;
+        if (payload.jenis) coaToUpdate.jenis = payload.jenis;
+        if (payload.normal_balance) coaToUpdate.normal_balance = payload.normal_balance as 'Debit' | 'Kredit';
 
-    
-      // 5. Simpan perubahan ke database
-      const updatedCoa = await Coa.save(coaToUpdate);
-      return updatedCoa;
+        const updatedCoa = await Coa.save(coaToUpdate);
+        return updatedCoa; 
+      } catch (error) {
+        throw new Error('Gagal memperbarui Chart of Account (Coa).' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
     }
   });
 }
