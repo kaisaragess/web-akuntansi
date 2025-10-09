@@ -23,7 +23,7 @@ function implement_POST_journals(engine) {
                 // 
                 const { authorization } = param.headers;
                 const token = (0, verifyToken_1.verifyToken)(authorization);
-                if (!token) { // Pengecekan keamanan
+                if (!token) {
                     throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
                 const tokenString = authorization.split(' ')[1];
@@ -77,7 +77,7 @@ function implement_POST_journals(engine) {
                     const journalEntriesArray = entries.map(entry => {
                         const newEntry = new Journal_Entries_1.Journal_Entries();
                         newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-                        newEntry.code_coa = entry.id_coa;
+                        newEntry.code_coa = entry.code_account;
                         newEntry.debit = entry.debit;
                         newEntry.credit = entry.credit;
                         return newEntry;
@@ -96,7 +96,7 @@ function implement_POST_journals(engine) {
                     lampiran: newJournal.lampiran || '',
                     nomor_bukti: newJournal.nomor_bukti || '',
                     entries: newJournal.entries.map(e => ({
-                        id_coa: e.code_coa,
+                        code_account: e.code_coa,
                         debit: e.debit,
                         credit: e.credit
                     })),

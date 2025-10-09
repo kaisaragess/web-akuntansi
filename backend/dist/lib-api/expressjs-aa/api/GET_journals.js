@@ -26,16 +26,6 @@ __decorate([
     (0, class_validator_1.IsNumber)({}, { message: 'page must be a number (decimal)' }),
     __metadata("design:type", Number)
 ], GET_journals_Req_Query.prototype, "page", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)({ message: 'start_date must be a string' }),
-    __metadata("design:type", String)
-], GET_journals_Req_Query.prototype, "start_date", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)({ message: 'end_date must be a string' }),
-    __metadata("design:type", String)
-], GET_journals_Req_Query.prototype, "end_date", void 0);
 class GET_journals_Req_Headers {
 }
 __decorate([

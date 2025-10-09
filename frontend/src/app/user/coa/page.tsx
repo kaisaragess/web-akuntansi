@@ -54,7 +54,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     account: form.account,
                     description: form.description,
                     jenis: form.jenis,
-                    normal_balance: form.normal_balance
+                    normal_balance: form.normal_balance        
                 }
             }
         });
