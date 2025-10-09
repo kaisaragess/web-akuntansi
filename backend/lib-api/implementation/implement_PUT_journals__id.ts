@@ -85,8 +85,6 @@ export function implement_PUT_journals__id(engine: ExpressAA) {
       } catch (error) {
         throw new Error('Gagal memperbarui jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
       }
-      
-
     }
   });
 }
