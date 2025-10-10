@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn, BaseEntity } from "typeorm";
+import { UserType } from '../../model/enum/UserType'
 
 @Entity('User')
 export class User extends BaseEntity {
@@ -27,11 +28,12 @@ export class User extends BaseEntity {
   })
   password!: string;
   @Column({
-    type: 'varchar',
-    length: 20,
+    type: 'enum',
+    enum: UserType,
     nullable: false,
+    default: 'user',
   })
-  role!: string;
+  role!: UserType;
   @Column({
     type: 'timestamp',
     nullable: false,

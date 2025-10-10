@@ -8,22 +8,54 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_journals = implement_POST_journals;
 const data_source_1 = require("../../data-source");
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
-const Token_1 = require("../model/table/Token");
+const multer_1 = __importDefault(require("multer"));
+// const uploadDir = './uploads/attachments/';
+// fs.mkdirSync(uploadDir, { recursive: true });
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, uploadDir);
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+//     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+//   }
+// });
+// const upload = multer({ storage: storage });
+// // Asumsi HttpError sudah didefinisikan
+// class HttpError extends Error {
+//   constructor(public statusCode: number, message: string) {
+//     super(message);
+//   }
+// }
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // Batas ukuran file 5MB (opsional)
+});
+// Asumsi HttpError sudah didefinisikan
+class HttpError extends Error {
+    constructor(statusCode, message) {
+        super(message);
+        this.statusCode = statusCode;
+    }
+}
 function implement_POST_journals(engine) {
     engine.implement({
         endpoint: 'POST /journals',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // 
+                // Verifikasi token dan dapatkan id_user
                 const { authorization } = param.headers;
                 const token = (0, verifyToken_1.verifyToken)(authorization);
-                if (!token) {
+                if (!token) { // Pengecekan keamanan
                     throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
                 const tokenString = authorization.split(' ')[1];
@@ -77,7 +109,7 @@ function implement_POST_journals(engine) {
                     const journalEntriesArray = entries.map(entry => {
                         const newEntry = new Journal_Entries_1.Journal_Entries();
                         newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-                        newEntry.code_coa = entry.code_account;
+                        newEntry.code_coa = entry.id_coa;
                         newEntry.debit = entry.debit;
                         newEntry.credit = entry.credit;
                         return newEntry;
@@ -96,7 +128,7 @@ function implement_POST_journals(engine) {
                     lampiran: newJournal.lampiran || '',
                     nomor_bukti: newJournal.nomor_bukti || '',
                     entries: newJournal.entries.map(e => ({
-                        code_account: e.code_coa,
+                        id_coa: e.code_coa,
                         debit: e.debit,
                         credit: e.credit
                     })),

@@ -25,15 +25,14 @@ function implement_POST_login(engine) {
                 const { username, password } = param.body;
                 const foundUser = yield User_1.User.findOne({ where: { username } });
                 if (!foundUser) {
-                    throw new Error("User not found");
+                    throw new Error("Username atau Password doesn't match");
                 }
                 const match = yield bcrypt_1.default.compare(password, foundUser.password);
                 if (!match) {
-                    throw new Error("Password doesn't match");
+                    throw new Error("Username atau Password doesn't match");
                 }
                 const JWT_SECRET = process.env.JWT_SECRET || 'kunci_rahasia_yang_sangat_aman_dan_panjang_sekali_123!@#';
                 const jwtToken = jsonwebtoken_1.default.sign({
-                    // ARGUMEN 1: PAYLOAD
                     id: foundUser.id,
                     username: foundUser.username
                 }, JWT_SECRET);

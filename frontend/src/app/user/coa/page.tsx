@@ -26,7 +26,6 @@ const CoaPage = () => {
     normal_balance: "",
   });
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState("");
 
   function handleChange(

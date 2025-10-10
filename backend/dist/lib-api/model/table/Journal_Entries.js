@@ -39,17 +39,17 @@ __decorate([
 ], Journal_Entries.prototype, "id_journal", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Coa_1.Coa, x => x.code_account, { nullable: false }),
-    (0, typeorm_1.JoinColumn)({ name: 'code_coa' }),
+    (0, typeorm_1.JoinColumn)({ name: 'code_account' }),
     __metadata("design:type", Coa_1.Coa)
-], Journal_Entries.prototype, "otm_code_coa", void 0);
+], Journal_Entries.prototype, "otm_code_account", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        name: 'code_coa',
+        name: 'code_account',
         type: 'varchar',
         nullable: false,
     }),
     __metadata("design:type", String)
-], Journal_Entries.prototype, "code_coa", void 0);
+], Journal_Entries.prototype, "code_account", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'bigint',

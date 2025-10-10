@@ -10,7 +10,6 @@
     "generate-migration": "npm run typeorm migration:generate -- $1 -d ./data-source.ts",
     "migrate": "npm run typeorm migration:run -- -d ./data-source.ts",
     "dev": "npx tsc && node dist"
-
   },
   "keywords": [],
   "author": "",
@@ -21,6 +20,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.6.2",
     "typescript": "^5.8.3"
   },
@@ -31,7 +31,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "googleapis": "^161.0.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",

@@ -7,21 +7,31 @@ export function implement_GET_coa__id(engine: ExpressAA) {
   engine.implement({
     endpoint: 'GET /coa/:id',
     async fn(param: GET_coa__id_Req): Promise<Coa> {
+
        const { authorization } = param.headers;
        const user = await verifyToken(authorization);
       if (!user) {
         throw new Error("Unauthorized");
       }
       const coaId = param.paths.id;
-      const detailCoa = await Coa.findOne({
-        where: { id: coaId },
-      });
-
-      if (!detailCoa) {
-        throw new Error(`Coa with id ${coaId} not found`);
+      if (!coaId) {
+        throw new Error("Bad Request: Missing Coa ID");
       }
 
-      return detailCoa; // Kembalikan detail Coa yang ditemukan
+      try {
+            const detailCoa = await Coa.findOne({
+            where: { id: coaId },
+            });
+
+            if (!detailCoa) {
+              throw new Error(`Coa with id ${coaId} not found`);
+            }
+
+            return detailCoa;
+      } catch (error) {
+            throw new Error('Failed to retrieve Coa details.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
+      
     }
   });
 }

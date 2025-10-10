@@ -21,7 +21,7 @@ function implement_DELETE_journals__id(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
                 const { authorization } = param.headers;
-                const authheader = (0, verifyToken_1.verifyToken)(authorization);
+                const authheader = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!authheader) {
                     throw new Error("Unauthorized: Invalid token");
                 }
@@ -29,31 +29,33 @@ function implement_DELETE_journals__id(engine) {
                 if (!id) {
                     throw new Error("Bad Request: Missing Journal ID");
                 }
-                const journalToDelete = yield Journals_1.Journals.findOneBy({ id: Number(id) });
-                if (!journalToDelete) {
-                    throw new Error("Not Found: Journal record does not exist");
-                }
-                yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
-                    // Langkah A: Cari jurnal utama
-                    const journalToDelete = yield transactionalEntityManager.findOne(Journals_1.Journals, { where: { id } });
+                try {
+                    const journalToDelete = yield Journals_1.Journals.findOneBy({ id: Number(id) });
                     if (!journalToDelete) {
-                        throw new Error("Not Found: Journal with this ID does not exist");
+                        throw new Error("Not Found: Journal record does not exist");
                     }
-                    // Langkah B: Hapus semua Journal_Entries yang terkait terlebih dahulu
-                    yield transactionalEntityManager.delete(Journal_Entries_1.Journal_Entries, { id_journal: id });
-                    // Langkah C: Setelah "anak"-nya hilang, baru hapus "induk"-nya
-                    yield transactionalEntityManager.remove(Journals_1.Journals, journalToDelete);
-                }));
-                return {
-                    id: journalToDelete.id,
-                    id_user: journalToDelete.id_user,
-                    nomor_bukti: journalToDelete.nomor_bukti,
-                    date: journalToDelete.date.toISOString(),
-                    description: journalToDelete.description,
-                    lampiran: journalToDelete.lampiran,
-                    referensi: journalToDelete.referensi,
-                    entries: [] // Entries dihapus bersama jurnal, jadi dikembalikan sebagai array kosong
-                };
+                    yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
+                        const journalToDelete = yield transactionalEntityManager.findOne(Journals_1.Journals, { where: { id } });
+                        if (!journalToDelete) {
+                            throw new Error("Not Found: Journal with this ID does not exist");
+                        }
+                        yield transactionalEntityManager.delete(Journal_Entries_1.Journal_Entries, { id_journal: id });
+                        yield transactionalEntityManager.remove(Journals_1.Journals, journalToDelete);
+                    }));
+                    return {
+                        id: journalToDelete.id,
+                        id_user: journalToDelete.id_user,
+                        nomor_bukti: journalToDelete.nomor_bukti,
+                        date: journalToDelete.date.toISOString(),
+                        description: journalToDelete.description,
+                        lampiran: journalToDelete.lampiran,
+                        referensi: journalToDelete.referensi,
+                        entries: []
+                    };
+                }
+                catch (error) {
+                    throw new Error('Gagal menghapus jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
+                }
             });
         }
     });

@@ -5,6 +5,7 @@ import { GET_journals_Req } from '../expressjs-aa/api/GET_journals';
 import { Journals } from "../model/table/Journals";
 import { JournalRes } from '../ts-schema/JournalRes'
 import { Journal_Entries } from "../model/table/Journal_Entries";
+import { off } from "process";
 
 export function implement_GET_journals(engine: ExpressAA) {
   engine.implement({
@@ -12,8 +13,55 @@ export function implement_GET_journals(engine: ExpressAA) {
     async fn(param: GET_journals_Req): Promise<JournalRes[]> {
       // 
 
+      const { authorization } = param.headers;
+      const token = await verifyToken(authorization);
+      if (!token) {
+        throw new Error("Unauthorized: Invalid token or missing user ID");
+      }
+
+      const { limit, page } = param.query as {
+        limit?: number;
+        page?: number;
+      }
       
-      return {} as any; // Placeholder, implement fetching journals if needed
+      // Pagination
+      const take = limit ? parseInt(limit as unknown as string, 10) : 10;
+      const parsedPage = page ? parseInt(page as unknown as string, 10) : 1;
+      const skip = (parsedPage - 1) * take;
+
+      try {
+                const JournalsRecords = await Journals.find({
+        where: {} as FindOptionsWhere<Journals>, 
+        take,
+        skip,
+        order: { date: 'DESC' } 
+      });
+
+      const result: JournalRes[] = [];
+
+      for (const journal of JournalsRecords) {
+        const entries = await Journal_Entries.find({
+          where: { id_journal: journal.id },
+          relations: {"otm_id_journal": true}
+        });
+
+        result.push({
+          id: journal.id, 
+          id_user: journal.id_user,
+          date: journal.date.toISOString().split('T')[0],
+          description: journal.description || '',
+          referensi: journal.referensi || '',
+          lampiran: journal.lampiran || '',
+          nomor_bukti: journal.nomor_bukti || '',
+          entries: entries
+        });
+    }
+      return result;
+      } catch (error) {
+        throw new Error('Gagal mengambil daftar jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
+
+
     }
   });
 }

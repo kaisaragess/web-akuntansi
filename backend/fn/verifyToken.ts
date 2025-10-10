@@ -7,6 +7,10 @@ export async function verifyToken(authorization: string) {
     }
     
     const rawToken = authorization.replace("Bearer", " ");
+    // const rawToken = authorization.split(' ')[1];
+    if (!rawToken) {
+        throw new Error("token missing");
+    }
 
     const userToken = await Token.findOne({
         where: { token: rawToken },

@@ -19,13 +19,14 @@ function implement_POST_coa(engine) {
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 const { authorization } = param.headers;
-                const user = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!user) {
+                const token = yield (0, verifyToken_1.verifyToken)(authorization);
+                if (!token) {
                     throw new Error("Unauthorized");
                 }
                 if (!Token_1.Token) { // Pengecekan keamanan
                     throw new Error("Unauthorized: Invalid token or missing user ID");
                 }
+<<<<<<< HEAD
                 const tokenString = authorization.split(' ')[1];
                 const tokenRecord = yield Token_1.Token.findOneBy({
                     token: tokenString,
@@ -34,6 +35,8 @@ function implement_POST_coa(engine) {
                     throw new Error("Unauthorized: Token not found");
                 }
                 const id_user = tokenRecord.id_user;
+=======
+>>>>>>> 487b8c74a18ea7d1641d621ef14edfd600a85697
                 const { account, code_account, jenis, description, normal_balance, } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
                 try {
                     const newCoa = new Coa_1.Coa();
@@ -42,7 +45,11 @@ function implement_POST_coa(engine) {
                     newCoa.jenis = jenis;
                     newCoa.description = description;
                     newCoa.normal_balance = normal_balance;
+<<<<<<< HEAD
                     // newCoa.created_by = id_user;
+=======
+                    newCoa.created_by = token;
+>>>>>>> 487b8c74a18ea7d1641d621ef14edfd600a85697
                     yield newCoa.save();
                     return {
                         account,

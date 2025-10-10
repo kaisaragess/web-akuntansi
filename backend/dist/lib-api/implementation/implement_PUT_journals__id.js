@@ -21,7 +21,7 @@ function implement_PUT_journals__id(engine) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
                 const { authorization } = param.headers;
-                const token = (0, verifyToken_1.verifyToken)(authorization);
+                const token = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!token) {
                     throw new Error("Unauthorized: Missing token");
                 }
@@ -29,7 +29,6 @@ function implement_PUT_journals__id(engine) {
                 if (isNaN(id) || id <= 0) {
                     throw new Error("Bad Request: Invalid Journal ID format");
                 }
-                // 2. Validasi Payload
                 const payload = param.body;
                 if (!payload || !payload.nomor_bukti || !payload.date || !payload.entries) {
                     throw new Error("Bad Request: nomor_bukti, date, and entries are required");
@@ -56,7 +55,7 @@ function implement_PUT_journals__id(engine) {
                     const newEntries = payload.entries.map(entry => {
                         const newEntry = new Journal_Entries_1.Journal_Entries();
                         newEntry.id_journal = id; // Gunakan ID jurnal yang ada
-                        newEntry.code_coa = entry.code_account;
+                        newEntry.code_coa = entry.id_coa;
                         newEntry.debit = entry.debit;
                         newEntry.credit = entry.credit;
                         return newEntry;
@@ -81,7 +80,7 @@ function implement_PUT_journals__id(engine) {
                     referensi: updatedJournal.referensi || '',
                     lampiran: updatedJournal.lampiran || '',
                     entries: updatedJournal.entries.map(e => ({
-                        code_account: e.code_coa,
+                        id_coa: e.code_coa,
                         debit: e.debit,
                         credit: e.credit
                     })),

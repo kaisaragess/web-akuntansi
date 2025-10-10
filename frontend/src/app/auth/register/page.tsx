@@ -25,7 +25,7 @@ const RegisterPage = () => {
     e.preventDefault();
 
     // Validasi input
-    if (!form.fullname || !form.username || !form.password || !form.role) {
+    if (!form.fullname || !form.username || !form.password ) {
       setError("Semua field wajib diisi!");
       return;
     }
@@ -93,16 +93,6 @@ const RegisterPage = () => {
           value={form.password}
           className="w-full p-2 border border-gray-300 rounded"
         />
-        <select
-          name="role"
-          onChange={handleChange}
-          value={form.role}
-          className="w-full p-2 border border-gray-300 rounded"
-        >
-          <option value="">-- Pilih Role --</option>
-          <option value="admin">Admin</option>
-          <option value="user">User</option>
-        </select>
 
         <button
           type="submit"

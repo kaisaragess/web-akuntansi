@@ -17,6 +17,10 @@ function verifyToken(authorization) {
             throw new Error("authorization header missing");
         }
         const rawToken = authorization.replace("Bearer", " ");
+        // const rawToken = authorization.split(' ')[1];
+        if (!rawToken) {
+            throw new Error("token missing");
+        }
         const userToken = yield Token_1.Token.findOne({
             where: { token: rawToken },
             relations: ["otm_id_user"],

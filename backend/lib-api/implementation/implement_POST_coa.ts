@@ -10,27 +10,15 @@ export function implement_POST_coa(engine: ExpressAA) {
   engine.implement({
     endpoint: 'POST /coa',
     async fn(param: POST_coa_Req): Promise<COAPayload> {
+      
       const { authorization } = param.headers;
-      const user = await verifyToken(authorization);
-      if (!user) {
+      const token = await verifyToken(authorization);
+      if (!token) {
         throw new Error("Unauthorized");
       }
       if (!Token) { // Pengecekan keamanan
         throw new Error("Unauthorized: Invalid token or missing user ID");
       }
-      
-  
-      const tokenString = authorization.split(' ')[1];
-    
-      const tokenRecord = await Token.findOneBy({
-        token: tokenString,
-      });
-
-      if (!tokenRecord) {
-       throw new Error("Unauthorized: Token not found");
-      }
-
-      const id_user = tokenRecord.id_user;
 
       const { 
         account, 
@@ -47,7 +35,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         newCoa.jenis = jenis;
         newCoa.description = description; 
         newCoa.normal_balance = normal_balance;
-        // newCoa.created_by = id_user;
+        newCoa.created_by = id_user;
         
         await newCoa.save();
 

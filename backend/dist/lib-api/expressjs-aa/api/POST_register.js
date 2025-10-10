@@ -29,11 +29,6 @@ __decorate([
     (0, class_validator_1.IsString)({ message: 'password must be a string' }),
     __metadata("design:type", String)
 ], POST_register_Req_Body.prototype, "password", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'role cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'role must be a string' }),
-    __metadata("design:type", String)
-], POST_register_Req_Body.prototype, "role", void 0);
 class POST_register_Req {
 }
 exports.POST_register_Req = POST_register_Req;

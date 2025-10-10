@@ -37,6 +37,7 @@ exports.AppDataSource = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const typeorm_1 = require("typeorm");
+console.log("password:", process.env.PASSWORD);
 const config = {
     type: "postgres",
     host: process.env.HOST,

@@ -10,7 +10,7 @@ export function implement_DELETE_coa__id(engine: ExpressAA) {
       // 
       
       const { authorization } = param.headers;
-      const authheader = verifyToken(authorization);
+      const authheader = await verifyToken(authorization);
       if (!authheader) {
         throw new Error("Unauthorized: Invalid token");
       }
@@ -20,15 +20,18 @@ export function implement_DELETE_coa__id(engine: ExpressAA) {
         throw new Error("Bad Request: Missing COA ID");
       }
 
-      const CoaToDelete = await Coa.findOneBy({ id: Number(id) });
-      if (!CoaToDelete) {
-        throw new Error("Not Found: COA record does not exist");
-      }
+      try {
+          const CoaToDelete = await Coa.findOneBy({ id: Number(id) });
+          if (!CoaToDelete) {
+              throw new Error("Not Found: COA record does not exist");
+          }
 
-      await Coa.remove(CoaToDelete);
+          await Coa.remove(CoaToDelete);
       
-      return CoaToDelete;
-      
+          return CoaToDelete;
+      } catch (error) {
+        throw new Error('Gagal menghapus Chart of Account (Coa).');
+      }
     }
   });
 }
