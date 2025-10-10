@@ -62,26 +62,6 @@ function implement_GET_journals__id(engine) {
                 catch (error) {
                     throw new Error('Gagal mendapatkan detail jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
                 }
-<<<<<<< HEAD
-                if (!existingJournal) {
-                    throw new Error("Not Found: Journal record does not exist");
-                }
-                return {
-                    id: existingJournal.id,
-                    id_user: existingJournal.id_user,
-                    nomor_bukti: existingJournal.nomor_bukti,
-                    date: existingJournal.date.toISOString(),
-                    description: existingJournal.description,
-                    lampiran: existingJournal.lampiran,
-                    referensi: existingJournal.referensi,
-                    entries: existingJournal_with_entries.map(entry => ({
-                        code_account: entry.code_coa,
-                        debit: entry.debit,
-                        credit: entry.credit
-                    })) // Placeholder, implement fetching entries if needed
-                }; // Kembalikan detail jurnal yang ditemukan
-=======
->>>>>>> 487b8c74a18ea7d1641d621ef14edfd600a85697
             });
         }
     });

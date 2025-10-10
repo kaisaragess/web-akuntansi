@@ -11,8 +11,7 @@ const RegisterPage = () => {
   const [form, setForm] = useState({
     fullname: "",
     username: "",
-    password: "",
-    role: ""
+    password: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,7 +40,9 @@ const RegisterPage = () => {
         body: { ...form },
       });
 
-      if (res.user) {
+      console.log("Login response:", res);
+
+      if (res) {
         alert("Register berhasil!");
         router.push("/auth/login");
       } else {

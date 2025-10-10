@@ -53,7 +53,7 @@ const CoaPage = () => {
         "POST /coa"
       ]({
         headers: {
-          authorization: `Bearer ${localStorage.getItem("Token") || ""}`,
+          authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
         body: {
           data: {

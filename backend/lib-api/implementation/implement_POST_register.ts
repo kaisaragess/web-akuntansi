@@ -13,7 +13,7 @@ export function implement_POST_register(engine: ExpressAA) {
       const { fullname, username, password } = param.body;
       
       if (!fullname || !username || !password) {
-        throw new Error("fullname, username, password, role are required");
+        throw new Error("fullname, username, password are required");
       }
 
       const existingUser = await User.findOneBy({ username });

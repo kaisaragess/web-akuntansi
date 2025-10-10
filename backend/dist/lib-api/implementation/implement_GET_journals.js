@@ -10,21 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_GET_journals = implement_GET_journals;
-<<<<<<< HEAD
-=======
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journals_1 = require("../model/table/Journals");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
->>>>>>> 487b8c74a18ea7d1641d621ef14edfd600a85697
 function implement_GET_journals(engine) {
     engine.implement({
         endpoint: 'GET /journals',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
-<<<<<<< HEAD
-                return {}; // Placeholder, implement fetching journals if needed
-=======
                 const { authorization } = param.headers;
                 const token = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!token) {
@@ -64,7 +58,6 @@ function implement_GET_journals(engine) {
                 catch (error) {
                     throw new Error('Gagal mengambil daftar jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
                 }
->>>>>>> 487b8c74a18ea7d1641d621ef14edfd600a85697
             });
         }
     });

@@ -24,7 +24,7 @@ function implement_POST_register(engine) {
                 // register user dengan  username,  password
                 const { fullname, username, password } = param.body;
                 if (!fullname || !username || !password) {
-                    throw new Error("fullname, username, password, role are required");
+                    throw new Error("fullname, username, password are required");
                 }
                 const existingUser = yield User_1.User.findOneBy({ username });
                 if (existingUser) {
