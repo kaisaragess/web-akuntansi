@@ -1,8 +1,8 @@
 import { Entry } from '../ts-schema/Entry'
 
 export class JournalRes {
-  id!: string
-  id_user!: string
+  id!: number
+  id_user!: number
   date!: string
   description?: string
   nomor_bukti!: string

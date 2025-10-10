@@ -5,5 +5,4 @@ export class COAPayload {
   jenis!: string
   description!: string
   normal_balance!: string
-  created_by!: number
 }

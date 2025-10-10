@@ -47,7 +47,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         newCoa.jenis = jenis;
         newCoa.description = description; 
         newCoa.normal_balance = normal_balance;
-        newCoa.created_by = id_user;
+        // newCoa.created_by = id_user;
         
         await newCoa.save();
 

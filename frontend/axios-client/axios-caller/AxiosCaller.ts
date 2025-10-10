@@ -12,7 +12,6 @@ import { GET_coa__id_Req } from '../axios-caller/api/GET_coa__id';
 import { PUT_coa__id_Req } from '../axios-caller/api/PUT_coa__id';
 import { DELETE_coa__id_Req } from '../axios-caller/api/DELETE_coa__id';
 import { JournalRes } from '../ts-schema/JournalRes'
-import { getJournals } from '../ts-schema/getJournals'
 import { AuthResponse } from '../ts-schema/AuthResponse'
 import { COAPayload } from '../ts-schema/COAPayload'
 import { Coa } from '../ts-model/table/Coa'
@@ -31,7 +30,7 @@ export class AxiosCaller {
         headers: param.headers as any,
       })).data
     },
-    'GET /journals': async (param: GET_journals_Req): Promise<getJournals[]> => {
+    'GET /journals': async (param: GET_journals_Req): Promise<JournalRes[]> => {
       let clean_path = '/journals';
       if (!this.axios_instance) {
         throw new Error('Axios not initialized');

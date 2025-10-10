@@ -42,6 +42,7 @@ function implement_POST_coa(engine) {
                     newCoa.jenis = jenis;
                     newCoa.description = description;
                     newCoa.normal_balance = normal_balance;
+                    // newCoa.created_by = id_user;
                     yield newCoa.save();
                     return {
                         account,

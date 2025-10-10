@@ -1,21 +1,19 @@
 "use client";
 
 import Sidebar from "@/app/components/Sidebar/page";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 import { useRouter } from "next/navigation";
 
-
-
 const CoaPage = () => {
-    const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   interface coa {
-    id: number
-    code_account: string
-    account: string
-    jenis: string
-    description: string
-    normal_balance: string
+    id: number;
+    code_account: string;
+    account: string;
+    jenis: string;
+    description: string;
+    normal_balance: string;
   }
 
   const router = useRouter();
@@ -25,50 +23,52 @@ const CoaPage = () => {
     account: "",
     jenis: "",
     description: "",
-    normal_balance: ""
-  })
+    normal_balance: "",
+  });
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState("");
 
-function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
     setForm({ ...form, [e.target.name]: e.target.value });
-}
+  }
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.account || !form.code_account || !form.description || !form.jenis || !form.normal_balance) {
-        setError("Semua field wajib di isi!");
-        return;
+    if (
+      !form.code_account ||
+      !form.account ||
+      !form.description ||
+      !form.jenis ||
+      !form.normal_balance
+    ) {
+      setError("Semua field wajib di isi!");
+      return;
     }
     setError("");
     setLoading(true);
     try {
-        setLoading(true);
-        const res = await new AxiosCaller("http://localhost:3001").call["POST /coa"]
-        ({
-            body: {
-                data: {
-                    code_account: form.code_account,
-                    account: form.account,
-                    description: form.description,
-                    jenis: form.jenis,
-                    normal_balance: form.normal_balance        
-                }
-            }
-        });
-        if (res.code_account || res.account || res.jenis || res.description || res.normal_balance) {
-            alert("COA Berhasil ditambahkan!");
-        } else {
-            setError("COA Gagal ditambahkan!");
-        }
+      const res = await new AxiosCaller("http://localhost:3001").call[
+        "POST /coa"
+      ]({
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("Token") || ""}`,
+        },
+        body: {
+          data: {
+            ...form,
+          },
+        },
+      });
+      console.log(res);
     } catch (err: any) {
-        alert("Gagal, coba cek formnya")
+      alert("Gagal, coba cek formnya");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-}
+  };
 
   return (
     <>
@@ -119,8 +119,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <tr>
                     <td>141 Mesin yang tidak digunakan</td>
                   </tr>
-
-
                 </tbody>
               </table>
             </div>
@@ -159,7 +157,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <tr>
                     <td>301 Modal/ekuitas pemilik</td>
                   </tr>
-
                 </tbody>
               </table>
               <table className="w-xs border-collapse border border-gray-300 shadow-xl mt-3">
@@ -227,53 +224,45 @@ const handleSubmit = async (e: React.FormEvent) => {
                     Code Account
                   </label>
                   <input
-                    type="text"
+                    name="code_account"
                     value={form.code_account}
-                    onChange={(e) =>
-                      setForm({ ...form, code_account: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="border border-black rounded p-2 bg-white"
                     placeholder="Contoh: 101"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">
-                    Account
-                  </label>
+                  <label className="text-sm font-semibold mb-2">Account</label>
                   <input
-                    type="text"
+                    name="account"
                     value={form.account}
-                    onChange={(e) =>
-                      setForm({ ...form, account: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="border border-black rounded p-2 bg-white"
                     placeholder="Contoh: Kas"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">
-                    Jenis
-                  </label>
-                  <input
-                    type="text"
+                  <label className="text-sm font-semibold mb-2">Jenis</label>
+                  <select
+                    name="jenis"
                     value={form.jenis}
-                    onChange={(e) =>
-                      setForm({ ...form, jenis: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="border border-black rounded p-2 bg-white"
-                    placeholder="Contoh: Debit"
-                  />
+                  >
+                    <option value="">-- Pilih Jenis --</option>
+                    <option value="category">Category</option>
+                    <option value="sub-category">Sub Category</option>
+                    <option value="detail">Detail</option>
+                  </select>
                 </div>
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold mb-2">
                     Description
                   </label>
                   <input
-                    type="text"
+                    name="description"
                     value={form.description}
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="border border-black rounded p-2 bg-white"
                     placeholder="Contoh: Kas Masuk Baru"
                   />
@@ -282,15 +271,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <label className="text-sm font-semibold mb-2">
                     Normal Balance
                   </label>
-                  <input
-                    type="text"
+                  <select
+                    name="normal_balance"
                     value={form.normal_balance}
-                    onChange={(e) =>
-                      setForm({ ...form, normal_balance: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="border border-black rounded p-2 bg-white"
-                    placeholder="Contoh: Ini adalah Debit"
-                  />
+                  >
+                    <option value="">-- Pilih Normal Balance --</option>
+                    <option value="debit">Debit</option>
+                    <option value="kredit">Kredit</option>
+                  </select>
                 </div>
               </div>
               <div className="flex justify-end gap-4 mt-3">
