@@ -7,11 +7,53 @@ import { Journals } from "../model/table/Journals";
 import { Token } from "../model/table/Token";
 import { Entry } from '../ts-schema/Entry'
 import { JournalRes } from '../ts-schema/JournalRes'
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { uploadToGoogleDrive } from "../../fn/uploadToGoogleDrive";
+
+// const uploadDir = './uploads/attachments/';
+// fs.mkdirSync(uploadDir, { recursive: true });
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, uploadDir);
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+//     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+//   }
+// });
+
+// const upload = multer({ storage: storage });
+
+// // Asumsi HttpError sudah didefinisikan
+// class HttpError extends Error {
+//   constructor(public statusCode: number, message: string) {
+//     super(message);
+//   }
+// }
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // Batas ukuran file 5MB (opsional)
+});
+
+// Asumsi HttpError sudah didefinisikan
+class HttpError extends Error {
+  constructor(public statusCode: number, message: string) {
+    super(message);
+  }
+}
 
 export function implement_POST_journals(engine: ExpressAA) {
   engine.implement({
     endpoint: 'POST /journals',
     async fn(param: POST_journals_Req): Promise<JournalRes> {
+
+
+
+
       // Verifikasi token dan dapatkan id_user
       const { authorization } = param.headers;
       const token = await verifyToken(authorization);
@@ -60,6 +102,12 @@ export function implement_POST_journals(engine: ExpressAA) {
         if (totalDebit === 0) {
           throw new Error("Bad Request: Journal entries cannot have zero total value");
         }
+
+        // upload
+        // let attachmentId: string | null = null;
+        // if (param.body.lampiran) {
+        //   attachmentId = await uploadToGoogleDrive(param.body.lampiran);
+        // }
 
         // Simpan ke database menggunakan transaksi
         const newJournal = await AppDataSource.manager.transaction(async (transactionalEntityManager) => {

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const UserType_1 = require("../../model/enum/UserType");
 let User = class User extends typeorm_1.BaseEntity {
 };
 exports.User = User;
@@ -48,9 +49,10 @@ __decorate([
 ], User.prototype, "password", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'varchar',
-        length: 20,
+        type: 'enum',
+        enum: UserType_1.UserType,
         nullable: false,
+        default: 'user',
     }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);

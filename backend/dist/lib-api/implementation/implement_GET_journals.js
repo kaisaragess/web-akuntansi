@@ -29,30 +29,35 @@ function implement_GET_journals(engine) {
                 const take = limit ? parseInt(limit, 10) : 10;
                 const parsedPage = page ? parseInt(page, 10) : 1;
                 const skip = (parsedPage - 1) * take;
-                const JournalsRecords = yield Journals_1.Journals.find({
-                    where: {},
-                    take,
-                    skip,
-                    order: { date: 'DESC' }
-                });
-                const result = [];
-                for (const journal of JournalsRecords) {
-                    const entries = yield Journal_Entries_1.Journal_Entries.find({
-                        where: { id_journal: journal.id },
-                        relations: { "otm_id_journal": true }
+                try {
+                    const JournalsRecords = yield Journals_1.Journals.find({
+                        where: {},
+                        take,
+                        skip,
+                        order: { date: 'DESC' }
                     });
-                    result.push({
-                        id: journal.id,
-                        id_user: journal.id_user,
-                        date: journal.date.toISOString().split('T')[0],
-                        description: journal.description || '',
-                        referensi: journal.referensi || '',
-                        lampiran: journal.lampiran || '',
-                        nomor_bukti: journal.nomor_bukti || '',
-                        entries: entries
-                    });
+                    const result = [];
+                    for (const journal of JournalsRecords) {
+                        const entries = yield Journal_Entries_1.Journal_Entries.find({
+                            where: { id_journal: journal.id },
+                            relations: { "otm_id_journal": true }
+                        });
+                        result.push({
+                            id: journal.id,
+                            id_user: journal.id_user,
+                            date: journal.date.toISOString().split('T')[0],
+                            description: journal.description || '',
+                            referensi: journal.referensi || '',
+                            lampiran: journal.lampiran || '',
+                            nomor_bukti: journal.nomor_bukti || '',
+                            entries: entries
+                        });
+                    }
+                    return result;
                 }
-                return result;
+                catch (error) {
+                    throw new Error('Gagal mengambil daftar jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
+                }
             });
         }
     });

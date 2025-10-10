@@ -23,13 +23,21 @@ function implement_GET_coa__id(engine) {
                     throw new Error("Unauthorized");
                 }
                 const coaId = param.paths.id;
-                const detailCoa = yield Coa_1.Coa.findOne({
-                    where: { id: coaId },
-                });
-                if (!detailCoa) {
-                    throw new Error(`Coa with id ${coaId} not found`);
+                if (!coaId) {
+                    throw new Error("Bad Request: Missing Coa ID");
                 }
-                return detailCoa; // Kembalikan detail Coa yang ditemukan
+                try {
+                    const detailCoa = yield Coa_1.Coa.findOne({
+                        where: { id: coaId },
+                    });
+                    if (!detailCoa) {
+                        throw new Error(`Coa with id ${coaId} not found`);
+                    }
+                    return detailCoa;
+                }
+                catch (error) {
+                    throw new Error('Failed to retrieve Coa details.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
+                }
             });
         }
     });

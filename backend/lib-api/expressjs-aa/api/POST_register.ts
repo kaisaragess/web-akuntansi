@@ -1,4 +1,4 @@
-import { AuthResponse } from '../../ts-schema/AuthResponse'
+import { User } from '../../ts-model/table/User'
 import { Utility } from '../Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator";
@@ -13,9 +13,6 @@ class POST_register_Req_Body {
   @IsNotEmpty({ message: 'password cannot be empty' })
   @IsString({ message: 'password must be a string' })
   password!: string
-  @IsNotEmpty({ message: 'role cannot be empty' })
-  @IsString({ message: 'role must be a string' })
-  role!: string
 }
 
 export class POST_register_Req {
@@ -24,5 +21,5 @@ export class POST_register_Req {
 }
 export interface POST_register {
   endpoint: 'POST /register'
-  fn: (param: POST_register_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<AuthResponse>
+  fn: (param: POST_register_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<User>
 }
