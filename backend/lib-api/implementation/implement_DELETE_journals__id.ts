@@ -58,3 +58,13 @@ export function implement_DELETE_journals__id(engine: ExpressAA) {
     }
   });
 }
+
+
+
+
+
+
+
+
+
+
