@@ -20,21 +20,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gray-900 shadow-md fixed w-full top-0 left-0 z-50">
+    <nav className="bg-stone-900 shadow-md fixed w-full top-0 left-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="text-2xl font-bold text-white">
-          Kas<span className="text-lime-500 ">ku:)</span>
+          Kas<span className="text-green-500 ">ku:)</span>
         </div>
         <ul className="flex space-x-3 text-white">
           <li>
-            <Link href="/" className="text-xm hover:text-lime-500">
+            <Link href="/" className="text-xm hover:text-green-800">
               Home
             </Link>
           </li>
           <li>
             <Link
               href="/user/order"
-              className="text-xm mx-2 hover:text-lime-500"
+              className="text-xm mx-2 hover:text-green-800"
             >
               About
             </Link>
@@ -53,7 +53,7 @@ const Navbar = () => {
             <li>
               <Link
                 href="auth\login"
-                className="text-xm px-4 py-2  text-white transition duration-200 rounded-lg bg-lime-600  hover:bg-lime-800"
+                className="text-xm px-4 py-2  text-white transition duration-200 rounded-lg bg-green-500  hover:bg-green-800"
               >
                 Log in
               </Link>

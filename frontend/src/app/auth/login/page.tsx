@@ -36,6 +36,7 @@ const LoginPage = () => {
         },
       });
 
+      localStorage.setItem("token", res.token); 
       if (res.user) {
         alert("Login berhasil!");
         router.push("/user/dashboard");

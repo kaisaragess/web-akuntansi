@@ -8,45 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_journals = implement_POST_journals;
 const data_source_1 = require("../../data-source");
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
-const multer_1 = __importDefault(require("multer"));
-// const uploadDir = './uploads/attachments/';
-// fs.mkdirSync(uploadDir, { recursive: true });
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, uploadDir);
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-//     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-//   }
-// });
-// const upload = multer({ storage: storage });
-// // Asumsi HttpError sudah didefinisikan
-// class HttpError extends Error {
-//   constructor(public statusCode: number, message: string) {
-//     super(message);
-//   }
-// }
-const upload = (0, multer_1.default)({
-    storage: multer_1.default.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 }, // Batas ukuran file 5MB (opsional)
-});
-// Asumsi HttpError sudah didefinisikan
-class HttpError extends Error {
-    constructor(statusCode, message) {
-        super(message);
-        this.statusCode = statusCode;
-    }
-}
 function implement_POST_journals(engine) {
     engine.implement({
         endpoint: 'POST /journals',
@@ -87,11 +54,6 @@ function implement_POST_journals(engine) {
                     if (totalDebit === 0) {
                         throw new Error("Bad Request: Journal entries cannot have zero total value");
                     }
-                    // upload
-                    // let attachmentId: string | null = null;
-                    // if (param.body.lampiran) {
-                    //   attachmentId = await uploadToGoogleDrive(param.body.lampiran);
-                    // }
                     // Simpan ke database menggunakan transaksi
                     const newJournal = yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
                         const journal = new Journals_1.Journals();

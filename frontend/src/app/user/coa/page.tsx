@@ -1,13 +1,12 @@
 "use client";
 
-import Sidebar from "@/app/components/Sidebar/page";
 import React, { useEffect, useState } from "react";
-import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/app/components/Sidebar/page";
+import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 const CoaPage = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  interface coa {
+  interface Coa {
     id: number;
     code_account: string;
     account: string;
@@ -16,8 +15,10 @@ const CoaPage = () => {
     normal_balance: string;
   }
 
-  const router = useRouter();
-  const [coa, setCoa] = useState<coa[]>([]);
+  const [coaList, setCoaList] = useState<Coa[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     code_account: "",
     account: "",
@@ -25,17 +26,47 @@ const CoaPage = () => {
     description: "",
     normal_balance: "",
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
+  const router = useRouter();
+
+  // ========================= FETCH DATA =========================
+  const fetchCoa = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Token tidak ditemukan. Silakan login ulang.");
+      router.push("/auth/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await new AxiosCaller("http://localhost:3001").call["GET /coa"]({
+        headers: { authorization: token },
+        query: {},
+      });
+      setCoaList(res);
+    } catch (err) {
+      console.error("Gagal ambil data COA:", err);
+      alert("Gagal memuat data COA");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoa();
+  }, []);
+
+  // ========================= HANDLE FORM =========================
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
+
     if (
       !form.code_account ||
       !form.account ||
@@ -43,249 +74,255 @@ const CoaPage = () => {
       !form.jenis ||
       !form.normal_balance
     ) {
-      setError("Semua field wajib di isi!");
+      setError("Semua field wajib diisi!");
       return;
     }
-    setError("");
-    setLoading(true);
+
     try {
-      const res = await new AxiosCaller("http://localhost:3001").call[
-        "POST /coa"
-      ]({
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-        body: {
-          data: {
-            ...form,
-          },
-        },
+      setLoading(true);
+      await new AxiosCaller("http://localhost:3001").call["POST /coa"]({
+        headers: { authorization: token },
+        body: { data: form },
       });
-      console.log(res);
-    } catch (err: any) {
-      alert("Gagal, coba cek formnya");
+
+      alert("Akun berhasil ditambahkan!");
+      setIsOpen(false);
+      await fetchCoa();
+
+      setForm({
+        code_account: "",
+        account: "",
+        jenis: "",
+        description: "",
+        normal_balance: "",
+      });
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Gagal membuat akun, coba cek lagi!");
     } finally {
       setLoading(false);
     }
   };
 
+  // ========================= DELETE =========================
+  const handleDelete = async (id: number) => {
+    if (!confirm("Yakin ingin menghapus akun ini?")) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
+
+    try {
+      await new AxiosCaller("http://localhost:3001").call["DELETE /coa/:id"]({
+        headers: { authorization: token },
+        paths: { id },
+      });
+
+      alert("Akun berhasil dihapus!");
+      await fetchCoa();
+    } catch (err) {
+      console.error("Gagal menghapus akun:", err);
+      alert("Gagal menghapus akun!");
+    }
+  };
+
+  // ========================= RENDER =========================
   return (
     <>
       <div className="flex">
         <Sidebar />
-        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
-          <h1 className="text-2xl font-bold mb-6 bg-lime-200 p-3 flex items-center justify-center">
-            Charts of Accounts (List Akun)
-          </h1>
-          <div className="grid grid-cols-3 items-start">
-            <div>
-              <table className="w-xs border-collapse border border-gray-300 shadow-xl">
-                <thead>
-                  <tr className="bg-black text-lime-300">
-                    <th className="p-2">1 AKTIVA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="bg-lime-200">10 AKTIVA LANCAR</th>
-                  </tr>
-                  <tr>
-                    <td>101 Kas</td>
-                  </tr>
-                  <tr>
-                    <th className="bg-lime-200">11 INVESTASI JANGKA PANJANG</th>
-                  </tr>
-                  <tr>
-                    <td>111 Investasi saham</td>
-                  </tr>
-                  <tr>
-                    <th className="bg-lime-200">12 AKTIVA TETAP</th>
-                  </tr>
-                  <tr>
-                    <td>121 Peralatan</td>
-                  </tr>
-                  <tr>
-                    <th className="bg-lime-200">
-                      13 AKTIVA TETAP TIDAK BERWUJUD
-                    </th>
-                  </tr>
-                  <tr>
-                    <td>131 Hak paten</td>
-                  </tr>
-                  <tr>
-                    <th className="bg-lime-200">14 AKTIVA LAIN-LAIN</th>
-                  </tr>
-                  <tr>
-                    <td>141 Mesin yang tidak digunakan</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div>
-              <table className="w-xs border-collapse border border-gray-300 shadow-xl">
-                <thead>
-                  <tr className="bg-black text-lime-300">
-                    <th className="border border-gray-300 p-2">2 KEWAJIBAN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="bg-lime-200">20 KEWAJIBAN </th>
-                  </tr>
-                  <tr>
-                    <td>201 Utang usaha</td>
-                  </tr>
-                  <tr>
-                    <th className="bg-lime-200">21 KEWAJIBAN JANGKA PANJANG</th>
-                  </tr>
-                  <tr>
-                    <td>211 Utang hipotek</td>
-                  </tr>
-                </tbody>
-              </table>
-              <table className="w-xs border-collapse border border-gray-300 shadow-xl mt-3">
-                <thead>
-                  <tr className="bg-black text-lime-300">
-                    <th className="border border-gray-300 p-2">3 EKUITAS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="bg-lime-200">30 EKUITAS</th>
-                  </tr>
-                  <tr>
-                    <td>301 Modal/ekuitas pemilik</td>
-                  </tr>
-                </tbody>
-              </table>
-              <table className="w-xs border-collapse border border-gray-300 shadow-xl mt-3">
-                <thead>
-                  <tr className="bg-black text-lime-300">
-                    <th className="border border-gray-300 p-2">4 PENDAPATAN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="bg-lime-200">40 PENDAPATAN</th>
-                  </tr>
-                  <tr>
-                    <td>401 Pendapatan usaha</td>
-                  </tr>
-                </tbody>
-              </table>
-              <table className="w-xs border-collapse border border-gray-300 shadow-xl mt-3">
-                <thead>
-                  <tr className="bg-black text-lime-300">
-                    <th className="border border-gray-300 p-2">5 BEBAN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th className="bg-lime-200">50 BEBAN</th>
-                  </tr>
-                  <tr>
-                    <td>501 Beban gaji toko</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
 
-            <div>
-              {/* Tombol tambah akun */}
-              <button
-                onClick={() => setIsOpen(true)}
-                className="text-xs m-4 p-3 bg-lime-600 rounded-xl text-black hover:bg-lime-700 hover:text-white font-bold"
-              >
-                + add account
-              </button>
-            </div>
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold bg-green-200 px-4 py-2 rounded">
+              Charts of Accounts
+            </h1>
+
+            <button
+              onClick={() => setIsOpen(true)}
+              className="text-sm px-4 py-3 bg-green-500 rounded-xl text-white hover:bg-green-700 font-bold"
+            >
+              + Add Account
+            </button>
+          </div>
+
+          {/* === GRID DENGAN JEDA ANTAR TABEL === */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {coaList
+              .filter((item) => item.jenis === "category")
+              .map((kategori) => (
+                <div
+                  key={kategori.code_account}
+                  className="overflow-hidden rounded-xl min-w-[300px] bg-white border border-gray-300 shadow-md hover:shadow-lg transition-shadow duration-300"
+                >
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-black text-green-300 relative text-xm">
+                        <th className="p-2 text-center relative">
+                          {kategori.code_account} {kategori.account}
+                          <button
+                            onClick={() => handleDelete(kategori.id)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-600 text-lg font-bold transition-transform hover:scale-110"
+                            title="Hapus akun"
+                          >
+                            ✕
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-green-200 font-semibold text-xs">
+                      {coaList
+                        .filter(
+                          (sub) =>
+                            sub.jenis === "sub-category" &&
+                            sub.code_account.startsWith(kategori.code_account)
+                        )
+                        .map((subKategori) => (
+                          <React.Fragment key={subKategori.code_account}>
+                            <tr className="bg-green-300 text-center relative">
+                              <td className="p-2 relative">
+                                {subKategori.code_account} {subKategori.account}
+                                <button
+                                  onClick={() => handleDelete(subKategori.id)}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
+                                  title="Hapus akun"
+                                >
+                                  ✕
+                                </button>
+                              </td>
+                            </tr>
+
+                            {/* === DETAIL === */}
+                            {coaList
+                              .filter(
+                                (detail) =>
+                                  detail.jenis === "detail" &&
+                                  detail.code_account.startsWith(
+                                    subKategori.code_account
+                                  )
+                              )
+                              .map((detail) => (
+                                <tr
+                                  key={detail.code_account}
+                                  className="hover:bg-green-100 transition"
+                                >
+                                  <td className="flex justify-between items-center pl-6 pr-3 py-1 relative">
+                                    <span>
+                                      {detail.code_account} {detail.account}
+                                    </span>
+                                    <button
+                                      onClick={() => handleDelete(detail.id)}
+                                      className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
+                                      title="Hapus akun"
+                                    >
+                                      ✕
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                          </React.Fragment>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
           </div>
         </main>
       </div>
 
-      {/* Modal Tambah COA */}
-      {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 text-black">
-          <div className="bg-lime-100 rounded-xl border border-black shadow-lg p-6 w-[400px]">
+      {/* ====== MODAL TAMBAH / HAPUS ====== */}
+     {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 text-black z-50">
+          <div className="bg-green-100 rounded-xl border border-black shadow-lg p-6 w-[400px]">
+            {/* Tombol Tutup */}
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
                 className="px-2.5 py-1 rounded text-gray-600 hover:bg-red-600 hover:text-white"
               >
-                X
+                ✕
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 gap-2 ">
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">
-                    Code Account
-                  </label>
-                  <input
-                    name="code_account"
-                    value={form.code_account}
-                    onChange={handleChange}
-                    className="border border-black rounded p-2 bg-white"
-                    placeholder="Contoh: 101"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">Account</label>
-                  <input
-                    name="account"
-                    value={form.account}
-                    onChange={handleChange}
-                    className="border border-black rounded p-2 bg-white"
-                    placeholder="Contoh: Kas"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">Jenis</label>
-                  <select
-                    name="jenis"
-                    value={form.jenis}
-                    onChange={handleChange}
-                    className="border border-black rounded p-2 bg-white"
-                  >
-                    <option value="">-- Pilih Jenis --</option>
-                    <option value="category">Category</option>
-                    <option value="sub-category">Sub Category</option>
-                    <option value="detail">Detail</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">
-                    Description
-                  </label>
-                  <input
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    className="border border-black rounded p-2 bg-white"
-                    placeholder="Contoh: Kas Masuk Baru"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold mb-2">
-                    Normal Balance
-                  </label>
-                  <select
-                    name="normal_balance"
-                    value={form.normal_balance}
-                    onChange={handleChange}
-                    className="border border-black rounded p-2 bg-white"
-                  >
-                    <option value="">-- Pilih Normal Balance --</option>
-                    <option value="debit">Debit</option>
-                    <option value="kredit">Kredit</option>
-                  </select>
-                </div>
+
+            {/* Form Tambah */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="text-sm font-semibold mb-1 block">
+                  Code Account
+                </label>
+                <input
+                  name="code_account"
+                  value={form.code_account}
+                  onChange={handleChange}
+                  className="border border-black rounded p-2 w-full bg-white"
+                  placeholder="Contoh: 101"
+                />
               </div>
-              <div className="flex justify-end gap-4 mt-3">
+
+              <div>
+                <label className="text-sm font-semibold mb-1 block">
+                  Account
+                </label>
+                <input
+                  name="account"
+                  value={form.account}
+                  onChange={handleChange}
+                  className="border border-black rounded p-2 w-full bg-white"
+                  placeholder="Contoh: Kas"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold mb-1 block">
+                  Jenis
+                </label>
+                <select
+                  name="jenis"
+                  value={form.jenis}
+                  onChange={handleChange}
+                  className="border border-black rounded p-2 w-full bg-white"
+                >
+                  <option value="">-- Pilih Jenis --</option>
+                  <option value="category">Category</option>
+                  <option value="sub-category">Sub Category</option>
+                  <option value="detail">Detail</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold mb-1 block">
+                  Description
+                </label>
+                <input
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  className="border border-black rounded p-2 w-full bg-white"
+                  placeholder="Contoh: Kas Masuk Baru"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold mb-1 block">
+                  Normal Balance
+                </label>
+                <select
+                  name="normal_balance"
+                  value={form.normal_balance}
+                  onChange={handleChange}
+                  className="border border-black rounded p-2 w-full bg-white"
+                >
+                  <option value="">-- Pilih Normal Balance --</option>
+                  <option value="debit">Debit</option>
+                  <option value="kredit">Kredit</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end mt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-700 hover:text-white"
+                  className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-700 font-bold"
                 >
                   Simpan
                 </button>
