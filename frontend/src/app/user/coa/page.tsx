@@ -27,6 +27,7 @@ const CoaPage = () => {
     normal_balance: "",
   });
 
+  const [editId, setEditId] = useState<number | null>(null); // 👈 Tambahan untuk mode edit
   const router = useRouter();
 
   // ========================= FETCH DATA =========================
@@ -62,6 +63,7 @@ const CoaPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ========================= SUBMIT (POST / PUT) =========================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -80,15 +82,26 @@ const CoaPage = () => {
 
     try {
       setLoading(true);
-      await new AxiosCaller("http://localhost:3001").call["POST /coa"]({
-        headers: { authorization: token },
-        body: { data: form },
-      });
+      if (editId) {
+        // 👈 Kalau sedang edit
+        await new AxiosCaller("http://localhost:3001").call["PUT /coa/:id"]({
+          headers: { authorization: token },
+          paths: { id: editId },
+          body: { data: form },
+        });
+        alert("Akun berhasil diedit!");
+      } else {
+        // 👈 Kalau tambah baru
+        await new AxiosCaller("http://localhost:3001").call["POST /coa"]({
+          headers: { authorization: token },
+          body: { data: form },
+        });
+        alert("Akun berhasil ditambahkan!");
+      }
 
-      alert("Akun berhasil ditambahkan!");
       setIsOpen(false);
+      setEditId(null); // reset mode edit
       await fetchCoa();
-
       setForm({
         code_account: "",
         account: "",
@@ -98,7 +111,7 @@ const CoaPage = () => {
       });
     } catch (err) {
       console.error("Error:", err);
-      alert("Gagal membuat akun, coba cek lagi!");
+      alert(editId ? "Gagal mengedit akun!" : "Gagal membuat akun, coba cek lagi!");
     } finally {
       setLoading(false);
     }
@@ -125,6 +138,19 @@ const CoaPage = () => {
     }
   };
 
+  // ========================= BUKA MODAL EDIT =========================
+  const handleEdit = (coa: Coa) => {
+    setForm({
+      code_account: coa.code_account,
+      account: coa.account,
+      jenis: coa.jenis,
+      description: coa.description,
+      normal_balance: coa.normal_balance,
+    });
+    setEditId(coa.id);
+    setIsOpen(true);
+  };
+
   // ========================= RENDER =========================
   return (
     <>
@@ -137,12 +163,24 @@ const CoaPage = () => {
               Charts of Accounts
             </h1>
 
-            <button
-              onClick={() => setIsOpen(true)}
-              className="text-sm px-4 py-3 bg-green-500 rounded-xl text-white hover:bg-green-700 font-bold"
-            >
-              + Add Account
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setForm({
+                    code_account: "",
+                    account: "",
+                    jenis: "",
+                    description: "",
+                    normal_balance: "",
+                  });
+                  setEditId(null);
+                  setIsOpen(true);
+                }}
+                className="text-sm px-4 py-3 bg-green-500 rounded-xl text-white hover:bg-green-700 font-bold"
+              >
+                + Add Account
+              </button>
+            </div>
           </div>
 
           {/* === GRID DENGAN JEDA ANTAR TABEL === */}
@@ -159,13 +197,22 @@ const CoaPage = () => {
                       <tr className="bg-black text-green-300 relative text-xm">
                         <th className="p-2 text-center relative">
                           {kategori.code_account} {kategori.account}
-                          <button
-                            onClick={() => handleDelete(kategori.id)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-600 text-lg font-bold transition-transform hover:scale-110"
-                            title="Hapus akun"
-                          >
-                            ✕
-                          </button>
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                            <button
+                              onClick={() => handleEdit(kategori)}
+                              className="text-gray-400 hover:text-blue-600 text-lg font-bold transition-transform hover:scale-110"
+                              title="Edit akun"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => handleDelete(kategori.id)}
+                              className="text-gray-400 hover:text-red-600 text-lg font-bold transition-transform hover:scale-110"
+                              title="Hapus akun"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </th>
                       </tr>
                     </thead>
@@ -182,13 +229,22 @@ const CoaPage = () => {
                             <tr className="bg-green-300 text-center relative">
                               <td className="p-2 relative">
                                 {subKategori.code_account} {subKategori.account}
-                                <button
-                                  onClick={() => handleDelete(subKategori.id)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
-                                  title="Hapus akun"
-                                >
-                                  ✕
-                                </button>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+                                  <button
+                                    onClick={() => handleEdit(subKategori)}
+                                    className="text-gray-600 hover:text-blue-600 text-sm font-bold transition-transform hover:scale-110"
+                                    title="Edit akun"
+                                  >
+                                    ✎
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(subKategori.id)}
+                                    className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
+                                    title="Hapus akun"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
                               </td>
                             </tr>
 
@@ -197,9 +253,7 @@ const CoaPage = () => {
                               .filter(
                                 (detail) =>
                                   detail.jenis === "detail" &&
-                                  detail.code_account.startsWith(
-                                    subKategori.code_account
-                                  )
+                                  detail.code_account.startsWith(subKategori.code_account)
                               )
                               .map((detail) => (
                                 <tr
@@ -210,13 +264,22 @@ const CoaPage = () => {
                                     <span>
                                       {detail.code_account} {detail.account}
                                     </span>
-                                    <button
-                                      onClick={() => handleDelete(detail.id)}
-                                      className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
-                                      title="Hapus akun"
-                                    >
-                                      ✕
-                                    </button>
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleEdit(detail)}
+                                        className="text-gray-600 hover:text-blue-600 text-sm font-bold transition-transform hover:scale-110"
+                                        title="Edit akun"
+                                      >
+                                        ✎
+                                      </button>
+                                      <button
+                                        onClick={() => handleDelete(detail.id)}
+                                        className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
+                                        title="Hapus akun"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
@@ -230,22 +293,25 @@ const CoaPage = () => {
         </main>
       </div>
 
-      {/* ====== MODAL TAMBAH / HAPUS ====== */}
-     {isOpen && (
+      {/* ====== MODAL TAMBAH / EDIT ====== */}
+      {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 text-black z-50">
           <div className="bg-green-100 rounded-xl border border-black shadow-lg p-6 w-[400px]">
             {/* Tombol Tutup */}
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setEditId(null);
+                }}
                 className="px-2.5 py-1 rounded text-gray-600 hover:bg-red-600 hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            {/* Form Tambah */}
+            {/* Form Tambah / Edit */}
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="text-sm font-semibold mb-1 block">
@@ -274,9 +340,7 @@ const CoaPage = () => {
               </div>
 
               <div>
-                <label className="text-sm font-semibold mb-1 block">
-                  Jenis
-                </label>
+                <label className="text-sm font-semibold mb-1 block">Jenis</label>
                 <select
                   name="jenis"
                   value={form.jenis}
@@ -322,9 +386,11 @@ const CoaPage = () => {
               <div className="flex justify-end mt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-700 font-bold"
+                  className={`px-4 py-2 rounded ${
+                    editId ? "bg-blue-500 hover:bg-blue-700" : "bg-green-500 hover:bg-green-700"
+                  } text-white font-bold`}
                 >
-                  Simpan
+                  {editId ? "Update" : "Simpan"}
                 </button>
               </div>
             </form>
