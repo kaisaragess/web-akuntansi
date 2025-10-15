@@ -3,10 +3,14 @@
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-const Sidebar = () => {
-  const router = useRouter();
-  const pathname = usePathname(); // <-- ini ganti router.pathname
+type SidebarProps = {
+    onClose?: () => void;
+    className?: string;
+};
 
+const Sidebar: React.FC<SidebarProps> = ({ onClose, className = "" }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const handleLogout = () => {
@@ -35,9 +39,9 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="bg-black text-white w-64 min-h-screen flex flex-col">
+    <aside className="bg-stone-900 text-white w-64 min-h-screen flex flex-col">
       <div className="p-4 text-center text-xl font-bold border-b border-gray-700">
-        Kas<span className="text-lime-500">ku.)</span>
+        Kas<span className="text-green-500">ku.)</span>
       </div>
 
       <nav className="flex-1">
@@ -74,7 +78,7 @@ const Sidebar = () => {
             <button
               key={item.name}
               onClick={() => router.push(item.path)}
-              className={`flex items-center w-full px-4 py-3 text-left hover:bg-gray-800 transition ${
+              className={`flex items-center w-full px-4 py-3 text-left hover:bg-stone-400 transition ${
                 pathname === item.path ? "bg-gray-800" : ""
               }`}
             >
@@ -84,7 +88,7 @@ const Sidebar = () => {
         )}
       </nav>
 
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-stone-600">
         <button
           onClick={handleLogout}
           className="flex items-center w-full px-4 py-3 text-left hover:bg-red-600 transition"

@@ -23,7 +23,7 @@ const Navbar = () => {
     <nav className="bg-gray-900 shadow-md fixed w-full top-0 left-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="text-2xl font-bold text-white">
-          Kas<span className="text-lime-500 ">ku:)</span>
+          Kas<span className="text-green-500 ">ku:)</span>
         </div>
         <ul className="flex space-x-3 text-white">
           <li>
