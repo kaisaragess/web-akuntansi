@@ -17,7 +17,8 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", path: "/user/dashboard" },
     { name: "COA", path: "/user/coa" },
-    { name: "Jurnal Umum", path: "/user/jurnal_umum" },
+    { name: "Transaksi", path: "/user/transaction" },
+    { name: "Jurnal Umum", path: "/user/journals" },
     { name: "Buku Besar", path: "/user/buku_besar" },
     { name: "Neraca Saldo", path: "/user/neraca_saldo" },
     {

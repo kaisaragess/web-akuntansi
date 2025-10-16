@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar/page";
+import Navbar from "@/app/components/Navbar/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 const CoaPage = () => {
@@ -19,6 +20,9 @@ const CoaPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
+  const [selectedCoa, setSelectedCoa] = useState<Coa | null>(null);
   const [form, setForm] = useState({
     code_account: "",
     account: "",
@@ -26,8 +30,8 @@ const CoaPage = () => {
     description: "",
     normal_balance: "",
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
-  const [editId, setEditId] = useState<number | null>(null); // 👈 Tambahan untuk mode edit
   const router = useRouter();
 
   // ========================= FETCH DATA =========================
@@ -41,11 +45,19 @@ const CoaPage = () => {
 
     try {
       setLoading(true);
-      const res = await new AxiosCaller("http://localhost:3001").call["GET /coa"]({
+      const res = await new AxiosCaller("http://localhost:3001").call[
+        "GET /coa"
+      ]({
         headers: { authorization: token },
         query: {},
       });
-      setCoaList(res);
+
+      // ✅ Urutkan berdasarkan code_account (numerik)
+      const sortedData = [...res].sort((a, b) => {
+        return parseInt(a.code_account) - parseInt(b.code_account);
+      });
+
+      setCoaList(sortedData);
     } catch (err) {
       console.error("Gagal ambil data COA:", err);
       alert("Gagal memuat data COA");
@@ -59,7 +71,9 @@ const CoaPage = () => {
   }, []);
 
   // ========================= HANDLE FORM =========================
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -83,7 +97,6 @@ const CoaPage = () => {
     try {
       setLoading(true);
       if (editId) {
-        // 👈 Kalau sedang edit
         await new AxiosCaller("http://localhost:3001").call["PUT /coa/:id"]({
           headers: { authorization: token },
           paths: { id: editId },
@@ -91,7 +104,6 @@ const CoaPage = () => {
         });
         alert("Akun berhasil diedit!");
       } else {
-        // 👈 Kalau tambah baru
         await new AxiosCaller("http://localhost:3001").call["POST /coa"]({
           headers: { authorization: token },
           body: { data: form },
@@ -100,7 +112,7 @@ const CoaPage = () => {
       }
 
       setIsOpen(false);
-      setEditId(null); // reset mode edit
+      setEditId(null);
       await fetchCoa();
       setForm({
         code_account: "",
@@ -111,7 +123,9 @@ const CoaPage = () => {
       });
     } catch (err) {
       console.error("Error:", err);
-      alert(editId ? "Gagal mengedit akun!" : "Gagal membuat akun, coba cek lagi!");
+      alert(
+        editId ? "Gagal mengedit akun!" : "Gagal membuat akun, coba cek lagi!"
+      );
     } finally {
       setLoading(false);
     }
@@ -138,7 +152,7 @@ const CoaPage = () => {
     }
   };
 
-  // ========================= BUKA MODAL EDIT =========================
+  // ========================= BUKA EDIT =========================
   const handleEdit = (coa: Coa) => {
     setForm({
       code_account: coa.code_account,
@@ -149,6 +163,7 @@ const CoaPage = () => {
     });
     setEditId(coa.id);
     setIsOpen(true);
+    setDropdownOpen(null);
   };
 
   // ========================= RENDER =========================
@@ -156,14 +171,29 @@ const CoaPage = () => {
     <>
       <div className="flex">
         <Sidebar />
-
-        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold bg-green-200 px-4 py-2 rounded">
-              Charts of Accounts
+        <Navbar hideMenu />
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black pt-20">
+          {/* Navbar di atas */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            {/* === Judul Halaman === */}
+            <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
+              Charts of Account
             </h1>
 
-            <div className="flex gap-2">
+            {/* === Search Bar + Tombol Add === */}
+            <div className="flex items-center gap-3">
+              {/* 🔍 Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search Account..."
+                  className="border border-gray-400 rounded-lg w-64 pl-5 p-2 focus:ring-2 focus:ring-green-400 focus:outline-none placeholder:text-gray-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              {/* ➕ Tombol Add */}
               <button
                 onClick={() => {
                   setForm({
@@ -176,128 +206,177 @@ const CoaPage = () => {
                   setEditId(null);
                   setIsOpen(true);
                 }}
-                className="text-sm px-4 py-3 bg-green-500 rounded-xl text-white hover:bg-green-700 font-bold"
+                className="text-sm px-4 py-2 bg-green-600 rounded-lg text-white hover:bg-green-700 transition font-semibold shadow-md"
               >
                 + Add Account
               </button>
             </div>
           </div>
 
-          {/* === GRID DENGAN JEDA ANTAR TABEL === */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {coaList
-              .filter((item) => item.jenis === "category")
-              .map((kategori) => (
-                <div
-                  key={kategori.code_account}
-                  className="overflow-hidden rounded-xl min-w-[300px] bg-white border border-gray-300 shadow-md hover:shadow-lg transition-shadow duration-300"
-                >
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-black text-green-300 relative text-xm">
-                        <th className="p-2 text-center relative">
-                          {kategori.code_account} {kategori.account}
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-                            <button
-                              onClick={() => handleEdit(kategori)}
-                              className="text-gray-400 hover:text-blue-600 text-lg font-bold transition-transform hover:scale-110"
-                              title="Edit akun"
-                            >
-                              ✎
-                            </button>
-                            <button
-                              onClick={() => handleDelete(kategori.id)}
-                              className="text-gray-400 hover:text-red-600 text-lg font-bold transition-transform hover:scale-110"
-                              title="Hapus akun"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
+          {/* === TABEL UTAMA (Modern Soft Green Dashboard Style) === */}
+          <div className="overflow-x-auto overflow-visible relative bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-lg border border-green-100">
+            <table className="min-w-full text-sm text-black rounded-xl relative z-0">
+              <thead>
+                <tr className="bg-stone-900 border-b border-green-200 text-white">
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    No
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Kode Akun
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Nama Akun
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Jenis
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
 
-                    <tbody className="bg-green-200 font-semibold text-xs">
-                      {coaList
-                        .filter(
-                          (sub) =>
-                            sub.jenis === "sub-category" &&
-                            sub.code_account.startsWith(kategori.code_account)
-                        )
-                        .map((subKategori) => (
-                          <React.Fragment key={subKategori.code_account}>
-                            <tr className="bg-green-300 text-center relative">
-                              <td className="p-2 relative">
-                                {subKategori.code_account} {subKategori.account}
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
-                                  <button
-                                    onClick={() => handleEdit(subKategori)}
-                                    className="text-gray-600 hover:text-blue-600 text-sm font-bold transition-transform hover:scale-110"
-                                    title="Edit akun"
-                                  >
-                                    ✎
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(subKategori.id)}
-                                    className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
-                                    title="Hapus akun"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
+              <tbody>
+                {coaList
+                  .filter(
+                    (item) =>
+                      item.code_account
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                      item.account
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                  )
+                  .map((coa, index) => {
+                    let rowColor = "";
 
-                            {/* === DETAIL === */}
-                            {coaList
-                              .filter(
-                                (detail) =>
-                                  detail.jenis === "detail" &&
-                                  detail.code_account.startsWith(subKategori.code_account)
+                    // Warna baris berdasarkan jenis
+                    switch (coa.jenis) {
+                      case "category":
+                        rowColor = "bg-green-300 hover:bg-lime-200/70";
+                        break;
+                      case "sub-category":
+                        rowColor = "bg-green-200 hover:bg-lime-200/70";
+                        break;
+                      case "detail":
+                        rowColor = "bg-green-100 hover:bg-lime-200/70";
+                        break;
+                      default:
+                        rowColor = "bg-green-100 hover:bg-green-200/70";
+                    }
+
+                    return (
+                      <tr
+                        key={coa.id}
+                        className={`${rowColor} border-b border-green-200 transition-all duration-300`}
+                      >
+                        <td className="px-6 py-3 font-semibold text-gray-700">
+                          {index + 1}
+                        </td>
+                        <td className="px-6 py-3 font-semibold text-black">
+                          {coa.code_account}
+                        </td>
+                        <td className="px-6 py-3">{coa.account}</td>
+                        <td className="px-6 py-3 text-start">
+                          <button
+                            onClick={() => setSelectedCoa(coa)}
+                            className="px-3 py-1 border border-gray-400 bg-green-200 hover:bg-green-700 hover:text-white text-black text-xs font-semibold rounded-full shadow transition-all"
+                          >
+                            {coa.jenis.replace("-", " ")}
+                          </button>
+                        </td>
+
+                        <td className="px-6 py-3 text-center relative">
+                          <button
+                            onClick={() =>
+                              setDropdownOpen(
+                                dropdownOpen === coa.id ? null : coa.id
                               )
-                              .map((detail) => (
-                                <tr
-                                  key={detail.code_account}
-                                  className="hover:bg-green-100 transition"
-                                >
-                                  <td className="flex justify-between items-center pl-6 pr-3 py-1 relative">
-                                    <span>
-                                      {detail.code_account} {detail.account}
-                                    </span>
-                                    <div className="flex gap-2">
-                                      <button
-                                        onClick={() => handleEdit(detail)}
-                                        className="text-gray-600 hover:text-blue-600 text-sm font-bold transition-transform hover:scale-110"
-                                        title="Edit akun"
-                                      >
-                                        ✎
-                                      </button>
-                                      <button
-                                        onClick={() => handleDelete(detail.id)}
-                                        className="text-gray-600 hover:text-red-700 text-sm font-bold transition-transform hover:scale-110"
-                                        title="Hapus akun"
-                                      >
-                                        ✕
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                          </React.Fragment>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
+                            }
+                            className="text-green-400 hover:text-green-900 transition text-xl font-bold"
+                          >
+                            ⋮
+                          </button>
+
+                          {dropdownOpen === coa.id && (
+                            <div className="absolute right-0 mt-2 w-36 bg-white border border-green-100 rounded-2xl shadow-lg z-10 animate-fadeIn">
+                              <button
+                                onClick={() => handleEdit(coa)}
+                                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 rounded-t-2xl transition"
+                              >
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleDelete(coa.id)}
+                                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-2xl transition"
+                              >
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
           </div>
         </main>
       </div>
+
+      {/* ====== POPUP DETAIL COA ====== */}
+      {selectedCoa && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-[400px] text-black animate-fadeIn">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <h2 className="text-lg font-bold text-green-700">Detail Akun</h2>
+              <button
+                onClick={() => setSelectedCoa(null)}
+                className="text-gray-500 hover:text-red-600 text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="font-semibold">Kode Akun:</span>{" "}
+                {selectedCoa.code_account}
+              </p>
+              <p>
+                <span className="font-semibold">Nama Akun:</span>{" "}
+                {selectedCoa.account}
+              </p>
+              <p>
+                <span className="font-semibold">Jenis:</span>{" "}
+                {selectedCoa.jenis}
+              </p>
+              <p>
+                <span className="font-semibold">Normal Balance:</span>{" "}
+                {selectedCoa.normal_balance}
+              </p>
+              {/* <p>
+                <span className="font-semibold">Deskripsi:</span>{" "}
+                {selectedCoa.description || "-"}
+              </p> */}
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setSelectedCoa(null)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ====== MODAL TAMBAH / EDIT ====== */}
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 text-black z-50">
           <div className="bg-green-100 rounded-xl border border-black shadow-lg p-6 w-[400px]">
-            {/* Tombol Tutup */}
             <div className="flex justify-end">
               <button
                 type="button"
@@ -311,7 +390,6 @@ const CoaPage = () => {
               </button>
             </div>
 
-            {/* Form Tambah / Edit */}
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="text-sm font-semibold mb-1 block">
@@ -340,7 +418,9 @@ const CoaPage = () => {
               </div>
 
               <div>
-                <label className="text-sm font-semibold mb-1 block">Jenis</label>
+                <label className="text-sm font-semibold mb-1 block">
+                  Jenis
+                </label>
                 <select
                   name="jenis"
                   value={form.jenis}
@@ -387,7 +467,9 @@ const CoaPage = () => {
                 <button
                   type="submit"
                   className={`px-4 py-2 rounded ${
-                    editId ? "bg-blue-500 hover:bg-blue-700" : "bg-green-500 hover:bg-green-700"
+                    editId
+                      ? "bg-blue-500 hover:bg-blue-700"
+                      : "bg-green-500 hover:bg-green-700"
                   } text-white font-bold`}
                 >
                   {editId ? "Update" : "Simpan"}
