@@ -1,7 +1,9 @@
+import { In } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { verifyToken } from "../../fn/verifyToken";
 import { ExpressAA } from "../expressjs-aa/ExpressAA";
 import { POST_journals_Req } from '../expressjs-aa/api/POST_journals';
+import { Coa } from "../model/table/Coa";
 import { Journal_Entries } from "../model/table/Journal_Entries";
 import { Journals } from "../model/table/Journals";
 import { Token } from "../model/table/Token";
@@ -23,14 +25,17 @@ export function implement_POST_journals(engine: ExpressAA) {
 
       const id_user = token;
 
-      const {
-        nomor_bukti,
-        date,
-        description,
-        lampiran,
-        referensi,
-        entries
-      } = param.body;
+      try {
+        const {
+          nomor_bukti,
+          date,
+          description,
+          lampiran,
+          referensi,
+          entries
+        } = param.body;
+
+        
       
       if (!nomor_bukti || !date || !entries) {
         throw new Error("Bad Request: nomor_bukti, date, and entries are required");
@@ -50,59 +55,68 @@ export function implement_POST_journals(engine: ExpressAA) {
         totalCredit += entry.credit;
       }
 
-      if (totalDebit !== totalCredit) {
-        throw new Error("Bad Request: Total debit must equal total credit");
-      }
-      if (totalDebit === 0) {
-        throw new Error("Bad Request: Journal entries cannot have zero total value");
-      }
+        if (totalDebit !== totalCredit) {
+          throw new Error("Bad Request: Total debit must equal total credit");
+        }
+        if (totalDebit === 0) {
+          throw new Error("Bad Request: Journal entries cannot have zero total value");
+        }
 
-      // Simpan ke database menggunakan transaksi
-      const newJournal = await AppDataSource.manager.transaction(async (transactionalEntityManager) => {
-        // Langkah 1: Buat instance baru dari entity Journals
-        const journal = new Journals();
-        journal.id_user = id_user; 
-        journal.date = new Date(date);
-        journal.description = description;
-        journal.referensi = referensi;
-        journal.lampiran = lampiran;
-        journal.nomor_bukti = nomor_bukti;
-        
-        // Simpan record utama ke tabel "Journals"
-        await transactionalEntityManager.save(journal);
+        const accountCodesInRequest = [...new Set(entries.map(e => e.code_account))];
 
-        // Langkah 2: Buat array dari instance Journal_Entries
-        const journalEntriesArray = entries.map(entry => {
-          const newEntry = new Journal_Entries();
-          newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-          newEntry.code_account = entry.code_account;
-          newEntry.debit = entry.debit;
-          newEntry.credit = entry.credit;
-          return newEntry;
+        const coaRecords = await Coa.find({
+          where: { code_account: In(accountCodesInRequest) }
         });
 
-        // Langkah 3: Simpan semua record entries dalam satu operasi
-        await transactionalEntityManager.save(journalEntriesArray);
+        if (coaRecords.length !== accountCodesInRequest.length) {
+          const foundCodes = new Set(coaRecords.map(acc => acc.code_account));
+          const missingCode = accountCodesInRequest.find(code => !foundCodes.has(code));
+          throw new Error(`Bad Request: Account with code_account '${missingCode}' is not found.`);
+        }
+        
+        const coaMap = new Map<string, number>();
+        for (const coa of coaRecords) {
+            coaMap.set(coa.code_account, coa.id);
+        }
 
-        // Return jurnal yang baru dibuat beserta entries-nya
-        return { ...journal, entries: journalEntriesArray };
-      });
+        // Simpan ke database menggunakan transaksi
+          const journal = new Journals();
+          journal.id_user = id_user; 
+          journal.date = new Date(date);
+          journal.description = description;
+          journal.referensi = referensi;
+          journal.lampiran = lampiran;
+          journal.nomor_bukti = nomor_bukti;
+          
+          await journal.save();
+          
+          for (const entry of entries as Entry[]) {
+            const journalEntry = new Journal_Entries();
+            journalEntry.id_journal = journal.id;
+            journalEntry.id_coa = entry.id_coa;
+            journalEntry.credit = entry.credit;
+            journalEntry.debit = entry.debit;
+            await journalEntry.save();
+          }
 
+          const response: JournalRes = {
+            id: journal.id,
+            id_user: journal.id_user,
+            date: journal.date.toISOString(),
+            description: journal.description || '',
+            referensi: journal.referensi || '',
+            lampiran: journal.lampiran || '',
+            nomor_bukti: journal.nomor_bukti || '',
+            entries: entries
+          }
+          
 
-      return {
-        id: newJournal.id,
-        id_user: newJournal.id_user,
-        date: newJournal.date.toISOString(),
-        description: newJournal.description || '',
-        referensi: newJournal.referensi || '',
-        lampiran: newJournal.lampiran || '',
-        nomor_bukti: newJournal.nomor_bukti || '',
-        entries: newJournal.entries.map(e => ({
-            code_account: e.code_account,
-            debit: e.debit,
-            credit: e.credit
-        })),
-      };
+        return response;
+        
+      } catch (error) {
+        console.error(error)
+        throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
+      }
     }
   });
 }

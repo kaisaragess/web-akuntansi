@@ -13,6 +13,7 @@ exports.implement_GET_journals = implement_GET_journals;
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journals_1 = require("../model/table/Journals");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
+const Coa_1 = require("../model/table/Coa");
 function implement_GET_journals(engine) {
     engine.implement({
         endpoint: 'GET /journals',
@@ -42,6 +43,18 @@ function implement_GET_journals(engine) {
                             where: { id_journal: journal.id },
                             relations: { "otm_id_journal": true }
                         });
+<<<<<<< HEAD
+=======
+                        const formattedEntries = yield Promise.all(entries.map((entry) => __awaiter(this, void 0, void 0, function* () {
+                            const coa = yield Coa_1.Coa.findOne({ where: { id: entry.id_coa } });
+                            return {
+                                id_coa: entry.id_coa,
+                                code_account: coa ? coa.code_account : "",
+                                debit: entry.debit,
+                                credit: entry.credit,
+                            };
+                        })));
+>>>>>>> main2
                         result.push({
                             id: journal.id,
                             id_user: journal.id_user,
@@ -50,7 +63,11 @@ function implement_GET_journals(engine) {
                             referensi: journal.referensi || '',
                             lampiran: journal.lampiran || '',
                             nomor_bukti: journal.nomor_bukti || '',
+<<<<<<< HEAD
                             entries: entries
+=======
+                            entries: formattedEntries
+>>>>>>> main2
                         });
                     }
                     return result;
