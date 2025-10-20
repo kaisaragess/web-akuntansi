@@ -16,9 +16,6 @@ class PUT_journals__id_Req_Headers {
   authorization!: string
 }
 class PUT_journals__id_Req_Body {
-  @IsNotEmpty({ message: 'nomor_bukti cannot be empty' })
-  @IsString({ message: 'nomor_bukti must be a string' })
-  nomor_bukti!: string
   @IsNotEmpty({ message: 'date cannot be empty' })
   @IsString({ message: 'date must be a string' })
   date!: string

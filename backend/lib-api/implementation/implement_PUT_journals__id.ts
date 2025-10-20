@@ -28,13 +28,12 @@ export function implement_PUT_journals__id(engine: ExpressAA) {
         throw new Error("Jurnal tidak ditemukan");
       }
 
-      const {date, entries, nomor_bukti, description, lampiran, referensi} = param.body;
+      const {date, entries, description, lampiran, referensi} = param.body;
 
-      if (!nomor_bukti || !date || !entries) {
+      if (!date || !entries) {
         throw new Error("Bad Request: nomor_bukti, date, and entries are required");
       }
 
-      journal.nomor_bukti = nomor_bukti;
       journal.date = new Date(date);
       journal.description = description || "";
       journal.lampiran = lampiran || "";

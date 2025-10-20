@@ -43,8 +43,6 @@ function implement_GET_journals(engine) {
                             where: { id_journal: journal.id },
                             relations: { "otm_id_journal": true }
                         });
-<<<<<<< HEAD
-=======
                         const formattedEntries = yield Promise.all(entries.map((entry) => __awaiter(this, void 0, void 0, function* () {
                             const coa = yield Coa_1.Coa.findOne({ where: { id: entry.id_coa } });
                             return {
@@ -54,7 +52,6 @@ function implement_GET_journals(engine) {
                                 credit: entry.credit,
                             };
                         })));
->>>>>>> main2
                         result.push({
                             id: journal.id,
                             id_user: journal.id_user,
@@ -63,11 +60,7 @@ function implement_GET_journals(engine) {
                             referensi: journal.referensi || '',
                             lampiran: journal.lampiran || '',
                             nomor_bukti: journal.nomor_bukti || '',
-<<<<<<< HEAD
-                            entries: entries
-=======
                             entries: formattedEntries
->>>>>>> main2
                         });
                     }
                     return result;

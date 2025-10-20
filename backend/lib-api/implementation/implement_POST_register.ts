@@ -35,7 +35,6 @@ export function implement_POST_register(engine: ExpressAA) {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // create new userg
       const newUser = new User();
       newUser.fullname = fullname;
       newUser.username = username;

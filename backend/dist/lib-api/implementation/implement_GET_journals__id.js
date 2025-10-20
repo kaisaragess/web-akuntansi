@@ -53,14 +53,10 @@ function implement_GET_journals__id(engine) {
                         lampiran: existingJournal.lampiran,
                         referensi: existingJournal.referensi,
                         entries: existingJournal_with_entries.map(entry => ({
-<<<<<<< HEAD
-                            code_account: entry.code_account,
-=======
                             id: entry.id,
                             id_journal: entry.id_journal,
                             id_coa: entry.id_coa,
                             code_account: entry.otm_id_journal ? entry.otm_id_journal.code_account : '',
->>>>>>> main2
                             debit: entry.debit,
                             credit: entry.credit
                         }))
