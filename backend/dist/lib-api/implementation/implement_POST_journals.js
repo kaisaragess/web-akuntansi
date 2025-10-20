@@ -14,47 +14,72 @@ const data_source_1 = require("../../data-source");
 const verifyToken_1 = require("../../fn/verifyToken");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
+const Coa_1 = require("../model/table/Coa"); // ASUMSI: Entitas Master Akun
+const User_1 = require("../model/table/User"); // ASUMSI: Entitas Master User
+const typeorm_1 = require("typeorm"); // Penting untuk query IN
 function implement_POST_journals(engine) {
     engine.implement({
         endpoint: 'POST /journals',
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // Verifikasi token dan dapatkan id_user
+                // --- 1. Verifikasi Token & ID User ---
                 const { authorization } = param.headers;
-                const token = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!token) {
-                    throw new Error("Unauthorized: Invalid token or missing user ID ");
+                const id_user = yield (0, verifyToken_1.verifyToken)(authorization);
+                if (!id_user) {
+                    throw new Error("Unauthorized: Invalid token or missing user ID.");
                 }
-                const id_user = token;
                 try {
                     const { nomor_bukti, date, description, lampiran, referensi, entries } = param.body;
+                    // --- 2. Validasi Logika Bisnis & Format ---
                     if (!nomor_bukti || !date || !entries) {
                         throw new Error("Bad Request: nomor_bukti, date, and entries are required");
                     }
-                    if (!Array.isArray(entries) || entries.length === 0) {
-                        throw new Error("Bad Request: entries must be a non-empty array");
+                    if (!Array.isArray(entries) || entries.length < 2) {
+                        throw new Error("Bad Request: entries must be an array with at least two records");
                     }
                     const journalDate = new Date(date);
                     if (isNaN(journalDate.getTime())) {
-                        throw new Error("Bad Request: Invalid date format");
+                        throw new Error("Bad Request: Invalid date format. Use YYYY-MM-DD");
                     }
-                    // Validasi logika akuntansi
+                    // Validasi Akuntansi & Kumpulkan Kode Akun
                     let totalDebit = 0;
                     let totalCredit = 0;
+                    const uniqueAccountCodes = new Set();
                     for (const entry of entries) {
                         if (typeof entry.debit !== 'number' || typeof entry.credit !== 'number') {
                             throw new Error("Bad Request: debit and credit in entries must be numbers");
                         }
                         totalDebit += entry.debit;
                         totalCredit += entry.credit;
+                        uniqueAccountCodes.add(entry.code_account);
                     }
-                    if (totalDebit !== totalCredit) {
+                    if (Math.abs(totalDebit - totalCredit) > 0.01) {
                         throw new Error("Bad Request: Total debit must equal total credit");
                     }
                     if (totalDebit === 0) {
                         throw new Error("Bad Request: Journal entries cannot have zero total value");
                     }
-                    // Simpan ke database menggunakan transaksi
+                    // --- 3. VALIDASI FOREIGN KEY TERHADAP DATABASE ---
+                    const transactionalEntityManager = data_source_1.AppDataSource.manager;
+                    // A. Validasi ID User (FK ke tabel User)
+                    const userRepo = transactionalEntityManager.getRepository(User_1.User);
+                    const userExists = yield userRepo.findOneBy({ id: id_user });
+                    if (!userExists) {
+                        throw new Error("Foreign Key Violation: id_user tidak ditemukan atau tidak valid.");
+                    }
+                    // B. Validasi Code Account (FK ke tabel Coa)
+                    const accountRepo = transactionalEntityManager.getRepository(Coa_1.Coa);
+                    // PENTING: Gunakan 'code' sebagai nama kolom, dan HILANGKAN is_active
+                    const existingAccounts = yield accountRepo.findBy({
+                        code_account: (0, typeorm_1.In)(Array.from(uniqueAccountCodes))
+                    });
+                    if (existingAccounts.length !== uniqueAccountCodes.size) {
+                        // Gunakan 'a.code' untuk memetakan hasil query
+                        const foundCodes = existingAccounts.map(a => a.code); // Cast to any jika TypeORM tidak mengenali 'code'
+                        const missingCodes = Array.from(uniqueAccountCodes).filter(code => !foundCodes.includes(code));
+                        throw new Error(`Foreign Key Violation: Kode akun (${missingCodes.join(', ')}) tidak ditemukan di COA.`);
+                    }
+                    // --- 4. Simpan ke database menggunakan Transaksi ---
                     const newJournal = yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
                         const journal = new Journals_1.Journals();
                         journal.id_user = id_user;
@@ -63,20 +88,19 @@ function implement_POST_journals(engine) {
                         journal.referensi = referensi;
                         journal.lampiran = lampiran;
                         journal.nomor_bukti = nomor_bukti;
-                        yield transactionalEntityManager.save(journal);
+                        yield transactionalEntityManager.save(journal); // Simpan Journal header
                         const journalEntriesArray = entries.map(entry => {
                             const newEntry = new Journal_Entries_1.Journal_Entries();
-                            newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-                            newEntry.code_account = entry.code_account;
+                            newEntry.id_journal = journal.id; // FK Journals
+                            newEntry.code_account = entry.code_account; // FK Coa
                             newEntry.debit = entry.debit;
                             newEntry.credit = entry.credit;
                             return newEntry;
                         });
-                        // Langkah 3: Simpan semua record entries dalam satu operasi
-                        yield transactionalEntityManager.save(journalEntriesArray);
-                        // Return jurnal yang baru dibuat beserta entries-nya
+                        yield transactionalEntityManager.save(journalEntriesArray); // Simpan Entries
                         return Object.assign(Object.assign({}, journal), { entries: journalEntriesArray });
                     }));
+                    // --- 5. Format Respon Sukses ---
                     return {
                         id: newJournal.id,
                         id_user: newJournal.id_user,
