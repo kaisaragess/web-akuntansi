@@ -10,8 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_journals = implement_POST_journals;
-const data_source_1 = require("../../data-source");
+const typeorm_1 = require("typeorm");
 const verifyToken_1 = require("../../fn/verifyToken");
+const Coa_1 = require("../model/table/Coa");
 const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
 function implement_POST_journals(engine) {
@@ -25,47 +26,49 @@ function implement_POST_journals(engine) {
                 if (!token) {
                     throw new Error("Unauthorized: Invalid token or missing user ID ");
                 }
-                // console.log("Token verified:", token);
-                // const tokenString = authorization.split(' ')[1];
-                // const tokenRecord = await Token.findOneBy({
-                //   token: tokenString,
-                // });
-                // if (!tokenRecord) {
-                //  throw new Error("Unauthorized: Token not found");
-                // }
-                const id_user = Number(token);
-                console.log("User ID from token:", id_user);
-                // Validasi payload
-                const { nomor_bukti, date, description, lampiran, referensi, entries } = param.body;
-                if (!nomor_bukti || !date || !entries) {
-                    throw new Error("Bad Request: nomor_bukti, date, and entries are required");
-                }
-                if (!Array.isArray(entries) || entries.length === 0) {
-                    throw new Error("Bad Request: entries must be a non-empty array");
-                }
-                const journalDate = new Date(date);
-                if (isNaN(journalDate.getTime())) {
-                    throw new Error("Bad Request: Invalid date format");
-                }
-                // Validasi logika akuntansi
-                let totalDebit = 0;
-                let totalCredit = 0;
-                for (const entry of entries) {
-                    if (typeof entry.debit !== 'number' || typeof entry.credit !== 'number') {
-                        throw new Error("Bad Request: debit and credit in entries must be numbers");
+                const id_user = token;
+                try {
+                    const { nomor_bukti, date, description, lampiran, referensi, entries } = param.body;
+                    if (!nomor_bukti || !date || !entries) {
+                        throw new Error("Bad Request: nomor_bukti, date, and entries are required");
                     }
-                    totalDebit += entry.debit;
-                    totalCredit += entry.credit;
-                }
-                if (totalDebit !== totalCredit) {
-                    throw new Error("Bad Request: Total debit must equal total credit");
-                }
-                if (totalDebit === 0) {
-                    throw new Error("Bad Request: Journal entries cannot have zero total value");
-                }
-                // Simpan ke database menggunakan transaksi
-                const newJournal = yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
-                    // Langkah 1: Buat instance baru dari entity Journals
+                    if (!Array.isArray(entries) || entries.length === 0) {
+                        throw new Error("Bad Request: entries must be a non-empty array");
+                    }
+                    const journalDate = new Date(date);
+                    if (isNaN(journalDate.getTime())) {
+                        throw new Error("Bad Request: Invalid date format");
+                    }
+                    // Validasi logika akuntansi
+                    let totalDebit = 0;
+                    let totalCredit = 0;
+                    for (const entry of entries) {
+                        if (typeof entry.debit !== 'number' || typeof entry.credit !== 'number') {
+                            throw new Error("Bad Request: debit and credit in entries must be numbers");
+                        }
+                        totalDebit += entry.debit;
+                        totalCredit += entry.credit;
+                    }
+                    if (totalDebit !== totalCredit) {
+                        throw new Error("Bad Request: Total debit must equal total credit");
+                    }
+                    if (totalDebit === 0) {
+                        throw new Error("Bad Request: Journal entries cannot have zero total value");
+                    }
+                    const accountCodesInRequest = [...new Set(entries.map(e => e.code_account))];
+                    const coaRecords = yield Coa_1.Coa.find({
+                        where: { code_account: (0, typeorm_1.In)(accountCodesInRequest) }
+                    });
+                    if (coaRecords.length !== accountCodesInRequest.length) {
+                        const foundCodes = new Set(coaRecords.map(acc => acc.code_account));
+                        const missingCode = accountCodesInRequest.find(code => !foundCodes.has(code));
+                        throw new Error(`Bad Request: Account with code_account '${missingCode}' is not found.`);
+                    }
+                    const coaMap = new Map();
+                    for (const coa of coaRecords) {
+                        coaMap.set(coa.code_account, coa.id);
+                    }
+                    // Simpan ke database menggunakan transaksi
                     const journal = new Journals_1.Journals();
                     journal.id_user = id_user;
                     journal.date = journalDate;
@@ -73,36 +76,31 @@ function implement_POST_journals(engine) {
                     journal.referensi = referensi;
                     journal.lampiran = lampiran;
                     journal.nomor_bukti = nomor_bukti;
-                    // Simpan record utama ke tabel "Journals"
-                    yield transactionalEntityManager.save(journal);
-                    // Langkah 2: Buat array dari instance Journal_Entries
-                    const journalEntriesArray = entries.map(entry => {
-                        const newEntry = new Journal_Entries_1.Journal_Entries();
-                        newEntry.id_journal = journal.id; // Hubungkan entry ke jurnal yang baru dibuat
-                        newEntry.code_account = entry.code_account;
-                        newEntry.debit = entry.debit;
-                        newEntry.credit = entry.credit;
-                        return newEntry;
-                    });
-                    // Langkah 3: Simpan semua record entries dalam satu operasi
-                    yield transactionalEntityManager.save(journalEntriesArray);
-                    // Return jurnal yang baru dibuat beserta entries-nya
-                    return Object.assign(Object.assign({}, journal), { entries: journalEntriesArray });
-                }));
-                return {
-                    id: newJournal.id,
-                    id_user: newJournal.id_user,
-                    date: newJournal.date.toISOString(),
-                    description: newJournal.description || '',
-                    referensi: newJournal.referensi || '',
-                    lampiran: newJournal.lampiran || '',
-                    nomor_bukti: newJournal.nomor_bukti || '',
-                    entries: newJournal.entries.map(e => ({
-                        code_account: e.code_account,
-                        debit: e.debit,
-                        credit: e.credit
-                    })),
-                };
+                    yield journal.save();
+                    for (const entry of entries) {
+                        const journalEntry = new Journal_Entries_1.Journal_Entries();
+                        journalEntry.id_journal = journal.id;
+                        journalEntry.id_coa = entry.id_coa;
+                        journalEntry.credit = entry.credit;
+                        journalEntry.debit = entry.debit;
+                        yield journalEntry.save();
+                    }
+                    const response = {
+                        id: journal.id,
+                        id_user: journal.id_user,
+                        date: journal.date.toISOString(),
+                        description: journal.description || '',
+                        referensi: journal.referensi || '',
+                        lampiran: journal.lampiran || '',
+                        nomor_bukti: journal.nomor_bukti || '',
+                        entries: entries
+                    };
+                    return response;
+                }
+                catch (error) {
+                    console.error(error);
+                    throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
+                }
             });
         }
     });

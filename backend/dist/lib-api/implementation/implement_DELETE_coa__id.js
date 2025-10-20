@@ -27,12 +27,17 @@ function implement_DELETE_coa__id(engine) {
                 if (!id) {
                     throw new Error("Bad Request: Missing COA ID");
                 }
-                const CoaToDelete = yield Coa_1.Coa.findOneBy({ id: Number(id) });
-                if (!CoaToDelete) {
-                    throw new Error("Not Found: COA record does not exist");
+                try {
+                    const CoaToDelete = yield Coa_1.Coa.findOneBy({ id: Number(id) });
+                    if (!CoaToDelete) {
+                        throw new Error("Not Found: COA record does not exist");
+                    }
+                    yield Coa_1.Coa.remove(CoaToDelete);
+                    return CoaToDelete;
                 }
-                yield Coa_1.Coa.remove(CoaToDelete);
-                return CoaToDelete;
+                catch (error) {
+                    throw new Error('Gagal menghapus Chart of Account (Coa).');
+                }
             });
         }
     });

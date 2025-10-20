@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
+const UserType_1 = require("../../ts-model/enum/UserType");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class User {
@@ -33,7 +34,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsString)({ message: 'role must be a string' }),
+    (0, class_validator_1.IsEnum)(UserType_1.UserType, { message: 'role must be enum UserType' }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([

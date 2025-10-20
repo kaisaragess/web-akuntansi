@@ -16,6 +16,12 @@ class Entry {
 }
 exports.Entry = Entry;
 __decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: 'id_coa cannot be empty' }),
+    (0, class_transformer_1.Transform)((param) => ((param === null || param === void 0 ? void 0 : param.value) === null || (param === null || param === void 0 ? void 0 : param.value) === undefined || (param === null || param === void 0 ? void 0 : param.value) === '') ? null : parseFloat(param.value)),
+    (0, class_validator_1.IsNumber)({}, { message: 'id_coa must be a number (decimal)' }),
+    __metadata("design:type", Number)
+], Entry.prototype, "id_coa", void 0);
+__decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'code_account cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'code_account must be a string' }),
     __metadata("design:type", String)

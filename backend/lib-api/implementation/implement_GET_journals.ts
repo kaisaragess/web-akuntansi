@@ -6,6 +6,7 @@ import { Journals } from "../model/table/Journals";
 import { JournalRes } from '../ts-schema/JournalRes'
 import { Journal_Entries } from "../model/table/Journal_Entries";
 import { off } from "process";
+import { Coa } from "../model/table/Coa";
 
 export function implement_GET_journals(engine: ExpressAA) {
   engine.implement({
@@ -30,7 +31,7 @@ export function implement_GET_journals(engine: ExpressAA) {
       const skip = (parsedPage - 1) * take;
 
       try {
-                const JournalsRecords = await Journals.find({
+        const JournalsRecords = await Journals.find({
         where: {} as FindOptionsWhere<Journals>, 
         take,
         skip,
@@ -45,6 +46,18 @@ export function implement_GET_journals(engine: ExpressAA) {
           relations: {"otm_id_journal": true}
         });
 
+            const formattedEntries = await Promise.all(
+            entries.map(async (entry) => {
+              const coa = await Coa.findOne({ where: { id: entry.id_coa } });
+              return {
+                id_coa: entry.id_coa,
+                code_account: coa ? coa.code_account : "",
+                debit: entry.debit,
+                credit: entry.credit,
+              };
+            })
+          );
+
         result.push({
           id: journal.id, 
           id_user: journal.id_user,
@@ -53,15 +66,13 @@ export function implement_GET_journals(engine: ExpressAA) {
           referensi: journal.referensi || '',
           lampiran: journal.lampiran || '',
           nomor_bukti: journal.nomor_bukti || '',
-          entries: entries
+          entries: formattedEntries
         });
     }
       return result;
       } catch (error) {
         throw new Error('Gagal mengambil daftar jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
       }
-
-
     }
   });
 }

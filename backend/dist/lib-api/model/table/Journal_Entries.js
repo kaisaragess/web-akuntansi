@@ -38,18 +38,18 @@ __decorate([
     __metadata("design:type", Number)
 ], Journal_Entries.prototype, "id_journal", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Coa_1.Coa, x => x.code_account, { nullable: false }),
-    (0, typeorm_1.JoinColumn)({ name: 'code_account' }),
+    (0, typeorm_1.ManyToOne)(() => Coa_1.Coa, x => x.id, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'id_coa' }),
     __metadata("design:type", Coa_1.Coa)
-], Journal_Entries.prototype, "otm_code_account", void 0);
+], Journal_Entries.prototype, "otm_id_coa", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        name: 'code_account',
-        type: 'varchar',
+        name: 'id_coa',
+        type: 'bigint',
         nullable: false,
     }),
-    __metadata("design:type", String)
-], Journal_Entries.prototype, "code_account", void 0);
+    __metadata("design:type", Number)
+], Journal_Entries.prototype, "id_coa", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'bigint',

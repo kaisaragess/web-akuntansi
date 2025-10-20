@@ -28,35 +28,43 @@ function implement_GET_journals__id(engine) {
                 if (!id) {
                     throw new Error("Bad Request: Missing Journal ID");
                 }
-                const existingJournal = yield Journals_1.Journals.findOneBy({
-                    id: Number(id)
-                });
-                const existingJournal_with_entries = yield Journal_Entries_1.Journal_Entries.find({
-                    where: { id_journal: Number(id) }
-                });
-                if (existingJournal) {
-                    existingJournal.entries = existingJournal_with_entries;
+                try {
+                    const existingJournal = yield Journals_1.Journals.findOneBy({
+                        id: Number(id)
+                    });
+                    const existingJournal_with_entries = yield Journal_Entries_1.Journal_Entries.find({
+                        where: { id_journal: Number(id) }
+                    });
+                    if (existingJournal) {
+                        existingJournal.entries = existingJournal_with_entries;
+                    }
+                    if (!existingJournal_with_entries) {
+                        throw new Error("Not Found: Journal entries do not exist");
+                    }
+                    if (!existingJournal) {
+                        throw new Error("Not Found: Journal record does not exist");
+                    }
+                    return {
+                        id: existingJournal.id,
+                        id_user: existingJournal.id_user,
+                        nomor_bukti: existingJournal.nomor_bukti,
+                        date: existingJournal.date.toISOString(),
+                        description: existingJournal.description,
+                        lampiran: existingJournal.lampiran,
+                        referensi: existingJournal.referensi,
+                        entries: existingJournal_with_entries.map(entry => ({
+                            id: entry.id,
+                            id_journal: entry.id_journal,
+                            id_coa: entry.id_coa,
+                            code_account: entry.otm_id_journal ? entry.otm_id_journal.code_account : '',
+                            debit: entry.debit,
+                            credit: entry.credit
+                        }))
+                    };
                 }
-                if (!existingJournal_with_entries) {
-                    throw new Error("Not Found: Journal entries do not exist");
+                catch (error) {
+                    throw new Error('Gagal mendapatkan detail jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
                 }
-                if (!existingJournal) {
-                    throw new Error("Not Found: Journal record does not exist");
-                }
-                return {
-                    id: existingJournal.id,
-                    id_user: existingJournal.id_user,
-                    nomor_bukti: existingJournal.nomor_bukti,
-                    date: existingJournal.date.toISOString(),
-                    description: existingJournal.description,
-                    lampiran: existingJournal.lampiran,
-                    referensi: existingJournal.referensi,
-                    entries: existingJournal_with_entries.map(entry => ({
-                        code_account: entry.code_account,
-                        debit: entry.debit,
-                        credit: entry.credit
-                    })) // Placeholder, implement fetching entries if needed
-                }; // Kembalikan detail jurnal yang ditemukan
             });
         }
     });
