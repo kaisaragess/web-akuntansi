@@ -27,7 +27,6 @@ export function implement_POST_journals(engine: ExpressAA) {
 
       try {
         const {
-          // nomor_bukti, // (Dihapus, akan digenerate)
           date, 
           description,
           lampiran,
@@ -86,20 +85,15 @@ export function implement_POST_journals(engine: ExpressAA) {
             coaMap.set(coa.code_account, coa.id);
         }
 
-        // --- BARU: Memulai Transaksi Database ---
-        // Ini untuk memastikan tidak ada nomor bukti yang duplikat
-        // jika ada 2 request bersamaan (race condition).
         const savedJournal = await AppDataSource.manager.transaction(
-          "SERIALIZABLE", // Level isolasi tertinggi untuk mencegah race condition
+          "SERIALIZABLE", 
           async (transactionalEntityManager) => {
 
-            // --- Logika Generate Nomor Bukti (Versi Urutan) ---
             const prefix = "JU";
-            const year = journalDate.getFullYear(); // 2025
-            const month = String(journalDate.getMonth() + 1).padStart(2, '0'); // 10
-            const datePart = `${year}${month}`; // "202510"
+            const year = journalDate.getFullYear(); 
+            const month = String(journalDate.getMonth() + 1).padStart(2, '0');
+            const datePart = `${year}${month}`; 
 
-            // Tentukan rentang tanggal untuk bulan ini
             const firstDayOfMonth = new Date(journalDate.getFullYear(), journalDate.getMonth(), 1);
             const firstDayOfNextMonth = new Date(journalDate.getFullYear(), journalDate.getMonth() + 1, 1);
 
@@ -111,20 +105,16 @@ export function implement_POST_journals(engine: ExpressAA) {
                 }
             });
 
-            const newSequenceNumber = journalCountInMonth + 1; // Jurnal ke-6
+            const newSequenceNumber = journalCountInMonth + 1;
 
             if (newSequenceNumber > 9999) {
               throw new Error(`Batas nomor bukti (9999) untuk bulan ${month}/${year} telah tercapai.`);
             }
 
-            // Format menjadi 4 digit: 6 -> "0006"
             const sequencePart = String(newSequenceNumber).padStart(4, '0');
             
             const generatedNomorBukti = `${prefix}-${datePart}-${sequencePart}`;
-            // Hasil: "JU-202510-0006"
-            // --- Akhir Logika Nomor Bukti ---
             
-            // 1. Simpan Jurnal (Header)
             const journal = new Journals();
             journal.id_user = id_user; 
             journal.date = journalDate; 
@@ -133,40 +123,34 @@ export function implement_POST_journals(engine: ExpressAA) {
             journal.lampiran = lampiran;
             journal.nomor_bukti = generatedNomorBukti;
             
-            // Gunakan transactionalEntityManager untuk menyimpan
             await transactionalEntityManager.save(journal);
             
-            // 2. Simpan Jurnal Entries (Detail)
             for (const entry of entries as Entry[]) {
               const coaId = coaMap.get(entry.code_account);
 
-              if (!coaId) { // Seharusnya tidak terjadi, tapi untuk keamanan
+              if (!coaId) { 
                 throw new Error(`Internal Error: Gagal memetakan code_account ${entry.code_account}`);
               }
               
               const journalEntry = new Journal_Entries();
-              journalEntry.id_journal = journal.id; // Ambil ID dari jurnal yg baru disimpan
+              journalEntry.id_journal = journal.id; 
               journalEntry.id_coa = coaId; 
               journalEntry.credit = entry.credit;
               journalEntry.debit = entry.debit;
               
-              // Gunakan transactionalEntityManager untuk menyimpan
               await transactionalEntityManager.save(journalEntry);
             }
 
-            return journal; // Kembalikan jurnal yang sudah disimpan
+            return journal; 
           }
-        ); // --- AKHIR TRANSAKSI ---
+        ); 
 
-
-        // Format tanggal kembali ke DD/MM/YYYY untuk respons
         const d = savedJournal.date; 
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0'); 
         const yearFmt = d.getFullYear();
         const formattedDate = `${day}/${month}/${yearFmt}`;
 
-        // Membuat respons
         const response: JournalRes = {
           id: savedJournal.id,
           id_user: savedJournal.id_user,
@@ -174,14 +158,13 @@ export function implement_POST_journals(engine: ExpressAA) {
           description: savedJournal.description || '',
           referensi: savedJournal.referensi || '',
           lampiran: savedJournal.lampiran || '',
-          nomor_bukti: savedJournal.nomor_bukti, // Kirim nomor bukti yang baru dibuat
+          nomor_bukti: savedJournal.nomor_bukti, 
           entries: entries 
         }
         
       return response;
         
       } catch (error) {
-        // Menangani error
         console.error(error)
         throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
       }
