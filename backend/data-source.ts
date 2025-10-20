@@ -8,7 +8,7 @@ const config: DataSourceOptions = {
   port: Number(process.env.PORT),
   username: process.env.PAGONILA_USERNAME,
   password: process.env.PASSWORD,
-  database: process.env.DATABASE, // <-- nama database
+  database: process.env.DATABASE,
   synchronize: false,
   logging: false,
   migrations: [

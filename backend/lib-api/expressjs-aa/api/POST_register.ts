@@ -1,4 +1,3 @@
-import { User } from '../../ts-model/table/User'
 import { Utility } from '../Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator";
@@ -21,5 +20,5 @@ export class POST_register_Req {
 }
 export interface POST_register {
   endpoint: 'POST /register'
-  fn: (param: POST_register_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<User>
+  fn: (param: POST_register_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<boolean>
 }

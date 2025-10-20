@@ -23,11 +23,6 @@ __decorate([
 class POST_journals_Req_Body {
 }
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'nomor_bukti cannot be empty' }),
-    (0, class_validator_1.IsString)({ message: 'nomor_bukti must be a string' }),
-    __metadata("design:type", String)
-], POST_journals_Req_Body.prototype, "nomor_bukti", void 0);
-__decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'date cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'date must be a string' }),
     __metadata("design:type", String)

@@ -40,7 +40,6 @@ function implement_POST_register(engine) {
                     throw new Error("fullname must be at least 4 characters long");
                 }
                 const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-                // create new userg
                 const newUser = new User_1.User();
                 newUser.fullname = fullname;
                 newUser.username = username;

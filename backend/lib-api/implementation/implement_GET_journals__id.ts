@@ -52,11 +52,14 @@ export function implement_GET_journals__id(engine: ExpressAA) {
         lampiran: existingJournal.lampiran,
         referensi: existingJournal.referensi,
         entries: existingJournal_with_entries.map(entry => ({
-          code_account: entry.code_account,
+          id: entry.id,
+          id_journal: entry.id_journal,
+          id_coa: entry.id_coa,
+          code_account: (entry as any).otm_id_journal ? (entry as any).otm_id_journal.code_account : '',
           debit: entry.debit,
           credit: entry.credit
         }))
-      }; 
+      } ; 
       } catch (error) {
         throw new Error('Gagal mendapatkan detail jurnal.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
       }

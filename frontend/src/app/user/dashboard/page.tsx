@@ -2,7 +2,6 @@
 
 import React from "react";
 import Sidebar from "@/app/components/Sidebar/page";
-import Navbar from "@/app/components/Navbar/page";
 
 const Dashboard = () => {
   return (
