@@ -19,8 +19,8 @@ const Sidebar = () => {
     { name: "COA", path: "/user/coa" },
     { name: "Transaksi", path: "/user/transaction" },
     { name: "Jurnal Umum", path: "/user/journals" },
-    { name: "Buku Besar", path: "/user/buku_besar" },
-    { name: "Neraca Saldo", path: "/user/neraca_saldo" },
+    { name: "Buku Besar", path: "/user/ledger" },
+    { name: "Neraca Saldo", path: "/user/balance_sheet" },
     {
       name: "Laporan Keuangan",
       children: [
@@ -37,7 +37,7 @@ const Sidebar = () => {
 
   return (
     <aside className="bg-stone-900 text-white w-64 min-h-screen flex flex-col">
-      <div className="p-4 text-center text-xl font-bold border-b border-gray-700">
+      <div className="p-4 text-center text-xl font-bold border-b border-green-700">
         Kas<span className="text-green-500">ku.)</span>
       </div>
 
@@ -47,8 +47,8 @@ const Sidebar = () => {
             <div key={item.name}>
               <button
                 onClick={() => toggleDropdown(item.name)}
-                className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-800 transition ${
-                  openDropdown === item.name ? "bg-gray-800" : ""
+                className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-green-800 transition ${
+                  openDropdown === item.name ? "bg-green-800" : ""
                 }`}
               >
                 {item.name}
@@ -56,13 +56,13 @@ const Sidebar = () => {
               </button>
 
               {openDropdown === item.name && (
-                <div className="pl-6 bg-gray-900">
+                <div className="pl-6 bg-green-900">
                   {item.children.map((child) => (
                     <button
                       key={child.name}
                       onClick={() => router.push(child.path)}
                       className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition ${
-                        pathname === child.path ? "bg-gray-700" : ""
+                        pathname === child.path ? "bg-green-700" : ""
                       }`}
                     >
                       {child.name}
@@ -76,7 +76,7 @@ const Sidebar = () => {
               key={item.name}
               onClick={() => router.push(item.path)}
               className={`flex items-center w-full px-4 py-3 text-left hover:bg-stone-400 transition ${
-                pathname === item.path ? "bg-gray-800" : ""
+                pathname === item.path ? "bg-green-800" : ""
               }`}
             >
               {item.name}

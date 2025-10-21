@@ -12,6 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [user, setUser] = useState<{ fullname: string; username: string } | null>(null); // ✅ state tambahan
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -19,6 +20,13 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
+
+    // ✅ Ambil data user dari localStorage
+    const fullname = localStorage.getItem("fullname");
+    const username = localStorage.getItem("username");
+    if (fullname && username) {
+      setUser({ fullname, username });
+    }
   }, []);
 
   // Tutup dropdown saat klik di luar area
@@ -38,6 +46,8 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("fullname"); // ✅ bersihkan data user
+    localStorage.removeItem("username");
     setIsLoggedIn(false);
     router.push("/user/home");
   };
@@ -74,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold hover:bg-blue-700 focus:outline-none"
                 >
-                  K
+                  {user?.fullname ? user.fullname.charAt(0).toUpperCase() : "K"}
                 </button>
 
                 {showDropdown && (
@@ -119,10 +129,10 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
             <h2 className="text-2xl font-bold mb-4 text-center text-stone-900">My Profile</h2>
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold mb-3">
-                U
+                {user?.fullname ? user.fullname.charAt(0).toUpperCase() : "U"}
               </div>
-              <p className="text-gray-700 font-semibold">Nama: {}</p>
-              <p className="text-gray-700">Username: </p>
+              <p className="text-gray-700 font-semibold">Nama: {user?.fullname || "-"}</p>
+              <p className="text-gray-700">Username: {user?.username || "-"}</p>
             </div>
 
             <button

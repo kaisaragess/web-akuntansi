@@ -49,7 +49,7 @@ const CoaPage = () => {
         "GET /coa"
       ]({
         headers: { authorization: token },
-        query: {},
+        query: {limit: 9999},
       });
 
       // ✅ Urutkan berdasarkan code_account (numerik)

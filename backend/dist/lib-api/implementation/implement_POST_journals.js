@@ -23,10 +23,7 @@ function implement_POST_journals(engine) {
         endpoint: "POST /journals",
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-<<<<<<< HEAD
-=======
                 // 
->>>>>>> 4b39f389df0944121653e7f6c9dff42220518cba
                 const { authorization } = param.headers;
                 const token = yield (0, verifyToken_1.verifyToken)(authorization);
                 if (!token) { // Pengecekan keamanan
@@ -51,8 +48,7 @@ function implement_POST_journals(engine) {
                     let totalDebit = 0;
                     let totalCredit = 0;
                     for (const entry of entries) {
-                        if (typeof entry.debit !== "number" ||
-                            typeof entry.credit !== "number") {
+                        if (typeof entry.debit !== 'number' || typeof entry.credit !== 'number') {
                             throw new Error("Bad Request: debit and credit in entries must be numbers");
                         }
                         totalDebit += entry.debit;
@@ -64,11 +60,6 @@ function implement_POST_journals(engine) {
                     if (totalDebit === 0) {
                         throw new Error("Bad Request: Journal entries cannot have zero total value");
                     }
-<<<<<<< HEAD
-                    // 🟢 Simpan ke database menggunakan transaksi
-                    const newJournal = yield data_source_1.AppDataSource.manager.transaction((transactionalEntityManager) => __awaiter(this, void 0, void 0, function* () {
-                        // 1️⃣ Simpan jurnal utama
-=======
                     // (Validasi Coa juga pindah ke atas, sebelum transaksi)
                     const accountCodesInRequest = [...new Set(entries.map(e => e.code_account))];
                     const coaRecords = yield Coa_1.Coa.find({
@@ -103,48 +94,12 @@ function implement_POST_journals(engine) {
                         }
                         const sequencePart = String(newSequenceNumber).padStart(4, '0');
                         const generatedNomorBukti = `${prefix}-${datePart}-${sequencePart}`;
->>>>>>> 4b39f389df0944121653e7f6c9dff42220518cba
                         const journal = new Journals_1.Journals();
                         journal.id_user = id_user;
                         journal.date = journalDate;
                         journal.description = description;
                         journal.referensi = referensi;
                         journal.lampiran = lampiran;
-<<<<<<< HEAD
-                        journal.nomor_bukti = nomor_bukti;
-                        const savedJournal = yield transactionalEntityManager.save(journal);
-                        // Pastikan id_journal benar-benar ada
-                        if (!savedJournal.id) {
-                            throw new Error("Failed to generate journal ID. Please check table Journals primary key.");
-                        }
-                        // 2️⃣ Simpan semua entries yang terhubung ke jurnal ini
-                        const journalEntriesArray = entries.map((entry) => {
-                            const newEntry = new Journal_Entries_1.Journal_Entries();
-                            newEntry.id_journal = savedJournal.id; // <- sudah pasti ada ID
-                            newEntry.code_account = entry.code_account;
-                            newEntry.debit = entry.debit;
-                            newEntry.credit = entry.credit;
-                            return newEntry;
-                        });
-                        yield transactionalEntityManager.save(journalEntriesArray);
-                        // Return jurnal yang sudah tersimpan
-                        return Object.assign(Object.assign({}, savedJournal), { entries: journalEntriesArray });
-                    }));
-                    // 🧾 Format response
-                    return {
-                        id: newJournal.id,
-                        id_user: newJournal.id_user,
-                        date: newJournal.date.toISOString(),
-                        description: newJournal.description || "",
-                        referensi: newJournal.referensi || "",
-                        lampiran: newJournal.lampiran || "",
-                        nomor_bukti: newJournal.nomor_bukti || "",
-                        entries: newJournal.entries.map((e) => ({
-                            code_account: e.code_account,
-                            debit: e.debit,
-                            credit: e.credit,
-                        })),
-=======
                         journal.nomor_bukti = generatedNomorBukti;
                         yield transactionalEntityManager.save(journal);
                         for (const entry of entries) {
@@ -175,18 +130,12 @@ function implement_POST_journals(engine) {
                         lampiran: savedJournal.lampiran || '',
                         nomor_bukti: savedJournal.nomor_bukti,
                         entries: entries
->>>>>>> 4b39f389df0944121653e7f6c9dff42220518cba
                     };
                     return response;
                 }
                 catch (error) {
-<<<<<<< HEAD
-                    throw new Error("Gagal membuat jurnal baru." +
-                        (error instanceof Error ? " Detail: " + error.message : ""));
-=======
                     console.error(error);
                     throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
->>>>>>> 4b39f389df0944121653e7f6c9dff42220518cba
                 }
             });
         },

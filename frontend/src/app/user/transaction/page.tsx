@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
-import axios from "axios";
+import Navbar from "@/app/components/Navbar/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 interface Coa {
@@ -12,6 +12,13 @@ interface Coa {
   jenis: string;
   description: string;
   normal_balance: string;
+}
+
+interface Entry {
+  id_coa: number;
+  code_account: string;
+  debit: number;
+  credit: number;
 }
 
 interface TransactionRow {
@@ -32,13 +39,17 @@ const transactionPage = () => {
   const [lampiran, setLampiran] = useState<File | null>(null);
   const [rows, setRows] = useState<TransactionRow[]>([]);
   const [coaList, setCoaList] = useState<Coa[]>([]);
-
-
+  const [isDraftLocked, setIsDraftLocked] = useState(false);
+  const [nomorBukti, setNomorBukti] = useState("");
 
   // Logic
   const totalDebit = rows.reduce((sum, row) => sum + row.debit, 0);
   const totalCredit = rows.reduce((sum, row) => sum + row.credit, 0);
   const selisih = totalDebit - totalCredit;
+
+    useEffect(() => {
+    setNomorBukti(""); // biarkan kosong dulu, nanti diisi dari backend
+  }, []);
 
   // === Responsif Sidebar ===
   useEffect(() => {
@@ -68,7 +79,7 @@ const transactionPage = () => {
           "GET /coa"
         ]({
           headers: { authorization: token },
-          query: {},
+          query: {limit: 9999},
         });
         setCoaList(res);
       } catch (error) {
@@ -122,27 +133,96 @@ const transactionPage = () => {
     setRows((prev) => prev.filter((r) => !r.isSelected));
   };
 
-  const handleSimpanDraft = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
-    try {
-      const res = await new AxiosCaller("http://localhost:3001").call[
-        "GET /journals"
-      ];
-      alert("Draft berhasil disimpan!");
-    } catch (err) {
-      console.error(err);
-      alert("Gagal simpan draft.");
+  const handleSimpanDraft = () => {
+    if (!isDraftLocked) {
+      // ✅ Simpan draft di lokal saja, bukan ke database
+      const entries: Entry[] = rows
+        .filter((r) => r.akunId && (r.debit > 0 || r.credit > 0))
+        .map((r) => {
+          const coa = coaList.find((c) => c.id === r.akunId);
+          return {
+            id_coa: r.akunId ?? 0,
+            code_account: coa ? coa.code_account : "",
+            debit: r.debit,
+            credit: r.credit,
+          } as Entry;
+        });
+
+      if (entries.length === 0)
+        return alert("Isi minimal satu baris transaksi dengan nominal!");
+
+      const draftData = {
+        date: tanggalTransaksi,
+        description: deskripsiUmum,
+        referensi,
+        lampiran: lampiran?.name || "",
+        entries,
+      };
+      localStorage.setItem("draftTransaksi", JSON.stringify(draftData));
+
+      setIsDraftLocked(true);
+      alert("Draft berhasil disimpan dan form dikunci!");
+    } else {
+      setIsDraftLocked(false);
+      alert("Draft dibuka kembali, Anda bisa mengedit data.");
     }
   };
 
-  const handleReset = () => {
-    setTanggalTransaksi(new Date().toISOString().substring(0, 10));
-    setReferensi("");
-    setDeskripsiUmum("");
-    setLampiran(null);
-    setRows([]);
+  const handlePosting = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
+
+    const entries: Entry[] = rows
+      .filter((r) => r.akunId && (r.debit > 0 || r.credit > 0))
+      .map((r) => {
+        const coa = coaList.find((c) => c.id === r.akunId);
+        return {
+          id_coa: r.akunId ?? 0,
+          code_account: coa ? coa.code_account : "",
+          debit: r.debit,
+          credit: r.credit,
+        } as Entry;
+      });
+
+    if (entries.length === 0)
+      return alert("Isi minimal satu baris transaksi dengan nominal!");
+    if (totalDebit !== totalCredit)
+      return alert("Total debit dan kredit harus seimbang!");
+
+    
+
+    try {
+      const res = await new AxiosCaller("http://localhost:3001").call["POST /journals"]({
+        headers: { authorization: token },
+        body: {
+          nomor_bukti: nomorBukti,
+          date: tanggalTransaksi,
+          description: deskripsiUmum,
+          lampiran: lampiran?.name || "",
+          referensi: referensi,
+          entries,
+        },
+      });
+
+      setNomorBukti(res.nomor_bukti); // ✅ ambil dari backend
+alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
+      handleReset(); // 🧹 bersihkan form
+      setIsDraftLocked(false); // buka form kosong lagi
+    } catch (err) {
+      console.error("Gagal posting transaksi:", err);
+      alert("Gagal posting transaksi.");
+    }
   };
+
+const handleReset = () => {
+  setTanggalTransaksi(new Date().toISOString().substring(0, 10));
+  setReferensi("");
+  setDeskripsiUmum("");
+  setLampiran(null);
+  setRows([]);
+  setNomorBukti(""); // ✅ regenerate nomor bukti
+};
+
 
   return (
     <>
@@ -158,13 +238,16 @@ const transactionPage = () => {
         {/* Sidebar tampil permanen di layar besar */}
         <div className="hidden md:block">
           <Sidebar />
+          <Navbar hideMenu />
         </div>
 
         {/* Konten utama */}
-        <main className="flex-1 container mx-auto p-4 md:p-6 bg-white rounded-lg shadow-md text-black overflow-y-auto">
-          <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 bg-green-200 p-2 md:p-3 flex items-center justify-center rounded-md">
-            Transaksi
-          </h1>
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black pt-20">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6 bg-green-200 py-2 md:p-3 flex rounded-md shadow-sm">
+              Transaksi
+            </h1>
+          </div>
 
           {/* === Form transaksi === */}
           <div className="bg-white p-6 rounded-lg shadow mb-6 border border-gray-200">
@@ -178,15 +261,16 @@ const transactionPage = () => {
                   value={tanggalTransaksi}
                   onChange={(e) => setTanggalTransaksi(e.target.value)}
                   className="mt-1 p-2 w-full border rounded"
+                  disabled={isDraftLocked}
                 />
-              </div>
+              </div> 
               <div>
                 <label className="block text-sm font-medium">Nomor Bukti</label>
                 <input
                   type="text"
-                  // value={nomorBukti}
-                  disabled
-                  className="mt-1 p-2 w-full border bg-gray-100 rounded"
+                  value={nomorBukti}
+    disabled
+                  className="mt-1 p-2 w-full border bg-gray-200 text-gray-600 rounded"
                 />
               </div>
               <div>
@@ -197,6 +281,7 @@ const transactionPage = () => {
                   onChange={(e) => setReferensi(e.target.value)}
                   className="mt-1 p-2 w-full border rounded"
                   placeholder="No Invoice / PO"
+                  disabled={isDraftLocked}
                 />
               </div>
             </div>
@@ -207,6 +292,7 @@ const transactionPage = () => {
               onChange={(e) => setDeskripsiUmum(e.target.value)}
               rows={3}
               className="mt-1 p-2 w-full border rounded resize-none mb-4"
+              disabled={isDraftLocked}
             />
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -232,11 +318,24 @@ const transactionPage = () => {
                 </button>
                 <button
                   onClick={handleSimpanDraft}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  className={`px-4 py-2 text-white rounded ${
+                    isDraftLocked
+                      ? "bg-gray-600 hover:bg-gray-700"
+                      : "bg-yellow-500 hover:bg-yellow-600"
+                  }`}
                 >
-                  Simpan Draft
+                  {isDraftLocked ? "Buka Draft" : "Simpan Draft"}
                 </button>
-                <button className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 font-semibold">
+
+                <button
+                  onClick={handlePosting}
+                  disabled={!isDraftLocked} // cuma bisa posting kalau sudah disimpan
+                  className={`px-6 py-2 rounded font-semibold ${
+                    isDraftLocked
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "bg-gray-400 text-white cursor-not-allowed"
+                  }`}
+                >
                   Posting
                 </button>
               </div>
@@ -266,8 +365,8 @@ const transactionPage = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-300">
-                <thead className="bg-gray-100">
+              <table className="min-w-2xl border border-gray-300">
+                <thead className="border border-gray-200 bg-gray-100">
                   <tr>
                     <th className="p-2 text-left text-xs font-semibold w-12">
                       No
@@ -275,10 +374,10 @@ const transactionPage = () => {
                     <th className="p-2 text-left text-xs font-semibold">
                       Akun
                     </th>
-                    <th className="p-2 text-right text-xs font-semibold w-1/4">
+                    <th className="p-2 text-center text-xs font-semibold w-1/4">
                       Debit
                     </th>
-                    <th className="p-2 text-right text-xs font-semibold w-1/4">
+                    <th className="p-2 text-center text-xs font-semibold w-1/4">
                       Kredit
                     </th>
                   </tr>
@@ -307,6 +406,7 @@ const transactionPage = () => {
                               )
                             }
                             className="w-full p-1 border rounded"
+                            disabled={isDraftLocked} // ← tambahin ini
                           >
                             <option value="">Pilih Akun</option>
                             {coaList.map((a) => (
@@ -324,6 +424,7 @@ const transactionPage = () => {
                               handleInputChange(row.id, "debit", e.target.value)
                             }
                             className="w-full p-1 border rounded text-right"
+                            disabled={isDraftLocked}
                           />
                         </td>
                         <td className="p-2">
@@ -338,6 +439,7 @@ const transactionPage = () => {
                               )
                             }
                             className="w-full p-1 border rounded text-right"
+                            disabled={isDraftLocked}
                           />
                         </td>
                       </tr>
