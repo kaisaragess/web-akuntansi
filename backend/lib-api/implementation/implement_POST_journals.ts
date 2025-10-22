@@ -14,7 +14,7 @@ import { JournalRes } from '../ts-schema/JournalRes'
 
 export function implement_POST_journals(engine: ExpressAA) {
   engine.implement({
-    endpoint: 'POST /journals',
+    endpoint: "POST /journals",
     async fn(param: POST_journals_Req): Promise<JournalRes> {
       // 
       const { authorization } = param.headers;
@@ -39,7 +39,9 @@ export function implement_POST_journals(engine: ExpressAA) {
           throw new Error("Bad Request: date and entries are required");
         }
         if (!Array.isArray(entries) || entries.length === 0) {
-          throw new Error("Bad Request: entries must be a non-empty array");
+          throw new Error(
+            "Bad Request: entries must be a non-empty array"
+          );
         }
 
         const parts = date.split("/"); 
@@ -65,7 +67,9 @@ export function implement_POST_journals(engine: ExpressAA) {
           throw new Error("Bad Request: Total debit must equal total credit");
         }
         if (totalDebit === 0) {
-          throw new Error("Bad Request: Journal entries cannot have zero total value");
+          throw new Error(
+            "Bad Request: Journal entries cannot have zero total value"
+          );
         }
 
         // (Validasi Coa juga pindah ke atas, sebelum transaksi)
@@ -168,6 +172,6 @@ export function implement_POST_journals(engine: ExpressAA) {
         console.error(error)
         throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : '') );
       }
-    }
+    },
   });
 }

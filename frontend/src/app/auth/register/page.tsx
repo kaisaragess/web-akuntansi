@@ -11,7 +11,8 @@ const RegisterPage = () => {
   const [form, setForm] = useState({
     fullname: "",
     username: "",
-    password: ""
+    password: "",
+    confirmPassword: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,12 +25,16 @@ const RegisterPage = () => {
     e.preventDefault();
 
     // Validasi input
-    if (!form.fullname || !form.username || !form.password ) {
+    if (!form.fullname || !form.username || !form.password || !form.confirmPassword) {
       setError("Semua field wajib diisi!");
       return;
     }
     if (form.password.length < 6) {
       setError("Password minimal 6 karakter!");
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      setError("Konfirmasi password tidak cocok!");
       return;
     }
 
@@ -92,6 +97,14 @@ const RegisterPage = () => {
           placeholder="Password"
           onChange={handleChange}
           value={form.password}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          name="confirmPassword"
+          type="password"
+          placeholder="Konfirmasi Password"
+          onChange={handleChange}
+          value={form.confirmPassword}
           className="w-full p-2 border border-gray-300 rounded"
         />
 
