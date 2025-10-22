@@ -1,12 +1,4 @@
 "use client";
-<<<<<<< HEAD
-
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-// Import 'useRouter' dan tambahkan 'usePathname'
-import { useRouter, usePathname } from "next/navigation"; 
-=======
->>>>>>> c7c3628cad23ae83bacd17514d77e0efdf07d83a
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
@@ -27,12 +19,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-<<<<<<< HEAD
-  // Panggil hook usePathname
-  const pathname = usePathname(); 
-=======
   const pathname = usePathname();
->>>>>>> c7c3628cad23ae83bacd17514d77e0efdf07d83a
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,7 +57,6 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
     router.push("/user/home"); 
   };
 
-<<<<<<< HEAD
   // Tentukan apakah kita berada di halaman Auth (Login atau Register)
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/register";
 
@@ -127,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
         </ul>
       </div>
     </nav>
-=======
+  );
   const hideLoginButton =
     pathname === "/auth/login" || pathname === "/auth/register";
 
@@ -210,7 +196,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
         </div>
       </nav>
     </>
->>>>>>> c7c3628cad23ae83bacd17514d77e0efdf07d83a
+
   );
 };
 
