@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { User } from "../../../../axios-client/ts-model/table/User";
 
 interface NavbarProps {
   hideMenu?: boolean;
@@ -11,8 +12,11 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [user, setUser] = useState<{ fullname: string; username: string } | null>(null); // ✅ state tambahan
+  const [user, setUser] = useState<{
+    fullname: string;
+    username: string;
+    avatar?: string;
+  } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -21,15 +25,14 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
 
-    // ✅ Ambil data user dari localStorage
     const fullname = localStorage.getItem("fullname");
     const username = localStorage.getItem("username");
+    const avatar = localStorage.getItem("avatar"); // optional: avatar URL
     if (fullname && username) {
-      setUser({ fullname, username });
+      setUser({ fullname, username, avatar: avatar || "/default-avatar.png" });
     }
   }, []);
 
-  // Tutup dropdown saat klik di luar area
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -46,58 +49,72 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("fullname"); // ✅ bersihkan data user
+    localStorage.removeItem("fullname");
     localStorage.removeItem("username");
+    localStorage.removeItem("avatar");
     setIsLoggedIn(false);
     router.push("/user/home");
   };
 
+  const hideLoginButton =
+    pathname === "/auth/login" || pathname === "/auth/register";
+
   return (
     <>
       <nav className="bg-stone-900 shadow-md fixed w-full top-0 left-0 z-40">
-        <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+        <div className="container mx-auto px-6 py-3 flex flex-wrap md:flex-nowrap justify-between items-center">
           <div className="text-2xl font-bold text-white">
             Kas<span className="text-green-500">ku:)</span>
           </div>
 
-          {/* Jika hideMenu = false → tampilkan Home dan About */}
+          {/* Home & About di sebelah kanan */}
           {!hideMenu && (
-            <ul className="flex space-x-4 text-white text-right">
+            <ul className="flex space-x-4 text-white ml-auto">
               <li>
                 <Link href="/" className="hover:text-green-500">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/user/order" className="hover:text-green-500">
+                <button
+                  onClick={() => {
+                    const element = document.getElementById("about");
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="hover:text-green-500"
+                >
                   About
-                </Link>
+                </button>
               </li>
             </ul>
           )}
 
-          <div className="flex items-center space-x-3 relative" ref={dropdownRef}>
-            {/* Jika user login dan sedang di dashboard (hideMenu = true) */}
+          <div
+            className="flex items-center space-x-3 relative ml-4"
+            ref={dropdownRef}
+          >
             {isLoggedIn && hideMenu && (
-              <div className="relative">
+              <div className="relative flex items-center space-x-2">
+                {/* Profile Image */}
+                {/* Username di sebelah avatar */}
+                <span className="text-white font-semibold">
+                  {user?.username || "User"}
+                </span>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold hover:bg-blue-700 focus:outline-none"
+                  className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-green-600 hover:bg-blue-700 focus:outline-none"
                 >
-                  {user?.fullname ? user.fullname.charAt(0).toUpperCase() : "K"}
+                  <img
+                    src={"/prfl.jpg"}
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                  />
                 </button>
 
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setShowProfileModal(true);
-                        setShowDropdown(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      My Profile
-                    </button>
+                  <div className="absolute right-0 mt-12 w-40 bg-white rounded-lg shadow-lg py-2 z-50">
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
@@ -109,8 +126,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
               </div>
             )}
 
-            {/* Jika belum login */}
-            {!isLoggedIn && (
+            {!isLoggedIn && !hideLoginButton && (
               <Link
                 href="/auth/login"
                 className="text-white text-sm px-3 py-1 bg-green-500 rounded-lg hover:bg-green-700"
@@ -121,29 +137,6 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
           </div>
         </div>
       </nav>
-
-      {/* ✅ Modal Profile */}
-      {showProfileModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-96 p-6 relative">
-            <h2 className="text-2xl font-bold mb-4 text-center text-stone-900">My Profile</h2>
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold mb-3">
-                {user?.fullname ? user.fullname.charAt(0).toUpperCase() : "U"}
-              </div>
-              <p className="text-gray-700 font-semibold">Nama: {user?.fullname || "-"}</p>
-              <p className="text-gray-700">Username: {user?.username || "-"}</p>
-            </div>
-
-            <button
-              onClick={() => setShowProfileModal(false)}
-              className="mt-5 w-full py-2 bg-red-500 text-white rounded-lg hover:bg-stone-700"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

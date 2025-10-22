@@ -47,7 +47,7 @@ const transactionPage = () => {
   const totalCredit = rows.reduce((sum, row) => sum + row.credit, 0);
   const selisih = totalDebit - totalCredit;
 
-    useEffect(() => {
+  useEffect(() => {
     setNomorBukti(""); // biarkan kosong dulu, nanti diisi dari backend
   }, []);
 
@@ -79,7 +79,7 @@ const transactionPage = () => {
           "GET /coa"
         ]({
           headers: { authorization: token },
-          query: {limit: 9999},
+          query: { limit: 9999 },
         });
         setCoaList(res);
       } catch (error) {
@@ -189,10 +189,10 @@ const transactionPage = () => {
     if (totalDebit !== totalCredit)
       return alert("Total debit dan kredit harus seimbang!");
 
-    
-
     try {
-      const res = await new AxiosCaller("http://localhost:3001").call["POST /journals"]({
+      const res = await new AxiosCaller("http://localhost:3001").call[
+        "POST /journals"
+      ]({
         headers: { authorization: token },
         body: {
           nomor_bukti: nomorBukti,
@@ -205,7 +205,7 @@ const transactionPage = () => {
       });
 
       setNomorBukti(res.nomor_bukti); // ✅ ambil dari backend
-alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
+      alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
       handleReset(); // 🧹 bersihkan form
       setIsDraftLocked(false); // buka form kosong lagi
     } catch (err) {
@@ -214,15 +214,14 @@ alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
     }
   };
 
-const handleReset = () => {
-  setTanggalTransaksi(new Date().toISOString().substring(0, 10));
-  setReferensi("");
-  setDeskripsiUmum("");
-  setLampiran(null);
-  setRows([]);
-  setNomorBukti(""); // ✅ regenerate nomor bukti
-};
-
+  const handleReset = () => {
+    setTanggalTransaksi(new Date().toISOString().substring(0, 10));
+    setReferensi("");
+    setDeskripsiUmum("");
+    setLampiran(null);
+    setRows([]);
+    setNomorBukti(""); // ✅ regenerate nomor bukti
+  };
 
   return (
     <>
@@ -263,13 +262,13 @@ const handleReset = () => {
                   className="mt-1 p-2 w-full border rounded"
                   disabled={isDraftLocked}
                 />
-              </div> 
+              </div>
               <div>
                 <label className="block text-sm font-medium">Nomor Bukti</label>
                 <input
                   type="text"
                   value={nomorBukti}
-    disabled
+                  disabled
                   className="mt-1 p-2 w-full border bg-gray-200 text-gray-600 rounded"
                 />
               </div>
@@ -298,15 +297,26 @@ const handleReset = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Lampiran</label>
-                <input
-                  type="file"
-                  onChange={(e) =>
-                    setLampiran(e.target.files ? e.target.files[0] : null)
-                  }
-                />
-                <span className="text-sm text-gray-500">
-                  {lampiran ? lampiran.name : "Tidak ada file"}
-                </span>
+                <div className="flex-1">
+                  <input
+                    id="lampiran"
+                    type="file"
+                    onChange={(e) =>
+                      setLampiran(e.target.files ? e.target.files[0] : null)
+                    }
+                    className="block w-full text-sm text-gray-700
+                 border border-gray-300 rounded-md bg-gray-50
+                 file:text-gray-600 file:bg-gray-100 file:border-0
+                 file:px-3 file:py-1.5
+                 hover:file:bg-gray-200
+                 cursor-pointer focus:outline-none focus:ring-1 focus:ring-gray-400 transition"
+                  />
+                  {lampiran && (
+                    <p className="text-xs text-gray-500 mt-1 truncate">
+                      {lampiran.name}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-3">

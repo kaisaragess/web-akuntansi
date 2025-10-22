@@ -36,8 +36,10 @@ const LoginPage = () => {
         },
       });
 
-      localStorage.setItem("token", res.token); 
+      localStorage.setItem("token", res.token);
       if (res.user) {
+        localStorage.setItem("fullname", res.user.fullname);
+        localStorage.setItem("username", res.user.username);
         alert("Login berhasil!");
         router.push("/user/dashboard");
       } else {
@@ -62,9 +64,10 @@ const LoginPage = () => {
         <div className="absolute inset-0 bg-black opacity-30"></div>
 
         {/* form */}
-        <form 
-        onSubmit={handleSubmit}
-        className="relative bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-gray-700 border border-gray-400">
+        <form
+          onSubmit={handleSubmit}
+          className="relative bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-gray-700 border border-gray-400"
+        >
           <h2 className="text-2xl font-bold text-center text-black mb-6">
             Login Page
           </h2>

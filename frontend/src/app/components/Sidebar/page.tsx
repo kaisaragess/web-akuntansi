@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 const Sidebar = () => {
   const router = useRouter();
-  const pathname = usePathname(); // <-- ini ganti router.pathname
+  const pathname = usePathname();
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -83,16 +83,17 @@ const Sidebar = () => {
             </button>
           )
         )}
-      </nav>
 
-      <div className="p-4 border-t border-stone-600">
-        <button
-          onClick={handleLogout}
-          className="flex items-center w-full px-4 py-3 text-left hover:bg-red-600 transition"
-        >
-          Keluar
-        </button>
-      </div>
+        {/* Logout di bawah Laporan Keuangan */}
+        <div className="mt-2">
+          <button
+            onClick={handleLogout}
+            className="flex items-center w-full px-4 py-3 text-left bg-red-500 hover:bg-red-600 transition"
+          >
+            Keluar
+          </button>
+        </div>
+      </nav>
     </aside>
   );
 };
