@@ -10,8 +10,8 @@ export class Journal_Entries {
   id!: number
   otm_id_journal!: Journals;
   id_journal!: number
-  otm_code_coa!: Coa;
-  code_coa!: string
+  otm_id_coa!: Coa;
+  id_coa!: number
   @Transform((param?: any): number | null => (param?.value === null || param?.value === undefined || param?.value === '') ? null : parseInt(param.value))
   @IsNumber({}, { message: 'debit must be a number (integer)' })
   debit!: number

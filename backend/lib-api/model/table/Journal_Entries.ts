@@ -19,15 +19,15 @@ export class Journal_Entries extends BaseEntity {
     nullable: false,
   })
   id_journal!: number;
-  @ManyToOne(() => Coa, x => x.code_account, { nullable: false })
-  @JoinColumn({ name: 'code_coa' })
-  otm_code_coa!: Coa;
+  @ManyToOne(() => Coa, x => x.id, { nullable: false })
+  @JoinColumn({ name: 'id_coa' })
+  otm_id_coa!: Coa;
   @Column({
-    name: 'code_coa',
-    type: 'varchar',
+    name: 'id_coa',
+    type: 'bigint',
     nullable: false,
   })
-  code_coa!: string;
+  id_coa!: number;
   @Column({
     type: 'bigint',
     nullable: false,

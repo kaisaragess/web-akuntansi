@@ -1,1 +1,4 @@
 .env
+/backend/config
+/node_modules
+/backend/dist

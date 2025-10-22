@@ -1,4 +1,4 @@
-import { getJournals } from '../../ts-schema/getJournals'
+import { JournalRes } from '../../ts-schema/JournalRes'
 import { Utility } from '../Utility';
 import { ClassConstructor, Transform, Type, plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsObject, IsBoolean, IsOptional, IsISO8601, IsString, IsEnum, ValidateNested, IsArray, ValidationError, validateOrReject } from "class-validator";
@@ -12,12 +12,6 @@ class GET_journals_Req_Query {
   @Transform((param?: any): number | null => (param?.value === null || param?.value === undefined || param?.value === '') ? null : parseFloat(param.value))
   @IsNumber({}, { message: 'page must be a number (decimal)' })
   page?: number
-  @IsOptional()
-  @IsString({ message: 'start_date must be a string' })
-  start_date?: string
-  @IsOptional()
-  @IsString({ message: 'end_date must be a string' })
-  end_date?: string
 }
 class GET_journals_Req_Headers {
   @IsNotEmpty({ message: 'authorization cannot be empty' })
@@ -33,5 +27,5 @@ export class GET_journals_Req {
 }
 export interface GET_journals {
   endpoint: 'GET /journals'
-  fn: (param: GET_journals_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<getJournals[]>
+  fn: (param: GET_journals_Req, Error: (param: Utility.ErrorParam<string>) => Utility.ErrorParam<string>) => Promise<JournalRes[]>
 }
