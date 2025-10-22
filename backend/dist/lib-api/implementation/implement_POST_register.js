@@ -47,7 +47,7 @@ function implement_POST_register(engine) {
                 newUser.role = UserType_1.UserType.user;
                 newUser.created_at = new Date(Date.now());
                 yield newUser.save();
-                return newUser;
+                return true;
             });
         }
     });
