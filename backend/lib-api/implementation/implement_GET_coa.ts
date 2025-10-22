@@ -8,7 +8,6 @@ export function implement_GET_coa(engine: ExpressAA) {
   engine.implement({
     endpoint: 'GET /coa',
     async fn(param: GET_coa_Req): Promise<Coa[]> {
-      
       const { authorization } = param.headers;
       const user = await verifyToken(authorization);
       if (!user) {

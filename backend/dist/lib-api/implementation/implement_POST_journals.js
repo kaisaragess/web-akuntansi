@@ -20,7 +20,7 @@ const Journal_Entries_1 = require("../model/table/Journal_Entries");
 const Journals_1 = require("../model/table/Journals");
 function implement_POST_journals(engine) {
     engine.implement({
-        endpoint: 'POST /journals',
+        endpoint: "POST /journals",
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
                 // 
@@ -138,6 +138,6 @@ function implement_POST_journals(engine) {
                     throw new Error('Gagal membuat jurnal baru.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
                 }
             });
-        }
+        },
     });
 }
