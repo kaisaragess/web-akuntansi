@@ -4,9 +4,6 @@ import Navbar from "@/app/components/Navbar/page";
 import Sidebar from "@/app/components/Sidebar/page";
 import { useRouter } from "next/navigation";
 import React, {useState, useEffect, useCallback, useRef} from "react";
-// import { useReactToPrint } from "react-to-print";
-// import jsPDF from 'jspdf';
-// import html2canvas from 'html2canvas';
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
 interface Entry {
@@ -55,14 +52,9 @@ const LostProfitReportPage = () => {
   const [coa, setCoa] = useState<Coa[]>([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [selectedPeriod, setSelectedPeriod] = useState<string>(""); 
   const [reportData, setReportData] = useState<ReportData | null>(null);
-  // --- DIHAPUS: State 'isReportReadyForPrint' tidak diperlukan lagi ---
-  // const [isReportReadyForPrint, setIsReportReadyForPrint] = useState(false);
-  
-  // --- DIHAPUS: ref tidak diperlukan untuk metode ini, tapi bisa dibiarkan ---
-  // const reportRef = useRef(null); 
+
   const router = useRouter();
 
   // --- Fungsi Helper ---
@@ -129,15 +121,9 @@ const LostProfitReportPage = () => {
     fetchInitialData(); 
   }, [fetchInitialData]); 
 
-  // --- DIHAPUS: useEffect untuk 'isReportReadyForPrint' ---
-  
-
-  
-  // --- DIUBAH: Fungsi print menjadi sangat sederhana ---
   const handlePrint = () => {
     window.print();
   };
-  // --- AKHIR PERUBAHAN ---
 
 
   // --- FUNGSI ALGORITMA LABA RUGI ---
