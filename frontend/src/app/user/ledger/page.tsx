@@ -195,11 +195,6 @@ interface BukuBesarPerAkun {
   return (
     <div className="flex min-h-screen bg-gray-50 text-black">
       <Sidebar />
-<<<<<<< HEAD
-      <div className="flex-1 p-6">
-        <Navbar hideMenu />
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Buku Besar</h1>
-=======
       <div className="flex-1 p-6 relative">
         <Navbar />
         <div className="flex justify-between items-center mb-4 pt-15">
@@ -291,7 +286,6 @@ interface BukuBesarPerAkun {
             </div>
           </div>
         </div>
->>>>>>> cc3284e7f09394e290cb74139ed013e1c5fce6c3
 
         {isLoading ? (
           <p className="text-gray-500">Memuat data...</p>

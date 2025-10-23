@@ -38,7 +38,7 @@ const Sidebar = () => {
   return (
     <aside className="bg-stone-900 text-white w-64 min-h-screen flex flex-col">
       <div className="p-4 text-center text-xl font-bold border-b border-green-700">
-        Kas<span className="text-green-500">ku.)</span>
+        Kas<span className="text-green-500">ku.</span>
       </div>
 
       <nav className="flex-1">
