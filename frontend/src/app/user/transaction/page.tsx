@@ -82,6 +82,7 @@ const transactionPage = () => {
           query: { limit: 9999 },
         });
         setCoaList(res);
+        
       } catch (error) {
         console.error("Gagal memuat daftar akun:", error);
       }
@@ -419,11 +420,13 @@ const transactionPage = () => {
                             disabled={isDraftLocked} // ← tambahin ini
                           >
                             <option value="">Pilih Akun</option>
-                            {coaList.map((a) => (
-                              <option key={a.id} value={a.id}>
-                                {a.code_account} - {a.account}
-                              </option>
-                            ))}
+                            {coaList
+                              .filter((a) => a.jenis === "detail")
+                              .map((a) => (
+                                <option key={a.id} value={a.id}>
+                                  {a.code_account} - {a.account}
+                                </option>
+                              ))}
                           </select>
                         </td>
                         <td className="p-2">

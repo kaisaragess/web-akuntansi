@@ -142,7 +142,7 @@ const BukuBesarPage = () => {
     <div className="flex min-h-screen bg-gray-50 text-black">
       <Sidebar />
       <div className="flex-1 p-6">
-        <Navbar />
+        <Navbar hideMenu />
         <h1 className="text-2xl font-bold mb-6 text-gray-800">Buku Besar</h1>
 
         {isLoading ? (

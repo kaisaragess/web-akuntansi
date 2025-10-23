@@ -11,6 +11,7 @@ const JournalPage = () => {
   interface Entry {
     id_coa: number;
     code_account: string;
+    account: string; // ✅ tambahkan ini
     debit: string;
     credit: string;
   }
@@ -25,13 +26,13 @@ const JournalPage = () => {
     entries: Entry[];
   }
 
-
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
+  const [showAllEntries, setShowAllEntries] = useState(false);
 
   const router = useRouter();
 
@@ -46,14 +47,44 @@ const JournalPage = () => {
 
     try {
       setLoading(true);
-      const res = await new AxiosCaller("http://localhost:3001").call[
+
+      // Ambil semua journal
+      const journalRes = await new AxiosCaller("http://localhost:3001").call[
         "GET /journals"
       ]({
         headers: { authorization: token },
-        query: {limit: 9999},
+        query: { limit: 9999 },
       });
 
-      setJournals(res as unknown as Journal[]);
+      // Ambil semua COA (akun)
+      const coaRes = await new AxiosCaller("http://localhost:3001").call[
+        "GET /coa"
+      ]({
+        headers: { authorization: token },
+        query: { limit: 9999 },
+      });
+
+      // Buat map id_coa -> nama akun
+      const coaMap = new Map<
+        number,
+        { account: string; code_account: string }
+      >();
+      coaRes.forEach((c: any) => {
+        coaMap.set(c.id, { account: c.account, code_account: c.code_account });
+      });
+
+      // Gabungkan data COA ke entries
+      const merged = (journalRes as any[]).map((journal) => ({
+        ...journal,
+        entries: journal.entries.map((entry: any) => ({
+          ...entry,
+          account: coaMap.get(entry.id_coa)?.account || "-", // ambil nama akun dari COA
+          code_account:
+            coaMap.get(entry.id_coa)?.code_account || entry.code_account,
+        })),
+      }));
+
+      setJournals(merged as Journal[]);
     } catch (err) {
       console.error("Gagal ambil data jurnal:", err);
       setError("Gagal memuat data jurnal");
@@ -62,45 +93,42 @@ const JournalPage = () => {
     }
   };
 
+  const handleEdit = (journal: Journal) => {
+    alert(`Edit jurnal #${journal.nomor_bukti}`);
+    setDropdownOpen(null);
+  };
 
-const handleEdit = (journal: Journal) => {
-  // bisa diarahkan ke halaman edit atau buka modal edit
-  alert(`Edit jurnal #${journal.nomor_bukti}`);
-  setDropdownOpen(null);
-};
+  const handleDelete = async (id: number) => {
+    if (!confirm("Yakin ingin menghapus jurnal ini?")) return;
 
-const handleDelete = async (id: number) => {
-  if (!confirm("Yakin ingin menghapus jurnal ini?")) return;
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
 
-  const token = localStorage.getItem("token");
-  if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
-
-  try {
-    const res = await new AxiosCaller("http://localhost:3001").call["DELETE /journals/:id"]({
-      headers: { authorization: token },
-      paths: { id },
-    });
-    alert("Jurnal berhasil dihapus!");
-    await fetchJournals();
-  } catch (err) {
-    console.error("Gagal menghapus jurnal:", err);
-    alert("Gagal menghapus jurnal!");
-  }
-};
-
+    try {
+      await new AxiosCaller("http://localhost:3001").call[
+        "DELETE /journals/:id"
+      ]({
+        headers: { authorization: token },
+        paths: { id },
+      });
+      alert("Jurnal berhasil dihapus!");
+      await fetchJournals();
+    } catch (err) {
+      console.error("Gagal menghapus jurnal:", err);
+      alert("Gagal menghapus jurnal!");
+    }
+  };
 
   useEffect(() => {
     fetchJournals();
   }, []);
 
-  // ========================= RENDER =========================
   return (
     <>
       <div className="flex">
         <Sidebar />
         <Navbar hideMenu />
         <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black pt-20">
-          {/* === Header === */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
               Journals
@@ -114,10 +142,17 @@ const handleDelete = async (id: number) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+
+              {/* ✅ Tombol modal semua entries */}
+              <button
+                onClick={() => setShowAllEntries(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
+              >
+                Lihat Semua Detail
+              </button>
             </div>
           </div>
 
-          {/* === TABEL UTAMA === */}
           <div className="overflow-x-auto overflow-visible relative bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-lg border border-green-100">
             <table className="min-w-full text-sm text-black rounded-xl relative z-0">
               <thead>
@@ -143,75 +178,79 @@ const handleDelete = async (id: number) => {
                 </tr>
               </thead>
 
-<tbody>
-  {journals
-    .filter(
-      (j) =>
-        j.nomor_bukti.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        j.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        j.referensi.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .map((journal, index) => (
-      <tr
-        key={journal.id}
-        className="bg-green-100 hover:bg-green-200/70 border-b border-green-200 transition-all duration-300"
-      >
-        <td className="px-6 py-3 font-semibold text-gray-700">
-          {index + 1}
-        </td>
-        <td className="px-6 py-3 font-semibold text-black">
-          {journal.nomor_bukti}
-        </td>
-        <td className="px-6 py-3">{journal.date}</td>
-        <td className="px-6 py-3 truncate max-w-[200px]">
-          {journal.description || "-"}
-        </td>
-        <td className="px-6 py-3">{journal.referensi || "-"}</td>
+              <tbody>
+                {journals
+                  .filter(
+                    (j) =>
+                      j.nomor_bukti
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                      j.description
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                      j.referensi
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                  )
+                  .map((journal, index) => (
+                    <tr
+                      key={journal.id}
+                      className="bg-green-100 hover:bg-green-200/70 border-b border-green-200 transition-all duration-300"
+                    >
+                      <td className="px-6 py-3 font-semibold text-gray-700">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-3 font-semibold text-black">
+                        {journal.nomor_bukti}
+                      </td>
+                      <td className="px-6 py-3">{journal.date}</td>
+                      <td className="px-6 py-3 truncate max-w-[200px]">
+                        {journal.description || "-"}
+                      </td>
+                      <td className="px-6 py-3">{journal.referensi || "-"}</td>
+                      <td className="px-6 py-3 text-center relative">
+                        <button
+                          onClick={() =>
+                            setDropdownOpen(
+                              dropdownOpen === journal.id ? null : journal.id
+                            )
+                          }
+                          className="text-green-500 hover:text-green-900 text-xl font-bold transition"
+                        >
+                          ⋮
+                        </button>
 
-        {/* === Tombol titik tiga aksi === */}
-        <td className="px-6 py-3 text-center relative">
-          <button
-            onClick={() =>
-              setDropdownOpen(dropdownOpen === journal.id ? null : journal.id)
-            }
-            className="text-green-500 hover:text-green-900 text-xl font-bold transition"
-          >
-            ⋮
-          </button>
-
-          {dropdownOpen === journal.id && (
-            <div className="absolute right-0 mt-2 w-36 bg-white border border-green-100 rounded-2xl shadow-lg z-10 animate-fadeIn">
-              <button
-                onClick={() => {
-                  setSelectedJournal(journal);
-                  setDropdownOpen(null);
-                }}
-                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 rounded-t-2xl transition"
-              >
-                Detail
-              </button>
-              <button
-                onClick={() => handleEdit(journal)}
-                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(journal.id)}
-                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-2xl transition"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </td>
-      </tr>
-    ))}
-</tbody>
-
+                        {dropdownOpen === journal.id && (
+                          <div className="absolute right-0 mt-2 w-36 bg-white border border-green-100 rounded-2xl shadow-lg z-10 animate-fadeIn">
+                            <button
+                              onClick={() => {
+                                setSelectedJournal(journal);
+                                setDropdownOpen(null);
+                              }}
+                              className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 rounded-t-2xl transition"
+                             >
+                              Detail
+                            </button>
+                            <button
+                              onClick={() => handleEdit(journal)}
+                              className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(journal.id)}
+                              className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-2xl transition"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
             </table>
           </div>
-          
 
           {loading && (
             <p className="text-center text-gray-500 mt-4">Memuat data...</p>
@@ -259,7 +298,7 @@ const handleDelete = async (id: number) => {
               </p>
             </div>
 
-            {/* === ENTRIES TABLE === */}
+            {/* ✅ Tabel detail entri akun */}
             <div className="mt-4">
               <h3 className="font-semibold text-green-600 mb-2">
                 Detail Entri Akun:
@@ -268,6 +307,7 @@ const handleDelete = async (id: number) => {
                 <thead>
                   <tr className="bg-green-200 text-left">
                     <th className="px-4 py-2">Kode Akun</th>
+                    <th className="px-4 py-2">Account</th>
                     <th className="px-4 py-2">Debit</th>
                     <th className="px-4 py-2">Kredit</th>
                   </tr>
@@ -276,6 +316,7 @@ const handleDelete = async (id: number) => {
                   {selectedJournal.entries.map((entry, i) => (
                     <tr key={i} className="border-t border-green-100">
                       <td className="px-4 py-2">{entry.code_account}</td>
+                      <td className="px-4 py-2">{entry.account}</td>
                       <td className="px-4 py-2 text-green-600 font-semibold">
                         {entry.debit}
                       </td>
@@ -287,15 +328,72 @@ const handleDelete = async (id: number) => {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="flex justify-end mt-6">
+      {/* ✅ POPUP SEMUA ENTRIES */}
+      {/* ✅ Popup Semua Entries — Dikelompokkan per transaksi dan tanggal */}
+      {showAllEntries && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-[900px] text-black animate-fadeIn max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <h2 className="text-lg font-bold text-green-700 items-center justify-center">
+                Semua Detail Entri Jurnal
+              </h2>
               <button
-                onClick={() => setSelectedJournal(null)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                onClick={() => setShowAllEntries(false)}
+                className="text-gray-500 hover:text-red-600 text-xl font-bold"
               >
-                Tutup
+                ✕
               </button>
             </div>
+
+            {/* ✅ Satu tabel untuk semua entri, per transaksi hanya satu tanggal & nomor bukti */}
+            <table className="min-w-full text-sm border border-green-200 rounded-xl overflow-hidden">
+              <thead className="bg-green-200 text-left">
+                <tr>
+                  <th className="px-4 py-2">Tanggal</th>
+                  <th className="px-4 py-2">Kode Akun</th>
+                  <th className="px-4 py-2">Account</th>
+                  <th className="px-4 py-2">Debit</th>
+                  <th className="px-4 py-2">Kredit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {journals.map((journal, jIndex) => (
+                  <React.Fragment key={jIndex}>
+                    {journal.entries.map((entry, i) => (
+                      <tr
+                        key={`${journal.id}-${i}`}
+                        className="border-t border-green-100 hover:bg-green-50"
+                      >
+                        {/* ✅ Tampilkan tanggal & nomor bukti hanya di baris pertama transaksi */}
+                        {i === 0 ? (
+                          <>
+                            <td
+                              rowSpan={journal.entries.length}
+                              className="px-4 py-2 align-top font-medium"
+                            >
+                              {journal.date}
+                            </td>
+                          </>
+                        ) : null}
+
+                        <td className="px-4 py-2">{entry.code_account}</td>
+                        <td className="px-4 py-2">{entry.account}</td>
+                        <td className="px-4 py-2 text-green-600 font-semibold">
+                          {entry.debit}
+                        </td>
+                        <td className="px-4 py-2 text-red-600 font-semibold">
+                          {entry.credit}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

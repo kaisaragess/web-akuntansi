@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
 
     const fullname = localStorage.getItem("fullname");
     const username = localStorage.getItem("username");
-    const avatar = localStorage.getItem("avatar"); // optional: avatar URL
+    const avatar = localStorage.getItem("avatar");
     if (fullname && username) {
       setUser({ fullname, username, avatar: avatar || "/default-avatar.png" });
     }
@@ -88,6 +88,18 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
                   About
                 </button>
               </li>
+
+              {/* ✅ tampilkan Dashboard hanya kalau login */}
+              {isLoggedIn && (
+                <li>
+                  <Link
+                    href="/user/dashboard"
+                    className="hover:text-green-500"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
             </ul>
           )}
 
@@ -97,8 +109,6 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
           >
             {isLoggedIn && hideMenu && (
               <div className="relative flex items-center space-x-2">
-                {/* Profile Image */}
-                {/* Username di sebelah avatar */}
                 <span className="text-white font-semibold">
                   {user?.username || "User"}
                 </span>
@@ -126,6 +136,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
               </div>
             )}
 
+            {/* ✅ kalau belum login dan bukan di halaman login/register, tampilkan tombol login */}
             {!isLoggedIn && !hideLoginButton && (
               <Link
                 href="/auth/login"
