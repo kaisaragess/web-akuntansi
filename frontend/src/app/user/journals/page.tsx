@@ -93,7 +93,6 @@ const handleDelete = async (id: number) => {
     fetchJournals();
   }, []);
 
-  // ========================= RENDER =========================
   return (
     <>
       <div className="flex">
