@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_POST_coa = implement_POST_coa;
 const Coa_1 = require("../model/table/Coa");
 const verifyToken_1 = require("../../fn/verifyToken");
-const Token_1 = require("../model/table/Token");
 function implement_POST_coa(engine) {
     engine.implement({
         endpoint: 'POST /coa',
@@ -23,11 +22,15 @@ function implement_POST_coa(engine) {
                 if (!token) {
                     throw new Error("Unauthorized");
                 }
-                if (!Token_1.Token) { // Pengecekan keamanan
-                    throw new Error("Unauthorized: Invalid token or missing user ID");
-                }
                 const { account, code_account, jenis, description, normal_balance, } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
                 try {
+                    const exsistingCoa = yield Coa_1.Coa.findOne({ where: { code_account } });
+                    if (exsistingCoa) {
+                        throw new Error(`Chart of Account dengan kode ${code_account} sudah ada.`);
+                    }
+                    if (code_account.length !== 3) {
+                        throw new Error(`Kode Akun harus terdiri dari 3 karakter.`);
+                    }
                     const newCoa = new Coa_1.Coa();
                     newCoa.code_account = code_account;
                     newCoa.account = account;
@@ -45,7 +48,9 @@ function implement_POST_coa(engine) {
                     };
                 }
                 catch (error) {
-                    console.error('Error creating Coa:', error);
+                    if (error instanceof Error) {
+                        throw error;
+                    }
                     throw new Error('Gagal membuat Chart of Account (Coa) baru.');
                 }
             });
