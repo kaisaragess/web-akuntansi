@@ -20,13 +20,18 @@ const Sidebar = () => {
     { name: "Transaksi", path: "/user/transaction" },
     { name: "Jurnal Umum", path: "/user/journals" },
     { name: "Buku Besar", path: "/user/ledger" },
-    { name: "Neraca Saldo", path: "/user/balance_sheet" },
+    { name: "Neraca Saldo", path: "/user/trial_balance" },
     {
       name: "Laporan Keuangan",
       children: [
         { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" },
         { name: "Laporan Neraca", path: "/user/laporan/neraca" },
+<<<<<<< HEAD
         { name: "Arus Kas", path: "/user/report/aruskas" },
+=======
+        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
+        { name: "Perubahan Modal", path: "/user/report/equitychange" },
+>>>>>>> e80cc3669ffaf3a97bd873cd14a5985c4f75c2e1
       ],
     }
   ];
@@ -38,7 +43,7 @@ const Sidebar = () => {
   return (
     <aside className="bg-stone-900 text-white w-64 min-h-screen flex flex-col">
       <div className="p-4 text-center text-xl font-bold border-b border-green-700">
-        Kas<span className="text-green-500">ku.)</span>
+        Kas<span className="text-green-500">ku.</span>
       </div>
 
       <nav className="flex-1">

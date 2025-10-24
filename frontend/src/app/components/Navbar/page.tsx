@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
 
     const fullname = localStorage.getItem("fullname");
     const username = localStorage.getItem("username");
-    const avatar = localStorage.getItem("avatar"); // optional: avatar URL
+    const avatar = localStorage.getItem("avatar");
     if (fullname && username) {
       setUser({ fullname, username, avatar: avatar || "/default-avatar.png" });
     }
@@ -53,9 +53,67 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
     localStorage.removeItem("username");
     localStorage.removeItem("avatar");
     setIsLoggedIn(false);
-    router.push("/user/home");
+    // Arahkan ke halaman utama user setelah logout
+    router.push("/user/home"); 
   };
 
+  // Tentukan apakah kita berada di halaman Auth (Login atau Register)
+  const isAuthPage = pathname === "/auth/login" || pathname === "/auth/register";
+
+  return (
+    <nav className="bg-gray-900 shadow-md fixed w-full top-0 left-0 z-50">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        {/* Logo */}
+        <div className="text-2xl font-bold text-white">
+          <Link href="/">
+            Kas<span className="text-lime-500 ">ku:)</span>
+          </Link>
+        </div>
+        
+        {/* Nav Links dan Tombol Login/Logout */}
+        <ul className="flex space-x-3 items-center text-white">
+          <li>
+            <Link href="/" className="text-sm hover:text-lime-500">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/user/order"
+              className="text-sm mx-2 hover:text-lime-500"
+            >
+              About
+            </Link>
+          </li>
+
+          {/* Kondisi untuk menampilkan Tombol Login/Logout */}
+          {isLoggedIn ? (
+            // Jika sudah login, tampilkan tombol Logout
+            <li>
+              <button
+                onClick={handleLogout}
+                className="text-sm px-3 py-1 text-white transition duration-200 rounded-lg bg-red-700 hover:bg-red-600 font-semibold"
+              >
+                Logout
+              </button>
+            </li>
+          ) : (
+            // Jika belum login, tampilkan tombol Login HANYA jika TIDAK berada di halaman Auth
+            !isAuthPage && (
+              <li>
+                <Link
+                  href="/auth/login"
+                  className="text-sm px-4 py-2 text-white transition duration-200 rounded-lg bg-lime-600 hover:bg-lime-800 font-semibold"
+                >
+                  Log in
+                </Link>
+              </li>
+            )
+          )}
+        </ul>
+      </div>
+    </nav>
+  );
   const hideLoginButton =
     pathname === "/auth/login" || pathname === "/auth/register";
 
@@ -88,6 +146,18 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
                   About
                 </button>
               </li>
+
+              {/* ✅ tampilkan Dashboard hanya kalau login */}
+              {isLoggedIn && (
+                <li>
+                  <Link
+                    href="/user/dashboard"
+                    className="hover:text-green-500"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
             </ul>
           )}
 
@@ -97,8 +167,6 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
           >
             {isLoggedIn && hideMenu && (
               <div className="relative flex items-center space-x-2">
-                {/* Profile Image */}
-                {/* Username di sebelah avatar */}
                 <span className="text-white font-semibold">
                   {user?.username || "User"}
                 </span>
@@ -126,6 +194,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
               </div>
             )}
 
+            {/* ✅ kalau belum login dan bukan di halaman login/register, tampilkan tombol login */}
             {!isLoggedIn && !hideLoginButton && (
               <Link
                 href="/auth/login"
@@ -138,6 +207,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
         </div>
       </nav>
     </>
+
   );
 };
 

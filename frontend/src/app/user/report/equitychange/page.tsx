@@ -284,7 +284,6 @@ const EquityChangePage = () => {
   return (
     <>
       {/* --- CSS Print --- */}
-      {/* --- DIUBAH: Menggunakan CSS Print dari user --- */}
       <style jsx global>{`
         @media print {
           /* Sembunyikan elemen yang tidak perlu */
@@ -333,7 +332,7 @@ const EquityChangePage = () => {
           }
         }
       `}</style>
-      {/* --- AKHIR PERUBAHAN --- */}
+      {/* --- AKHIR CSS --- */}
 
       {/* --- DIUBAH: Tambahkan class 'no-print' ke elemen yang tidak ingin dicetak --- */}
       <div className="flex min-h-screen pt-16 no-print">
