@@ -169,10 +169,10 @@ const CoaPage = () => {
   // ========================= RENDER =========================
   return (
     <>
-      <div className="flex">
+      <div className="flex min-h-screen pt-16">
         <Sidebar />
         <Navbar hideMenu />
-        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black pt-20">
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
           {/* Navbar di atas */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             {/* === Judul Halaman === */}

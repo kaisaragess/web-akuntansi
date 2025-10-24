@@ -193,11 +193,11 @@ interface BukuBesarPerAkun {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-black">
+    <div className="flex min-h-screen pt-16">
       <Sidebar />
-      <div className="flex-1 p-6 relative">
-        <Navbar />
-        <div className="flex justify-between items-center mb-4 pt-15">
+        <Navbar hideMenu/>
+      <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Buku Besar
             </h1>
@@ -344,7 +344,7 @@ interface BukuBesarPerAkun {
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

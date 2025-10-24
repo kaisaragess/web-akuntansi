@@ -36,7 +36,7 @@ const transactionPage = () => {
   );
   const [referensi, setReferensi] = useState("");
   const [deskripsiUmum, setDeskripsiUmum] = useState("");
-  const [lampiran, setLampiran] = useState<File | null>(null);
+  const [lampiran, setLampiran] = useState<string>("");
   const [rows, setRows] = useState<TransactionRow[]>([]);
   const [coaList, setCoaList] = useState<Coa[]>([]);
   const [isDraftLocked, setIsDraftLocked] = useState(false);
@@ -47,9 +47,6 @@ const transactionPage = () => {
   const totalCredit = rows.reduce((sum, row) => sum + row.credit, 0);
   const selisih = totalDebit - totalCredit;
 
-  useEffect(() => {
-    setNomorBukti(""); // biarkan kosong dulu, nanti diisi dari backend
-  }, []);
 
   // === Responsif Sidebar ===
   useEffect(() => {
@@ -135,6 +132,7 @@ const transactionPage = () => {
   };
 
   const handleSimpanDraft = () => {
+
     if (!isDraftLocked) {
       // ✅ Simpan draft di lokal saja, bukan ke database
       const entries: Entry[] = rows
@@ -149,14 +147,14 @@ const transactionPage = () => {
           } as Entry;
         });
 
-      if (entries.length === 0)
-        return alert("Isi minimal satu baris transaksi dengan nominal!");
+      // if (entries.length === 0)
+      //   return alert("Isi minimal satu baris transaksi dengan nominal!");
 
       const draftData = {
         date: tanggalTransaksi,
         description: deskripsiUmum,
         referensi,
-        lampiran: lampiran?.name || "",
+        lampiran,
         entries,
       };
       localStorage.setItem("draftTransaksi", JSON.stringify(draftData));
@@ -199,13 +197,13 @@ const transactionPage = () => {
           nomor_bukti: nomorBukti,
           date: tanggalTransaksi,
           description: deskripsiUmum,
-          lampiran: lampiran?.name || "",
+          lampiran: lampiran,
           referensi: referensi,
           entries,
         },
       });
 
-      setNomorBukti(res.nomor_bukti); // ✅ ambil dari backend
+      setNomorBukti(res.nomor_bukti); // ambil dari backend
       alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
       handleReset(); // 🧹 bersihkan form
       setIsDraftLocked(false); // buka form kosong lagi
@@ -219,38 +217,26 @@ const transactionPage = () => {
     setTanggalTransaksi(new Date().toISOString().substring(0, 10));
     setReferensi("");
     setDeskripsiUmum("");
-    setLampiran(null);
+    setLampiran("");
     setRows([]);
-    setNomorBukti(""); // ✅ regenerate nomor bukti
   };
 
   return (
     <>
-      <div className="flex min-h-screen">
-        {/* Tombol ☰ hanya muncul di mobile */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded"
-        >
-          ☰
-        </button>
-
-        {/* Sidebar tampil permanen di layar besar */}
-        <div className="hidden md:block">
+      <div className="flex min-h-screen pt-16">
           <Sidebar />
           <Navbar hideMenu />
-        </div>
 
         {/* Konten utama */}
-        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black pt-20">
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6 bg-green-200 py-2 md:p-3 flex rounded-md shadow-sm">
+            <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
               Transaksi
             </h1>
           </div>
 
           {/* === Form transaksi === */}
-          <div className="bg-white p-6 rounded-lg shadow mb-6 border border-gray-200">
+          <div className="bg-white p-6 rounded-lg shadow mb-4 border border-gray-200">
             <div className="grid md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">
@@ -268,7 +254,7 @@ const transactionPage = () => {
                 <label className="block text-sm font-medium">Nomor Bukti</label>
                 <input
                   type="text"
-                  value={nomorBukti}
+                  placeholder={nomorBukti}
                   disabled
                   className="mt-1 p-2 w-full border bg-gray-200 text-gray-600 rounded"
                 />
@@ -298,25 +284,22 @@ const transactionPage = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Lampiran</label>
-                <div className="flex-1">
+                <div className="flex-1 not-odd:">
                   <input
                     id="lampiran"
-                    type="file"
+                    type="text"
+                    placeholder="Masukkan link atau tautan..."
                     onChange={(e) =>
-                      setLampiran(e.target.files ? e.target.files[0] : null)
+                      setLampiran(e.target.value)
+                      // setLampiran(e.target.files ? e.target.files[0] : null)
                     }
-                    className="block w-full text-sm text-gray-700
-                 border border-gray-300 rounded-md bg-gray-50
-                 file:text-gray-600 file:bg-gray-100 file:border-0
-                 file:px-3 file:py-1.5
-                 hover:file:bg-gray-200
-                 cursor-pointer focus:outline-none focus:ring-1 focus:ring-gray-400 transition"
+                    className="w-xs mt-4 p-2 h-8 border rounded resize-none mb-4"
                   />
-                  {lampiran && (
+                  {/* {lampiran && (
                     <p className="text-xs text-gray-500 mt-1 truncate">
                       {lampiran.name}
                     </p>
-                  )}
+                  )} */}
                 </div>
               </div>
 
