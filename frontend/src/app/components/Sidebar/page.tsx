@@ -20,7 +20,7 @@ const Sidebar = () => {
     { name: "Transaksi", path: "/user/transaction" },
     { name: "Jurnal Umum", path: "/user/journals" },
     { name: "Buku Besar", path: "/user/ledger" },
-    { name: "Neraca Saldo", path: "/user/balance_sheet" },
+    { name: "Neraca Saldo", path: "/user/trial_balance" },
     {
       name: "Laporan Keuangan",
       children: [
