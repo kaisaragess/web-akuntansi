@@ -25,13 +25,9 @@ const Sidebar = () => {
       name: "Laporan Keuangan",
       children: [
         { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" },
-        { name: "Laporan Neraca", path: "/user/laporan/neraca" },
-<<<<<<< HEAD
-        { name: "Arus Kas", path: "/user/report/aruskas" },
-=======
-        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
+        { name: "Laporan Neraca", path: "/user/report/balance_sheet" },
+        { name: "Arus Kas", path: "/user/report/cashflow" },
         { name: "Perubahan Modal", path: "/user/report/equitychange" },
->>>>>>> e80cc3669ffaf3a97bd873cd14a5985c4f75c2e1
       ],
     }
   ];
