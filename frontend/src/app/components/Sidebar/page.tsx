@@ -24,7 +24,7 @@ const Sidebar = () => {
     {
       name: "Laporan Keuangan",
       children: [
-        { name: "Laporan Laba Rugi", path: "/user/report/laba_rugi" },
+        { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" },
         { name: "Laporan Neraca", path: "/user/report/balance_sheet" },
         { name: "Arus Kas", path: "/user/report/arus_kas" },
       ],

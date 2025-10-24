@@ -16,9 +16,6 @@ export function implement_POST_coa(engine: ExpressAA) {
       if (!token) {
         throw new Error("Unauthorized");
       }
-      if (!Token) { // Pengecekan keamanan
-        throw new Error("Unauthorized: Invalid token or missing user ID");
-      }
 
       const { 
         account, 
@@ -29,6 +26,17 @@ export function implement_POST_coa(engine: ExpressAA) {
       } = param.body.data; // <-- Lakukan destructuring dari objek 'data'
 
       try {
+
+        const exsistingCoa = await Coa.findOne({ where: { code_account } });
+        if (exsistingCoa) {
+          throw new Error(`Chart of Account dengan kode ${code_account} sudah ada.`);
+        }
+
+        if(code_account.length !== 3){
+          throw new Error(`Kode Akun harus terdiri dari 3 karakter.`);
+        }
+
+
         const newCoa = new Coa();
         newCoa.code_account = code_account;
         newCoa.account = account;
@@ -36,6 +44,7 @@ export function implement_POST_coa(engine: ExpressAA) {
         newCoa.description = description; 
         newCoa.normal_balance = normal_balance;
         newCoa.created_by = token;
+
         
         await newCoa.save();
 
@@ -48,7 +57,10 @@ export function implement_POST_coa(engine: ExpressAA) {
         };
 
       } catch (error) {
-        console.error('Error creating Coa:', error);
+
+        if (error instanceof Error) {
+            throw error; 
+        }
         throw new Error('Gagal membuat Chart of Account (Coa) baru.');
       }
     }
