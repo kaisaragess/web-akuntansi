@@ -20,13 +20,13 @@ const Sidebar = () => {
     { name: "Transaksi", path: "/user/transaction" },
     { name: "Jurnal Umum", path: "/user/journals" },
     { name: "Buku Besar", path: "/user/ledger" },
-    { name: "Neraca Saldo", path: "/user/balance_sheet" },
+    { name: "Neraca Saldo", path: "/user/trial_balance" },
     {
       name: "Laporan Keuangan",
       children: [
-        { name: "Laporan Laba Rugi", path: "/user/laporan/laba_rugi" },
-        { name: "Laporan Neraca", path: "/user/laporan/neraca" },
-        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
+        { name: "Laporan Laba Rugi", path: "/user/report/laba_rugi" },
+        { name: "Laporan Neraca", path: "/user/report/balance_sheet" },
+        { name: "Arus Kas", path: "/user/report/arus_kas" },
       ],
     },
   ];
