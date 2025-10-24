@@ -32,7 +32,7 @@ const Sidebar = () => {
     { name: "Transaksi", path: "/user/transaction", icon: ClipboardList },
     { name: "Jurnal Umum", path: "/user/journals", icon: BookOpen },
     { name: "Buku Besar", path: "/user/ledger", icon: FileText },
-    { name: "Neraca Saldo", path: "/user/balance_sheet", icon: BarChart },
+    { name: "Neraca Saldo", path: "/user/trial_balance", icon: BarChart },
     {
       name: "Laporan Keuangan",
       icon: PieChart,
@@ -80,18 +80,21 @@ return (
 
             {openDropdown === item.name && (
               <div className="pl-6 bg-green-900 hidden md:block">
-                {item.children.map((child) => (
-                  <button
-                    key={child.name}
-                    onClick={() => router.push(child.path)}
-                    className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition ${
-                      pathname === child.path ? "bg-green-700" : ""
-                    }`}
-                  >
-                    <child.icon size={18} className="mr-2" />
-                    <span className="hidden md:inline">{child.name}</span>
-                  </button>
-                ))}
+                {item.children.map((child) => {
+                  const Icon = child.icon as React.ElementType | undefined;
+                  return (
+                    <button
+                      key={child.name}
+                      onClick={() => router.push(child.path)}
+                      className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition ${
+                        pathname === child.path ? "bg-green-700" : ""
+                      }`}
+                    >
+                      {Icon && <Icon size={18} className="mr-2" />}
+                      <span className="hidden md:inline">{child.name}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -223,7 +223,7 @@ const transactionPage = () => {
 
   return (
     <>
-      <div className="flex min-h-screen pt-16">
+      <div className="flex min-h-screen pt-14">
           <Sidebar />
           <Navbar hideMenu />
 

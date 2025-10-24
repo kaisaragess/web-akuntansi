@@ -174,7 +174,7 @@ const handleEdit = async (journal: Journal) => {
 
   return (
     <>
-      <div className="flex min-h-screen pt-16">
+      <div className="flex min-h-screen pt-14">
         <Sidebar />
         <Navbar hideMenu />
         <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black ">

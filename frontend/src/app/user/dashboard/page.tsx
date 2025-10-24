@@ -6,7 +6,7 @@ import Navbar from "@/app/components/Navbar/page";
 
 const Dashboard = () => {
   return (
-    <div className="flex min-h-screen pt-16 bg-white text-black">
+    <div className="flex min-h-screen pt-14 bg-white text-black">
       <Sidebar />
       <Navbar hideMenu />
 
