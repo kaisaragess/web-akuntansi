@@ -197,7 +197,7 @@ const BukuBesarPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-black">
+    <div className="flex min-h-screen pt-16">
       <Sidebar />
       <div className="flex-1 p-6 relative">
         <Navbar />
@@ -339,7 +339,7 @@ const BukuBesarPage = () => {
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
