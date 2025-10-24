@@ -26,9 +26,9 @@ const Sidebar = () => {
       children: [
         { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" },
         { name: "Laporan Neraca", path: "/user/laporan/neraca" },
-        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
+        { name: "Arus Kas", path: "/user/report/aruskas" },
       ],
-    },
+    }
   ];
 
   const toggleDropdown = (name: string) => {

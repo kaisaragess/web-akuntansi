@@ -3,45 +3,45 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
-import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 import Image from "next/image";
+import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 const BukuBesarPage = () => {
-interface Coa {
-  id: number;
-  code_account: string;
-  account: string;
-}
+  interface Coa {
+    id: number;
+    code_account: string;
+    account: string;
+  }
 
-interface Entry {
-  id: number;
-  id_journal: number;
-  id_coa: number;
-  code_account: string;
-  debit: number;
-  credit: number;
-}
-
-interface Journal {
-  id: number;
-  date: string;
-  description: string;
-  lampiran: string;
-  referensi: string;
-  entries: Entry[];
-}
-
-interface BukuBesarPerAkun {
-  code_account: string;
-  account: string;
-  entries: {
-    tanggal: string;
-    deskripsi: string;
+  interface Entry {
+    id: number;
+    id_journal: number;
+    id_coa: number;
+    code_account: string;
     debit: number;
     credit: number;
-    saldo: number;
-  }[];
-}
+  }
+
+  interface Journal {
+    id: number;
+    date: string;
+    description: string;
+    lampiran: string;
+    referensi: string;
+    entries: Entry[];
+  }
+
+  interface BukuBesarPerAkun {
+    code_account: string;
+    account: string;
+    entries: {
+      tanggal: string;
+      deskripsi: string;
+      debit: number;
+      credit: number;
+      saldo: number;
+    }[];
+  }
 
   const [dataBukuBesar, setDataBukuBesar] = useState<BukuBesarPerAkun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,93 +49,97 @@ interface BukuBesarPerAkun {
   const [endDate, setEndDate] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchBukuBesar = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem("token");
-        if (!token) {
-          alert("Token tidak ditemukan. Silakan login ulang.");
-          return;
-        }
-
-        const axiosClient = new AxiosCaller("http://localhost:3001");
-
-        const journalsRes = await axiosClient.call["GET /journals"]({
-          headers: { authorization: token },
-          query: { limit: 9999 },
-        });
-        const journals = journalsRes as unknown as Journal[];
-
-        const coaRes = await axiosClient.call["GET /coa"]({
-          headers: { authorization: token },
-          query: { limit: 9999 },
-        });
-        const coaList = coaRes as unknown as Coa[];
-
-        const coaMap = new Map(coaList.map((c) => [c.code_account, c.account]));
-
-        const allEntries = journals.flatMap((j) =>
-          j.entries.map((e) => ({
-            code_account: e.code_account,
-            account: coaMap.get(e.code_account) || "(Tidak ditemukan)",
-            tanggal: j.date,
-            deskripsi: j.description,
-            debit: Number(e.debit) || 0,
-            credit: Number(e.credit) || 0,
-          }))
-        );
-
-        const filteredEntries = allEntries.filter((e) => {
-          const date = new Date(e.tanggal);
-          const afterStart = startDate ? date >= new Date(startDate) : true;
-          const beforeEnd = endDate ? date <= new Date(endDate) : true;
-          return afterStart && beforeEnd;
-        });
-
-        const grouped = new Map<string, BukuBesarPerAkun>();
-        for (const item of filteredEntries) {
-          const key = `${item.code_account}-${item.account}`;
-          if (!grouped.has(key)) {
-            grouped.set(key, {
-              code_account: item.code_account,
-              account: item.account,
-              entries: [],
-            });
-          }
-
-          grouped.get(key)!.entries.push({
-            tanggal: item.tanggal,
-            deskripsi: item.deskripsi,
-            debit: item.debit,
-            credit: item.credit,
-            saldo: 0,
-          });
-        }
-
-        const finalData: BukuBesarPerAkun[] = [];
-        for (const [, akun] of grouped) {
-          let saldo = 0;
-          akun.entries.sort(
-            (a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime()
-          );
-          akun.entries = akun.entries.map((e) => {
-            saldo += e.debit - e.credit;
-            return { ...e, saldo };
-          });
-          finalData.push(akun);
-        }
-
-        setDataBukuBesar(finalData);
-      } catch (error) {
-        console.error("Gagal mengambil Buku Besar:", error);
-      } finally {
-        setIsLoading(false);
+  // 🔄 Fungsi ambil data Buku Besar
+  const fetchBukuBesar = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Token tidak ditemukan. Silakan login ulang.");
+        return;
       }
-    };
 
+      const axiosClient = new AxiosCaller("http://localhost:3001");
+
+      const journalsRes = await axiosClient.call["GET /journals"]({
+        headers: { authorization: token },
+        query: { limit: 9999 },
+      });
+      const journals = journalsRes as unknown as Journal[];
+
+      const coaRes = await axiosClient.call["GET /coa"]({
+        headers: { authorization: token },
+        query: { limit: 9999 },
+      });
+      const coaList = coaRes as unknown as Coa[];
+
+      const coaMap = new Map(coaList.map((c) => [c.code_account, c.account]));
+
+      const allEntries = journals.flatMap((j) =>
+        j.entries.map((e) => ({
+          code_account: e.code_account,
+          account: coaMap.get(e.code_account) || "(Tidak ditemukan)",
+          tanggal: j.date,
+          deskripsi: j.description,
+          debit: Number(e.debit) || 0,
+          credit: Number(e.credit) || 0,
+        }))
+      );
+
+      let filteredEntries = allEntries;
+      if (startDate && endDate) {
+        filteredEntries = allEntries.filter((e) => {
+          const date = new Date(e.tanggal);
+          return (
+            date >= new Date(startDate) && date <= new Date(endDate)
+          );
+        });
+      }
+
+      const grouped = new Map<string, BukuBesarPerAkun>();
+      for (const item of filteredEntries) {
+        const key = `${item.code_account}-${item.account}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            code_account: item.code_account,
+            account: item.account,
+            entries: [],
+          });
+        }
+
+        grouped.get(key)!.entries.push({
+          tanggal: item.tanggal,
+          deskripsi: item.deskripsi,
+          debit: item.debit,
+          credit: item.credit,
+          saldo: 0,
+        });
+      }
+
+      const finalData: BukuBesarPerAkun[] = [];
+      for (const [, akun] of grouped) {
+        let saldo = 0;
+        akun.entries.sort(
+          (a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime()
+        );
+        akun.entries = akun.entries.map((e) => {
+          saldo += e.debit - e.credit;
+          return { ...e, saldo };
+        });
+        finalData.push(akun);
+      }
+
+      setDataBukuBesar(finalData);
+    } catch (error) {
+      console.error("Gagal mengambil Buku Besar:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchBukuBesar();
-  }, [startDate, endDate]);
+  }, []);
 
   // === Export Functions ===
   const handleExportPDF = () => {
@@ -145,7 +149,7 @@ interface BukuBesarPerAkun {
     newWindow?.document.write(`
       <html>
         <head>
-          <title>Buku Besar - PDF</title>
+          <title>Buku Besar</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -197,98 +201,89 @@ interface BukuBesarPerAkun {
       <Sidebar />
       <div className="flex-1 p-6 relative">
         <Navbar />
+
+        {/* === Header + Dropdown === */}
         <div className="flex justify-between items-center mb-4 pt-15">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Buku Besar
-            </h1>
+          </h1>
 
-          <div className="flex items-center gap-3 relative">
-          <h3 className="text-base font-normal bg-stone-200 px-6 py-2 rounded-md shadow-sm">
-            <span>Mulai Dari</span>
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 text-white px-3 py-1 rounded hover:bg-stone-200 text-sm"
+            >
+              <Image src="/printer.png" alt="Print Icon" width={30} height={30} />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <button
+                  onClick={() => {
+                    handleExportPDF();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/pdf-file.png" alt="PDF" width={18} height={18} />
+                  PDF
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportDoc();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/document.png" alt="Doc" width={18} height={18} />
+                  Word
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportExcel();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/excel.png" alt="Excel" width={18} height={18} />
+                  Excel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* === Filter tanggal === */}
+        <div className="flex items-center gap-3 mb-4">
+          <div>
+            <label className="text-sm mr-2 font-semibold">Mulai Dari:</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border mx-3 border-gray-300 rounded px-2 py-1"
-              />
-            <span> Sampai Dengan</span>
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-sm mr-2 font-semibold">Sampai Dengan:</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border mx-3 border-gray-300 rounded px-2 py-1"
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
             />
-              </h3>
-
-            {/* Dropdown Export */}
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 text-white px-3 py-1 rounded hover:bg-stone-200 text-sm"
-              >
-                <Image
-                  src="/printer.png"
-                  alt="Print Icon"
-                  width={30}
-                  height={30}
-                />
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <button
-                    onClick={() => {
-                      handleExportPDF();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                  >
-                    <Image
-                      src="/pdf-file.png"
-                      alt="PDF Icon"
-                      width={18}
-                      height={18}
-                    />
-                  Download PDF
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleExportDoc();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                  >
-                    <Image
-                      src="/document.png"
-                      alt="Document Icon"
-                      width={18}
-                      height={18}
-                    />
-                  Download Document
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleExportExcel();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                  >
-                    <Image
-                      src="/excel.png"
-                      alt="Excel Icon"
-                      width={18}
-                      height={18}
-                    />
-                  Download Excel
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
+          <button
+            onClick={fetchBukuBesar}
+            className="bg-green-600 text-white text-sm px-3 py-1 rounded hover:bg-green-700"
+          >
+            Tampilkan
+          </button>
         </div>
 
+        {/* === Konten Buku Besar === */}
         {isLoading ? (
-          <p className="text-gray-500">Memuat data...</p>
+          <p className="text-gray-500">Memuat data Buku Besar...</p>
         ) : (
           <div id="all-ledger-content" className="space-y-10">
             {dataBukuBesar.map((akun) => (
