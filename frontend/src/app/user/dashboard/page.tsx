@@ -6,9 +6,10 @@ import Navbar from "@/app/components/Navbar/page";
 
 const Dashboard = () => {
   return (
-    <div className="flex min-h-screen pt-14 bg-white text-black">
+<div className="flex min-h-screen pt-14">
       <Sidebar />
-      <Navbar hideMenu />
+      <div className="flex-1 p-6">
+        <Navbar hideMenu/>
 
       {/* Konten utama */}
       <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
@@ -42,6 +43,7 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
+    </div>  
   );
 };
 

@@ -170,8 +170,9 @@ const CoaPage = () => {
   return (
     <>
       <div className="flex min-h-screen pt-14">
-        <Sidebar />
-        <Navbar hideMenu />
+      <Sidebar />
+      <div className="flex-1 p-6">
+        <Navbar hideMenu/>
         <main className="container mx-auto p-2 bg-white rounded-lg shadow-md text-black">
           {/* Navbar di atas */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -322,6 +323,7 @@ const CoaPage = () => {
             </table>
           </div>
         </main>
+      </div>
       </div>
 
       {/* ====== POPUP DETAIL COA ====== */}
