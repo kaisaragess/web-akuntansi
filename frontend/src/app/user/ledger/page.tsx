@@ -223,7 +223,7 @@ const BukuBesarPage = () => {
                     handleExportPDF();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/pdf-file.png" alt="PDF" width={18} height={18} />
                   PDF
@@ -233,7 +233,7 @@ const BukuBesarPage = () => {
                     handleExportDoc();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/document.png" alt="Doc" width={18} height={18} />
                   Word
@@ -243,7 +243,7 @@ const BukuBesarPage = () => {
                     handleExportExcel();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/excel.png" alt="Excel" width={18} height={18} />
                   Excel
