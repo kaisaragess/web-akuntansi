@@ -5,8 +5,8 @@ export class Journal_Entries {
   id!: number
   otm_id_journal!: Journals;
   id_journal!: number
-  otm_code_account!: Coa;
-  code_account!: string
+  otm_id_coa!: Coa;
+  id_coa!: number
   debit!: number
   credit!: number
 }

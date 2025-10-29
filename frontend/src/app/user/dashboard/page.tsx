@@ -202,15 +202,14 @@ const Dashboard = () => {
 
   // --- RENDER ---
   return (
-    <div className="flex min-h-screen pt-14 bg-gray-100 text-black"> {/* Background diubah */}
+    <div className="flex min-h-screen pt-14"> {/* Background diubah */}
       <Sidebar />
-      <div className="flex-1 p-6">
         <Navbar hideMenu/>
 
       {/* Konten utama */}
       <main className="flex-1 p-6"> {/* Hapus container mx-auto & style spesifik */}
-        <div className="flex items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
+        <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Dashboard Ringkasan Keuangan
           </h1>
         </div>
@@ -286,7 +285,6 @@ const Dashboard = () => {
 
       </main>
     </div>
-    </div>  
   );
 };
 

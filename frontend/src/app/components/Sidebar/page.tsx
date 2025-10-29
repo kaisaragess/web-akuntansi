@@ -2,11 +2,23 @@
 
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Book,
+  FileText,
+  ClipboardList,
+  BookOpen,
+  BarChart,
+  PieChart,
+  TrendingUp,
+  LogOut,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
-
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const handleLogout = () => {
@@ -15,21 +27,22 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { name: "Dashboard", path: "/user/dashboard" },
-    { name: "COA", path: "/user/coa" },
-    { name: "Transaksi", path: "/user/transaction" },
-    { name: "Jurnal Umum", path: "/user/journals" },
-    { name: "Buku Besar", path: "/user/ledger" },
-    { name: "Neraca Saldo", path: "/user/trial_balance" },
+    { name: "Dashboard"   , path: "/user/dashboard"     , icon: LayoutDashboard },
+    { name: "COA"         , path: "/user/coa"           , icon: Book },
+    { name: "Transaksi"   , path: "/user/transaction"   , icon: ClipboardList },
+    { name: "Jurnal Umum" , path: "/user/journals"      , icon: BookOpen },
+    { name: "Buku Besar"  , path: "/user/ledger"        , icon: FileText },
+    { name: "Neraca Saldo", path: "/user/trial_balance" , icon: BarChart },
     {
       name: "Laporan Keuangan",
+      icon: PieChart,
       children: [
-        { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" },
-        { name: "Laporan Neraca", path: "/user/laporan/neraca" },
-        { name: "Arus Kas", path: "/user/laporan/arus_kas" },
-        { name: "Perubahan Modal", path: "/user/report/equitychange" },
+        { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport", icon: TrendingUp },
+        { name: "Laporan Neraca", path: "/user/report/balance_sheet", icon: FileText },
+        { name: "Arus Kas", path: "/user/report/cashflow", icon: Book },
+        { name: "Perubahan Modal", path: "/user/report/equitychange", icon: BarChart },
       ],
-    }
+    },
   ];
 
   const toggleDropdown = (name: string) => {
@@ -37,23 +50,33 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="bg-stone-900 text-white w-64 min-h-screen flex flex-col">
-      <div className="p-4 text-center text-xl font-bold border-b border-green-700">
-        Kas<span className="text-green-500">ku.</span>
+    <aside className="bg-stone-900 text-white w-64 md:w-64 min-h-screen flex transition-all duration-300 sm:w-20 sm:overflow-x-hidden">
+      {/* Logo */}
+      <div className="flex items-center justify-center py-4 text-2xl font-bold border-b border-stone-800">
+        <span className="hidden sm:hidden md:inline"></span>
       </div>
 
+      {/* Menu Utama */}
       <nav className="flex-1">
         {menuItems.map((item) =>
           item.children ? (
             <div key={item.name}>
               <button
                 onClick={() => toggleDropdown(item.name)}
-                className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-green-800 transition ${
-                  openDropdown === item.name ? "bg-green-800" : ""
-                }`}
+                className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-green-800 transition 
+                ${openDropdown === item.name ? "bg-green-800" : ""}`}
               >
-                {item.name}
-                <span>{openDropdown === item.name ? "▲" : "▼"}</span>
+                <div className="flex items-center">
+                  <item.icon className="w-5 h-5" />
+                  <span className="ml-3 hidden sm:hidden md:inline">{item.name}</span>
+                </div>
+                <div className="hidden sm:hidden md:block">
+                  {openDropdown === item.name ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </div>
               </button>
 
               {openDropdown === item.name && (
@@ -62,11 +85,11 @@ const Sidebar = () => {
                     <button
                       key={child.name}
                       onClick={() => router.push(child.path)}
-                      className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition ${
-                        pathname === child.path ? "bg-green-700" : ""
-                      }`}
+                      className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition 
+                      ${pathname === child.path ? "bg-green-700" : ""}`}
                     >
-                      {child.name}
+                      <child.icon className="w-4 h-4" />
+                      <span className="ml-2 hidden sm:hidden md:inline">{child.name}</span>
                     </button>
                   ))}
                 </div>
@@ -76,22 +99,23 @@ const Sidebar = () => {
             <button
               key={item.name}
               onClick={() => router.push(item.path)}
-              className={`flex items-center w-full px-4 py-3 text-left hover:bg-stone-400 transition ${
-                pathname === item.path ? "bg-green-800" : ""
-              }`}
+              className={`flex items-center w-full px-4 py-3 text-left hover:bg-stone-700 transition 
+              ${pathname === item.path ? "bg-green-800" : ""}`}
             >
-              {item.name}
+              <item.icon className="w-5 h-5" />
+              <span className="ml-3 hidden sm:hidden md:inline">{item.name}</span>
             </button>
           )
         )}
 
-        {/* Logout di bawah Laporan Keuangan */}
-        <div className="mt-2">
+        {/* Logout */}
+        <div className="mt-2 border-t border-stone-700">
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-left bg-red-500 hover:bg-red-600 transition"
+            className="flex items-center w-full px-4 py-3 text-left bg-red-600 hover:bg-red-700 transition"
           >
-            Keluar
+            <LogOut className="w-5 h-5" />
+            <span className="ml-3 hidden sm:hidden md:inline">Keluar</span>
           </button>
         </div>
       </nav>

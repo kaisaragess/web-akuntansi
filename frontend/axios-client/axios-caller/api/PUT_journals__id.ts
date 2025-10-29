@@ -6,7 +6,6 @@ class PUT_journals__id_Req_Headers {
   authorization!: string
 }
 class PUT_journals__id_Req_Body {
-  nomor_bukti!: string
   date!: string
   description?: string
   lampiran?: string
