@@ -73,7 +73,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      const axiosCaller = new AxiosCaller("http://localhost:3001"); // Sesuaikan URL
+      const axiosCaller = new AxiosCaller("http://localhost:3001"); 
 
       const [journalRes, coaRes] = await Promise.all([
         axiosCaller.call["GET /journals"]({
@@ -122,8 +122,8 @@ const Dashboard = () => {
 
     // Identifikasi kode akun yang relevan
     const cashAccountCodes = new Set<string>();
-    const arAccountCodes = new Set<string>(); // Accounts Receivable (Piutang)
-    const apAccountCodes = new Set<string>(); // Accounts Payable (Hutang)
+    const arAccountCodes = new Set<string>(); 
+    const apAccountCodes = new Set<string>(); 
 
     for (const account of coa) {
       // Asumsi 'jenis' untuk Kas/Bank adalah 'Kas & Bank'

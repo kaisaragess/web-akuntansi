@@ -30,7 +30,7 @@ const HomePage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative flex items-center justify-end min-h-screen bg-cover bg-center bg-[url('/bg.jpg')]">
+      <section className="relative flex items-center justify-end min-h-screen bg-cover bg-center bg-[url('/bg.jpg')]" >
         <div className="max-w-2xl text-right px-6 sm:px-12">
           <motion.h1
             initial={{ opacity: 0, y: 50 }}
@@ -68,7 +68,7 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="bg-green-200 py-24 overflow-hidden text-gray-800">
+      <section className="bg-green-200 py-24 overflow-hidden text-gray-800" id="about">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 px-6">
           {features.map((feature, idx) => (
             <motion.div

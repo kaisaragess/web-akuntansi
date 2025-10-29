@@ -56,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
 
   return (
     <nav className="bg-stone-900 shadow-md fixed w-full top-0 left-0 z-50">
-      <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+      <div className="container mx-auto px-2 py-3 flex justify-between items-center">
         {/* === Logo === */}
         <div className="text-2xl font-bold text-white">
           <Link href="/">
@@ -66,12 +66,12 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
 
         {/* === Menu di Tengah (opsional) === */}
         {!hideMenu && (
-          <ul className="hidden md:flex space-x-6 text-white text-sm">
+          <ul className="flex space-x-6 text-white text-sm">
             <li>
               <Link href="/" className="hover:text-green-400">Home</Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-green-400">About</Link>
+              <Link href="../../user/home#about" className="hover:text-green-400">About</Link>
             </li>
             {isLoggedIn && (
               <li>
