@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
+  Diff
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -37,10 +38,12 @@ const Sidebar = () => {
       name: "Laporan Keuangan",
       icon: PieChart,
       children: [
-        { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport", icon: TrendingUp },
+
+        { name: "Laporan Laba Rugi", path: "/user/report/lostprofitreport" , icon: TrendingUp},
+        { name: "Perubahan Modal", path: "/user/report/equitychange", icon: Diff},
         { name: "Laporan Neraca", path: "/user/report/balance_sheet", icon: FileText },
-        { name: "Arus Kas", path: "/user/report/cashflow", icon: Book },
-        { name: "Perubahan Modal", path: "/user/report/equitychange", icon: BarChart },
+        { name: "Arus Kas", path: "/user/report/cashflow" , icon: Book}
+
       ],
     },
   ];
