@@ -147,9 +147,6 @@ const transactionPage = () => {
           } as Entry;
         });
 
-      // if (entries.length === 0)
-      //   return alert("Isi minimal satu baris transaksi dengan nominal!");
-
       const draftData = {
         date: tanggalTransaksi,
         description: deskripsiUmum,
@@ -202,7 +199,7 @@ const transactionPage = () => {
         },
       });
 
-      setNomorBukti(res.nomor_bukti); // ambil dari backend
+      setNomorBukti(res.nomor_bukti);
       alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
       handleReset(); // 🧹 bersihkan form
       setIsDraftLocked(false); // buka form kosong lagi
