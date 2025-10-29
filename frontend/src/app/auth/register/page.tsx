@@ -73,7 +73,7 @@ const RegisterPage = () => {
       {/* form */}
       <form
         onSubmit={handleSubmit}
-        className="relative bg-white p-6 rounded-2xl shadow-lg w-full max-w-sm space-y-4 text-black border border-gray-400"
+        className="relative bg-white p-6 mx-10 rounded-2xl shadow-lg w-full max-w-sm space-y-4 text-black border border-gray-400"
       >
         <h1 className="text-2xl font-bold text-center mb-4">Register Page</h1>
 

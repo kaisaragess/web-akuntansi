@@ -171,11 +171,10 @@ const CoaPage = () => {
     <>
       <div className="flex min-h-screen pt-14">
       <Sidebar />
-      <div className="flex-1 p-6">
         <Navbar hideMenu/>
-        <main className="container mx-auto p-2 bg-white rounded-lg shadow-md text-black">
+        <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
           {/* Navbar di atas */}
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
             {/* === Judul Halaman === */}
             <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
               Charts of Account
@@ -323,7 +322,7 @@ const CoaPage = () => {
             </table>
           </div>
         </main>
-      </div>
+
       </div>
 
       {/* ====== POPUP DETAIL COA ====== */}

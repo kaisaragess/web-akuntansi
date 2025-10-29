@@ -194,7 +194,6 @@ const transactionPage = () => {
       ]({
         headers: { authorization: token },
         body: {
-          nomor_bukti: nomorBukti,
           date: tanggalTransaksi,
           description: deskripsiUmum,
           lampiran: lampiran,
@@ -293,7 +292,7 @@ const transactionPage = () => {
                       setLampiran(e.target.value)
                       // setLampiran(e.target.files ? e.target.files[0] : null)
                     }
-                    className="w-xs mt-4 p-2 h-8 border rounded resize-none mb-4"
+                    className="w-full mt-4 p-2 h-8 border rounded resize-none mb-4"
                   />
                   {/* {lampiran && (
                     <p className="text-xs text-gray-500 mt-1 truncate">
@@ -306,7 +305,7 @@ const transactionPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white transition"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                 >
                   Reset
                 </button>
@@ -315,7 +314,7 @@ const transactionPage = () => {
                   className={`px-4 py-2 text-white rounded ${
                     isDraftLocked
                       ? "bg-gray-600 hover:bg-gray-700"
-                      : "bg-emerald-500 hover:bg-emerald-600"
+                      : "bg-yellow-500 hover:bg-yellow-600"
                   }`}
                 >
                   {isDraftLocked ? "Buka Draft" : "Simpan Draft"}
@@ -324,9 +323,9 @@ const transactionPage = () => {
                 <button
                   onClick={handlePosting}
                   disabled={!isDraftLocked} // cuma bisa posting kalau sudah disimpan
-                  className={`px-6 py-2 rounded font-semibold ${
+                  className={`px-4 py-2 rounded font-semibold ${
                     isDraftLocked
-                      ? "bg-black text-white hover:bg-gray-900"
+                      ? "bg-black text-white hover:bg-gray-800"
                       : "bg-gray-400 text-white cursor-not-allowed"
                   }`}
                 >
@@ -338,20 +337,20 @@ const transactionPage = () => {
 
           {/* === Tabel Transaksi === */}
           <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-            <div className="flex gap-3 mb-4 mt-6">
+            <div className="flex gap-3 mb-4">
               <button
                 onClick={handleAddRow}
-                className="px-4 py-2 rounded border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 + Tambah Baris
               </button>
               <button
                 onClick={handleDeleteSelected}
                 disabled={rows.filter((r) => r.isSelected).length === 0}
-                className={`px-4 py-2 rounded border transition ${
+                className={`px-4 py-2 rounded text-white transition ${
                   rows.filter((r) => r.isSelected).length === 0
-                    ? "border-gray-400 text-gray-400 cursor-not-allowed"
-                    : "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                    ? "bg-red-400 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700"
                 }`}
               >
                 Hapus Baris
@@ -359,7 +358,7 @@ const transactionPage = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-2xl border border-gray-300">
+              <table className="min-w-full border border-gray-300">
                 <thead className="border border-gray-200 bg-gray-100">
                   <tr>
                     <th className="p-2 text-left text-xs font-semibold w-12">

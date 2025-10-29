@@ -202,13 +202,14 @@ const Dashboard = () => {
 
   // --- RENDER ---
   return (
-    <div className="flex min-h-screen pt-14"> {/* Background diubah */}
+    <div className="flex min-h-screen pt-15"> {/* Background diubah */}
       <Sidebar />
+      <div className="flex-1 ">
         <Navbar hideMenu/>
 
       {/* Konten utama */}
-      <main className="flex-1 p-6"> {/* Hapus container mx-auto & style spesifik */}
-        <div className="flex justify-between items-center mb-4">
+      <main className="container mx-auto pl-6 pt-6 pb-140 pr-31 bg-white rounded-lg shadow-md text-black min-w-lg"> {/* Hapus container mx-auto & style spesifik */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Dashboard Ringkasan Keuangan
           </h1>
@@ -220,49 +221,49 @@ const Dashboard = () => {
 
         {/* Tampilkan kartu data jika sudah siap */}
         {!loading && !error && dashboardData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Layout responsif */}
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"> {/* Layout responsif */}
             
             {/* Kartu Saldo Kas */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
+            <div className="bg-white px-6 py-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
               <div className="bg-blue-100 p-3 rounded-full">
                 <Wallet className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Kas & Setara Kas</p>
-                <p className="text-xl font-semibold text-gray-800">
+                <p className="text-xm font-semibold text-gray-800">
                   {formatCurrency(dashboardData.cashBalance)}
                 </p>
               </div>
             </div>
 
             {/* Kartu Piutang Usaha */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
+            <div className="bg-white px-6 py-10 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
               <div className="bg-yellow-100 p-3 rounded-full">
                 <FileText className="w-6 h-6 text-yellow-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Piutang Usaha</p>
-                <p className="text-xl font-semibold text-gray-800">
+                <p className="text-xm font-semibold text-gray-800">
                   {formatCurrency(dashboardData.accountsReceivable)}
                 </p>
               </div>
             </div>
 
             {/* Kartu Hutang Usaha */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
+            <div className="bg-white px-6 py-10 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
               <div className="bg-red-100 p-3 rounded-full">
                 <Landmark className="w-6 h-6 text-red-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Hutang Usaha</p>
-                <p className="text-xl font-semibold text-gray-800">
+                <p className="text-xm font-semibold text-gray-800">
                   {formatCurrency(dashboardData.accountsPayable)}
                 </p>
               </div>
             </div>
 
             {/* Kartu Laba/Rugi Bulan Ini */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
+            <div className="bg-white px-6 py-10 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
                <div className={`p-3 rounded-full ${dashboardData.netProfitThisMonth >= 0 ? 'bg-green-100' : 'bg-pink-100'}`}>
                  {dashboardData.netProfitThisMonth >= 0 ? (
                     <TrendingUp className="w-6 h-6 text-green-600" />
@@ -272,7 +273,7 @@ const Dashboard = () => {
                </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Laba/(Rugi) Bulan Ini</p>
-                <p className={`text-xl font-semibold ${dashboardData.netProfitThisMonth >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                <p className={`text-xm font-semibold ${dashboardData.netProfitThisMonth >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   {formatCurrency(dashboardData.netProfitThisMonth)}
                 </p>
               </div>
@@ -285,6 +286,7 @@ const Dashboard = () => {
 
       </main>
     </div>
+    </div>  
   );
 };
 

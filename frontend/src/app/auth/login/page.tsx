@@ -66,7 +66,7 @@ const LoginPage = () => {
         {/* form */}
         <form
           onSubmit={handleSubmit}
-          className="relative bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-gray-700 border border-gray-400"
+          className="relative bg-white p-8 mx-10 rounded-2xl shadow-lg w-full max-w-sm text-gray-700 border border-gray-400"
         >
           <h2 className="text-2xl font-bold text-center text-black mb-6">
             Login Page
