@@ -203,7 +203,7 @@ const transactionPage = () => {
         },
       });
 
-      setNomorBukti(res.nomor_bukti); // ambil dari backend
+      setNomorBukti(res.nomor_bukti);
       alert(`Transaksi berhasil diposting!\nNomor Bukti: ${res.nomor_bukti}`);
       handleReset(); // 🧹 bersihkan form
       setIsDraftLocked(false); // buka form kosong lagi

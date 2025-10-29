@@ -7,7 +7,7 @@ export class Journals extends BaseEntity {
     type: 'bigint',
     nullable: false,
   })
-  @ PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn('increment')
   id!: number;
   @ManyToOne(() => User, x => x.id, { nullable: false })
   @JoinColumn({ name: 'id_user' })

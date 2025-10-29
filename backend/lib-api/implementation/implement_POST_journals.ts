@@ -8,7 +8,6 @@ import { POST_journals_Req } from '../expressjs-aa/api/POST_journals';
 import { Coa } from "../model/table/Coa";
 import { Journal_Entries } from "../model/table/Journal_Entries";
 import { Journals } from "../model/table/Journals";
-import { Token } from "../model/table/Token";
 import { Entry } from '../ts-schema/Entry'
 import { JournalRes } from '../ts-schema/JournalRes'
 
