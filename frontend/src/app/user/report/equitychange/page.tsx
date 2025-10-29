@@ -166,19 +166,15 @@ const EquityChangePage = () => {
 
       for (const account of coa) {
         coaNameMap.set(account.code_account, account.account);
-        // PENTING: Asumsi 'jenis' akun Prive di database Anda adalah 'Prive'
         if (account.account.toLowerCase().includes('prive')) { 
           priveAccountCodes.add(account.code_account);
           priveAccountName = account.account; // misal: "Prive Bu Anita"
         }
-        // Asumsi 'jenis' akun Modal Utama adalah 'Modal'
         if (account.account.toLowerCase().includes('modal') && !priveAccountCodes.has(account.code_account)) {
           modalAccountName = account.account; // misal: "Modal Bu Anita"
         }
       }
-      // console.log("DEBUG: Akun Prive teridentifikasi:", Array.from(priveAccountCodes)); // --- BARU ---
 
-      // --- 3. Pisahkan Jurnal ---
       const journalsBeforePeriod: Journal[] = [];
       const journalsForPeriod: Journal[] = [];
 
@@ -188,10 +184,8 @@ const EquityChangePage = () => {
 
         // Validasi jika tanggalnya tidak valid
         if (isNaN(journalDate.getTime())) {
-          // console.warn("DEBUG: Format tanggal jurnal tidak valid, dilewati:", journal.date); // --- BARU ---
           continue; 
         }
-        // --- AKHIR PERBAIKAN ---
 
         if (journalDate < periodStartDate) {
           journalsBeforePeriod.push(journal);
@@ -199,10 +193,7 @@ const EquityChangePage = () => {
           journalsForPeriod.push(journal);
         }
       }
-      // console.log("DEBUG: Jumlah Jurnal Sebelum Periode:", journalsBeforePeriod.length); // --- BARU ---
-      // console.log("DEBUG: Jumlah Jurnal Selama Periode:", journalsForPeriod.length); // --- BARU ---
 
-      // --- 4. Hitung Modal Awal (Saldo sebelum periode) ---
       let modalAwal = 0;
       for (const journal of journalsBeforePeriod) {
         for (const entry of journal.entries) {
@@ -219,9 +210,7 @@ const EquityChangePage = () => {
           }
         }
       }
-      // console.log("DEBUG: Modal Awal dihitung:", modalAwal); // --- BARU ---
 
-      // --- 5. Hitung Perubahan Selama Periode ---
       let labaBersih = 0;
       let totalPrive = 0;
       let totalRevenue = 0;
@@ -244,14 +233,9 @@ const EquityChangePage = () => {
       }
 
       labaBersih = totalRevenue - totalExpenses;
-      // console.log("DEBUG: Laba Bersih dihitung:", labaBersih); // --- BARU ---
-      // console.log("DEBUG: Total Prive dihitung:", totalPrive); // --- BARU ---
 
-      // --- 6. Hitung Modal Akhir ---
       const modalAkhir = modalAwal + labaBersih - totalPrive;
-      // console.log("DEBUG: Modal Akhir dihitung:", modalAkhir); // --- BARU ---
 
-      // --- 7. Simpan Hasil ---
       const finalReportData = {
         modalAwal,
         labaBersih,
@@ -260,7 +244,6 @@ const EquityChangePage = () => {
         modalAccountName,
         priveAccountName
       };
-      // console.log("DEBUG: Data Laporan Final akan di-set:", finalReportData); // --- DIUBAH ---
       setReportData(finalReportData);
 
     } catch (err) {
@@ -272,7 +255,6 @@ const EquityChangePage = () => {
 
   // --- RENDER ---
 
-  // console.log("DEBUG: Nilai reportData saat render:", reportData);
 
   return (
     <>
