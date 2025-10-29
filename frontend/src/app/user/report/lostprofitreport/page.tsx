@@ -288,30 +288,19 @@ const LostProfitReportPage = () => {
       `}</style>
       {/* --- AKHIR CSS --- */}
 
-<<<<<<< HEAD
       {/* --- DIUBAH: Tambahkan class 'no-print' ke elemen yang tidak ingin dicetak --- */}
     <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
         <Navbar hideMenu/>  
-=======
-      <div className="flex min-h-screen pt-16 no-print">
-        <Sidebar />
-        <Navbar hideMenu />
->>>>>>> 11461abab517e42f32033124b85ae3fb28580096
         
         <main className={`flex-1 p-6 bg-gray-100`}>
-<<<<<<< HEAD
           <div className="flex justify-between items-center mb-6 no-print"> {/* Sembunyikan header saat print */}
             <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Laporan Laba Rugi
           </h1>
         </div>
-=======
-          <div className="flex justify-between items-center mb-6 no-print">
-            <h1 className="text-2xl font-bold">Laporan Laba Rugi</h1>
->>>>>>> 11461abab517e42f32033124b85ae3fb28580096
             {reportData && (
               <button
                 onClick={handlePrint}

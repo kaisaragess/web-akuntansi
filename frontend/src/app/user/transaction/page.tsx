@@ -147,9 +147,6 @@ const transactionPage = () => {
           } as Entry;
         });
 
-      // if (entries.length === 0)
-      //   return alert("Isi minimal satu baris transaksi dengan nominal!");
-
       const draftData = {
         date: tanggalTransaksi,
         description: deskripsiUmum,
@@ -194,7 +191,6 @@ const transactionPage = () => {
       ]({
         headers: { authorization: token },
         body: {
-          nomor_bukti: nomorBukti,
           date: tanggalTransaksi,
           description: deskripsiUmum,
           lampiran: lampiran,

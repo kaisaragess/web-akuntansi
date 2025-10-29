@@ -142,10 +142,9 @@ const EquityChangePage = () => {
   };
 
 
-  // --- FUNGSI ALGORITMA PERUBAHAN MODAL (DIROMBAK TOTAL) ---
+  // --- FUNGSI ALGORITMA PERUBAHAN MODAL ---
   const handleShowReport = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log("DEBUG: handleShowReport dipanggil"); // --- BARU ---
     if (!selectedPeriod) {
       alert("Silakan pilih periode terlebih dahulu.");
       return;
@@ -155,31 +154,25 @@ const EquityChangePage = () => {
       return;
     }
     
-    // --- BARU: Tambahkan try...catch untuk debugging ---
     try {
-      // --- 1. Persiapan Tanggal ---
       const [year, month] = selectedPeriod.split('-');
-      // Tanggal awal periode (misal: 1 Desember 2019)
       const periodStartDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-      // Tanggal akhir periode (misal: 31 Desember 2019)
       const periodEndDate = new Date(parseInt(year), parseInt(month), 0);
-      // console.log("DEBUG: Rentang Tanggal:", periodStartDate, "sampai", periodEndDate); // --- BARU ---
 
-      // --- 2. Persiapan Akun ---
       const coaNameMap = new Map<string, string>();
       const priveAccountCodes = new Set<string>();
-      let modalAccountName = "Modal Pemilik"; // Default
-      let priveAccountName = "Prive"; // Default
+      let modalAccountName = "Modal Pemilik"; 
+      let priveAccountName = "Prive"; 
 
       for (const account of coa) {
         coaNameMap.set(account.code_account, account.account);
         // PENTING: Asumsi 'jenis' akun Prive di database Anda adalah 'Prive'
-        if (account.jenis === 'Prive') { 
+        if (account.account.toLowerCase().includes('prive')) { 
           priveAccountCodes.add(account.code_account);
           priveAccountName = account.account; // misal: "Prive Bu Anita"
         }
         // Asumsi 'jenis' akun Modal Utama adalah 'Modal'
-        if (account.jenis === 'Modal' && !priveAccountCodes.has(account.code_account)) {
+        if (account.account.toLowerCase().includes('modal') && !priveAccountCodes.has(account.code_account)) {
           modalAccountName = account.account; // misal: "Modal Bu Anita"
         }
       }
