@@ -306,7 +306,7 @@ const transactionPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white transition"
                 >
                   Reset
                 </button>
@@ -315,7 +315,7 @@ const transactionPage = () => {
                   className={`px-4 py-2 text-white rounded ${
                     isDraftLocked
                       ? "bg-gray-600 hover:bg-gray-700"
-                      : "bg-yellow-500 hover:bg-yellow-600"
+                      : "bg-emerald-500 hover:bg-emerald-600"
                   }`}
                 >
                   {isDraftLocked ? "Buka Draft" : "Simpan Draft"}
@@ -326,7 +326,7 @@ const transactionPage = () => {
                   disabled={!isDraftLocked} // cuma bisa posting kalau sudah disimpan
                   className={`px-6 py-2 rounded font-semibold ${
                     isDraftLocked
-                      ? "bg-black text-white hover:bg-gray-800"
+                      ? "bg-black text-white hover:bg-gray-900"
                       : "bg-gray-400 text-white cursor-not-allowed"
                   }`}
                 >
@@ -338,20 +338,20 @@ const transactionPage = () => {
 
           {/* === Tabel Transaksi === */}
           <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-            <div className="flex gap-3 mb-4">
+            <div className="flex gap-3 mb-4 mt-6">
               <button
                 onClick={handleAddRow}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 rounded border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition"
               >
                 + Tambah Baris
               </button>
               <button
                 onClick={handleDeleteSelected}
                 disabled={rows.filter((r) => r.isSelected).length === 0}
-                className={`px-4 py-2 rounded text-white transition ${
+                className={`px-4 py-2 rounded border transition ${
                   rows.filter((r) => r.isSelected).length === 0
-                    ? "bg-red-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700"
+                    ? "border-gray-400 text-gray-400 cursor-not-allowed"
+                    : "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                 }`}
               >
                 Hapus Baris

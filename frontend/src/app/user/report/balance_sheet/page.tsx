@@ -444,13 +444,16 @@ const BalanceSheetReportPage = () => {
         }
       `}</style>
 
-      <div className="flex min-h-screen pt-16">
-        <Sidebar />
-        <Navbar hideMenu />
+      <div className="flex min-h-screen pt-14">
+      <Sidebar />
+      <div className="flex-1 p-6">
+        <Navbar hideMenu/>
         
         <main className="flex-1 p-6 bg-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Laporan Neraca</h1>
+          <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
+            Laporan Neraca
+          </h1>
             {reportData && (
               <button
                 onClick={handlePrint}
@@ -633,6 +636,7 @@ const BalanceSheetReportPage = () => {
             </div>
           )}
         </main>
+      </div>
       </div>
     </>
   );

@@ -3,7 +3,6 @@ class POST_journals_Req_Headers {
   authorization!: string
 }
 class POST_journals_Req_Body {
-  nomor_bukti!: string
   date!: string
   description?: string
   lampiran?: string

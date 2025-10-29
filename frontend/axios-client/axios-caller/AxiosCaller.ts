@@ -13,7 +13,7 @@ import { PUT_coa__id_Req } from '../axios-caller/api/PUT_coa__id';
 import { DELETE_coa__id_Req } from '../axios-caller/api/DELETE_coa__id';
 import { JournalRes } from '../ts-schema/JournalRes'
 import { AuthResponse } from '../ts-schema/AuthResponse'
-import { User } from '../ts-model/table/User'
+
 import { COAPayload } from '../ts-schema/COAPayload'
 import { Coa } from '../ts-model/table/Coa'
 
@@ -90,7 +90,7 @@ export class AxiosCaller {
         
       })).data
     },
-    'POST /register': async (param: POST_register_Req): Promise<User> => {
+    'POST /register': async (param: POST_register_Req): Promise<boolean> => {
       let clean_path = '/register';
       if (!this.axios_instance) {
         throw new Error('Axios not initialized');

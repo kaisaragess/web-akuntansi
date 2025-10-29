@@ -49,7 +49,7 @@ const BukuBesarPage = () => {
   const [endDate, setEndDate] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // 🔄 Fungsi ambil data Buku Besar
+  // === Ambil Data Buku Besar ===
   const fetchBukuBesar = async () => {
     try {
       setIsLoading(true);
@@ -90,9 +90,7 @@ const BukuBesarPage = () => {
       if (startDate && endDate) {
         filteredEntries = allEntries.filter((e) => {
           const date = new Date(e.tanggal);
-          return (
-            date >= new Date(startDate) && date <= new Date(endDate)
-          );
+          return date >= new Date(startDate) && date <= new Date(endDate);
         });
       }
 
@@ -141,7 +139,7 @@ const BukuBesarPage = () => {
     fetchBukuBesar();
   }, []);
 
-  // === Export Functions ===
+  // === Export ===
   const handleExportPDF = () => {
     const content = document.getElementById("all-ledger-content");
     if (!content) return;
@@ -197,13 +195,13 @@ const BukuBesarPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-black">
+    <div className="flex min-h-screen pt-14">
       <Sidebar />
-      <div className="flex-1 p-6 relative">
-        <Navbar />
+      <div className="flex-1 p-6">
+        <Navbar hideMenu />
 
-        {/* === Header + Dropdown === */}
-        <div className="flex justify-between items-center mb-4 pt-15">
+        {/* === Header === */}
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Buku Besar
           </h1>
@@ -211,9 +209,9 @@ const BukuBesarPage = () => {
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 text-white px-3 py-1 rounded hover:bg-stone-200 text-sm"
+              className="flex items-center gap-2 text-black px-3 py-1 rounded hover:bg-green-200 text-sm border border-gray-300"
             >
-              <Image src="/printer.png" alt="Print Icon" width={30} height={30} />
+              <Image src="/printer.png" alt="Print Icon" width={28} height={28} />
             </button>
 
             {isDropdownOpen && (
@@ -253,7 +251,7 @@ const BukuBesarPage = () => {
           </div>
         </div>
 
-        {/* === Filter tanggal === */}
+        {/* === Filter === */}
         <div className="flex items-center gap-3 mb-4">
           <div>
             <label className="text-sm mr-2 font-semibold">Mulai Dari:</label>
@@ -298,17 +296,31 @@ const BukuBesarPage = () => {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-stone-800 text-green-200 border-b">
-                      <tr>
-                        <th className="px-4 py-2 text-left">Tanggal</th>
-                        <th className="px-4 py-2 text-left">Deskripsi</th>
-                        <th className="px-4 py-2 text-right">Debit</th>
-                        <th className="px-4 py-2 text-right">Kredit</th>
-                        <th className="px-4 py-2 text-right">Saldo Debit</th>
-                        <th className="px-4 py-2 text-right">Saldo Kredit</th>
+                  <table className="w-full text-sm border border-gray-300">
+                    <thead>
+                      <tr className="bg-stone-800 text-green-200">
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                          Tanggal
+                        </th>
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                          Deskripsi
+                        </th>
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                          Debit
+                        </th>
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                          Kredit
+                        </th>
+                        <th colSpan={2} className="px-4 py-2 text-center">
+                          Saldo
+                        </th>
+                      </tr>
+                      <tr className="bg-stone-800 text-green-200 border-b">
+                        <th className="px-4 py-2 text-center border">Debit</th>
+                        <th className="px-4 py-2 text-center border">Kredit</th>
                       </tr>
                     </thead>
+
                     <tbody>
                       {akun.entries.map((entry, index) => (
                         <tr key={index} className="border-b hover:bg-gray-50">

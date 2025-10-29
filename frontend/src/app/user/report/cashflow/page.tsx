@@ -167,12 +167,12 @@ interface Coa {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-black">
+    <div className="flex min-h-screen pt-14">
       <Sidebar />
-      <div className="flex-1 p-6 relative">
-        <Navbar />
+      <div className="flex-1 p-6">
+        <Navbar hideMenu/>
 
-        <div className="flex justify-between items-center mb-4 pt-15">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Laporan Arus Kas
           </h1>

@@ -259,15 +259,19 @@ const NeracaSaldoPage = () => {
   // =========================================================================
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-black">
+    <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
-        <Navbar />
+        <Navbar hideMenu/>
         
         {/* JUDUL DAN FILTER */}
-        <h1 className="text-3xl font-extrabold mb-4 text-gray-800">NERACA SALDO</h1>
+        <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
+            Neraca Saldo
+          </h1>
+        </div>
         
-        <div className="flex items-center justify-between space-x-4 mb-8 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <main className="flex items-center justify-between space-x-4 mb-8 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center space-x-4">
                 <h2 className="text-lg font-semibold text-gray-700">Periode:</h2>
                 
@@ -297,7 +301,7 @@ const NeracaSaldoPage = () => {
             >
                 {isLoading ? 'Mempersiapkan PDF...' : 'Export PDF'}
             </button>
-        </div>
+        </main>
         
         <p className="mb-4 text-sm text-gray-600">
           Neraca Saldo per tanggal **{displayLastDay} {monthLabels[selectedMonth] || 'N/A'} {selectedYear}**.

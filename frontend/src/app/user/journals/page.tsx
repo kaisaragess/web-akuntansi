@@ -5,16 +5,13 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
-import { JournalRes } from "../../../../axios-client/ts-schema/JournalRes";
-import { Entry } from "../../../../axios-client/ts-schema/Entry";
-import { Journal_Entries } from "../../../../axios-client/ts-model/table/Journal_Entries";
 import Link from "next/link";
 
 const JournalPage = () => {
   interface Entry {
     id_coa: number;
     code_account: string;
-    account: string; // ✅ tambahkan ini
+    account: string;
     debit: string;
     credit: string;
   }
@@ -35,8 +32,8 @@ const JournalPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-  const [showAllEntries, setShowAllEntries] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editJournal, setEditJournal] = useState<Journal | null>(null);
 
   const router = useRouter();
 
@@ -52,7 +49,6 @@ const JournalPage = () => {
     try {
       setLoading(true);
 
-      // Ambil semua journal
       const journalRes = await new AxiosCaller("http://localhost:3001").call[
         "GET /journals"
       ]({
@@ -60,7 +56,6 @@ const JournalPage = () => {
         query: { limit: 9999 },
       });
 
-      // Ambil semua COA (akun)
       const coaRes = await new AxiosCaller("http://localhost:3001").call[
         "GET /coa"
       ]({
@@ -68,7 +63,6 @@ const JournalPage = () => {
         query: { limit: 9999 },
       });
 
-      // Buat map id_coa -> nama akun
       const coaMap = new Map<
         number,
         { account: string; code_account: string }
@@ -77,12 +71,11 @@ const JournalPage = () => {
         coaMap.set(c.id, { account: c.account, code_account: c.code_account });
       });
 
-      // Gabungkan data COA ke entries
       const merged = (journalRes as any[]).map((journal) => ({
         ...journal,
         entries: journal.entries.map((entry: any) => ({
           ...entry,
-          account: coaMap.get(entry.id_coa)?.account || "-", // ambil nama akun dari COA
+          account: coaMap.get(entry.id_coa)?.account || "-",
           code_account:
             coaMap.get(entry.id_coa)?.code_account || entry.code_account,
         })),
@@ -97,55 +90,50 @@ const JournalPage = () => {
     }
   };
 
+  useEffect(() => {
+    fetchJournals();
+  }, []);
 
-const handleOpenEdit = (journal: Journal) => {
-  setEditJournal(journal);
-  setShowEditModal(true);
-  setDropdownOpen(null);
-};
+  // ========================= EDIT & DELETE =========================
+  const handleOpenEdit = (journal: Journal) => {
+    setEditJournal(journal);
+    setShowEditModal(true);
+    setDropdownOpen(null);
+  };
 
-const handleSaveEdit = async () => {
-  if (!editJournal) return;
-  await handleEdit(editJournal);
-  setShowEditModal(false);
-};
+  const handleSaveEdit = async () => {
+    if (!editJournal) return;
+    await handleEdit(editJournal);
+    setShowEditModal(false);
+  };
 
+  const handleEdit = async (journal: Journal) => {
+    const anyJournal = journal as any;
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
 
-  // alert(`Edit jurnal #${journal.nomor_bukti}`);
-  // setDropdownOpen(null);
+    try {
+      await new AxiosCaller("http://localhost:3001").call["PUT /journals/:id"]({
+        headers: { authorization: token },
+        paths: { id: journal.id },
+        body: {
+          date: journal.date,
+          nomor_bukti: journal.nomor_bukti,
+          description: journal.description,
+          lampiran: journal.lampiran,
+          referensi: journal.referensi,
+          entries: anyJournal.entries || [],
+        },
+      });
 
-  const [editJournal, setEditJournal] = useState<Journal | null>(null);
-
-const handleEdit = async (journal: Journal) => {
-  const anyJournal = journal as any; // ✅ tambahan biar gak merah
-  const token = localStorage.getItem("token");
-  if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
-
-  try {
-    const res = await new AxiosCaller("http://localhost:3001").call[
-      "PUT /journals/:id"
-    ]({
-      headers: { authorization: token },
-      paths: { id: journal.id },
-      body: {
-        date: journal.date,
-        nomor_bukti: journal.nomor_bukti,
-        description: journal.description,
-        lampiran: journal.lampiran,
-        referensi: journal.referensi,
-        entries: anyJournal.entries || [], // ✅ aman, gak merah lagi
-      },
-    });
-
-    alert("Jurnal berhasil diperbarui!");
-    setEditJournal(null);
-    await fetchJournals();
-  } catch (err) {
-    console.error("Gagal update jurnal:", err);
-    alert("Gagal memperbarui jurnal!");
-  }
-};
-
+      alert("Jurnal berhasil diperbarui!");
+      setEditJournal(null);
+      await fetchJournals();
+    } catch (err) {
+      console.error("Gagal update jurnal:", err);
+      alert("Gagal memperbarui jurnal!");
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus jurnal ini?")) return;
@@ -168,10 +156,7 @@ const handleEdit = async (journal: Journal) => {
     }
   };
 
-  useEffect(() => {
-    fetchJournals();
-  }, []);
-
+  // ========================= RENDER =========================
   return (
     <>
       <div className="flex min-h-screen pt-14">
@@ -192,9 +177,9 @@ const handleEdit = async (journal: Journal) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
 
-              {/* ✅ Tombol modal semua entries */}
+              {/* 🔹 Tombol menuju halaman journal-detail */}
               <button
-                onClick={() => setShowAllEntries(true)}
+                onClick={() => router.push("/user/journals/journal-detail")}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
               >
                 Lihat Semua Detail
@@ -281,9 +266,7 @@ const handleEdit = async (journal: Journal) => {
                               Detail
                             </button>
                             <button
-                              onClick={() => {
-                                handleOpenEdit(journal);
-                              }}
+                              onClick={() => handleOpenEdit(journal)}
                               className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition"
                             >
                               Edit
@@ -309,279 +292,6 @@ const handleEdit = async (journal: Journal) => {
           {error && <p className="text-center text-red-500 mt-4">{error}</p>}
         </main>
       </div>
-
-      {/* ====== POPUP DETAIL JOURNAL ====== */}
-      {selectedJournal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-2xl shadow-lg p-6 w-[600px] text-black animate-fadeIn max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4 border-b pb-2">
-              <h2 className="text-lg font-bold text-green-700">
-                Detail Jurnal #{selectedJournal.id}
-              </h2>
-              <button
-                onClick={() => setSelectedJournal(null)}
-                className="text-gray-500 hover:text-red-600 text-xl font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-semibold">Nomor Bukti:</span>{" "}
-                {selectedJournal.nomor_bukti}
-              </p>
-              <p>
-                <span className="font-semibold">Tanggal:</span>{" "}
-                {selectedJournal.date}
-              </p>
-              <p>
-                <span className="font-semibold">Deskripsi:</span>{" "}
-                {selectedJournal.description || "-"}
-              </p>
-              <p>
-                <span className="font-semibold">Referensi:</span>{" "}
-                {selectedJournal.referensi || "-"}
-              </p>
-              <p>
-                <span className="font-semibold">Lampiran:</span>{" "}
-                  <Link className="text-blue-400 hover:text-blue-700" href={selectedJournal.lampiran || "-"}>{selectedJournal.lampiran || "-"}</Link>
-              </p>
-            </div>
-
-            {/* ✅ Tabel detail entri akun */}
-            <div className="mt-4">
-              <h3 className="font-semibold text-green-600 mb-2">
-                Detail Entri Akun:
-              </h3>
-              <table className="min-w-full text-sm border border-green-200 rounded-lg overflow-hidden">
-                <thead>
-                  <tr className="bg-green-200 text-left">
-                    <th className="px-4 py-2">Kode Akun</th>
-                    <th className="px-4 py-2">Account</th>
-                    <th className="px-4 py-2">Debit</th>
-                    <th className="px-4 py-2">Kredit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedJournal.entries.map((entry, i) => (
-                    <tr key={i} className="border-t border-green-100">
-                      <td className="px-4 py-2">{entry.code_account}</td>
-                      <td className="px-4 py-2">{entry.account}</td>
-                      <td className="px-4 py-2 text-green-600 font-semibold">
-                        {entry.debit}
-                      </td>
-                      <td className="px-4 py-2 text-red-600 font-semibold">
-                        {entry.credit}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ POPUP SEMUA ENTRIES */}
-      {/* ✅ Popup Semua Entries — Dikelompokkan per transaksi dan tanggal */}
-      {showAllEntries && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-2xl shadow-lg p-6 w-[900px] text-black animate-fadeIn max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4 border-b pb-2">
-              <h2 className="text-lg font-bold text-green-700 items-center justify-center">
-                Semua Detail Entri Jurnal
-              </h2>
-              <button
-                onClick={() => setShowAllEntries(false)}
-                className="text-gray-500 hover:text-red-600 text-xl font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* ✅ Satu tabel untuk semua entri, per transaksi hanya satu tanggal & nomor bukti */}
-            <table className="min-w-full text-sm border border-green-200 rounded-xl overflow-hidden">
-              <thead className="bg-green-200 text-left">
-                <tr>
-                  <th className="px-4 py-2">Tanggal</th>
-                  <th className="px-4 py-2">Kode Akun</th>
-                  <th className="px-4 py-2">Account</th>
-                  <th className="px-4 py-2">Debit</th>
-                  <th className="px-4 py-2">Kredit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {journals.map((journal, jIndex) => (
-                  <React.Fragment key={jIndex}>
-                    {journal.entries.map((entry, i) => (
-                      <tr
-                        key={`${journal.id}-${i}`}
-                        className="border-t border-green-100 hover:bg-green-50"
-                      >
-                        {/* ✅ Tampilkan tanggal & nomor bukti hanya di baris pertama transaksi */}
-                        {i === 0 ? (
-                          <>
-                            <td
-                              rowSpan={journal.entries.length}
-                              className="px-4 py-2 align-top font-medium"
-                            >
-                              {journal.date}
-                            </td>
-                          </>
-                        ) : null}
-
-                        <td className="px-4 py-2">{entry.code_account}</td>
-                        <td className="px-4 py-2">{entry.account}</td>
-                        <td className="px-4 py-2 text-green-600 font-semibold">
-                          {entry.debit}
-                        </td>
-                        <td className="px-4 py-2 text-red-600 font-semibold">
-                          {entry.credit}
-                        </td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-
-          </div>
-        </div>
-      )}
-      {/* ✅ POPUP EDIT JOURNAL */}
-{showEditModal && editJournal && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-    <div className="bg-white rounded-2xl shadow-lg p-6 w-[700px] text-black animate-fadeIn max-h-[90vh] overflow-y-auto">
-      <div className="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 className="text-lg font-bold text-blue-700">
-          Edit Jurnal #{editJournal.nomor_bukti}
-        </h2>
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="text-gray-500 hover:text-red-600 text-xl font-bold"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {/* ===================== FIELD DASAR ===================== */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Tanggal</label>
-          <input
-            type="date"
-            value={editJournal.date}
-            onChange={(e) =>
-              setEditJournal({ ...editJournal, date: e.target.value })
-            }
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Deskripsi</label>
-          <textarea
-            value={editJournal.description}
-            onChange={(e) =>
-              setEditJournal({ ...editJournal, description: e.target.value })
-            }
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Referensi</label>
-          <input
-            type="text"
-            value={editJournal.referensi}
-            onChange={(e) =>
-              setEditJournal({ ...editJournal, referensi: e.target.value })
-            }
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Lampiran</label>
-          <input
-            type="text"
-            value={editJournal.lampiran}
-            onChange={(e) =>
-              setEditJournal({ ...editJournal, lampiran: e.target.value })
-            }
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-
-        {/* ===================== EDIT DEBIT / CREDIT ===================== */}
-        <div>
-          <h3 className="text-sm font-semibold mb-2 text-blue-700">
-            Edit Nilai Debit & Kredit
-          </h3>
-          <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-blue-100 text-left">
-              <tr>
-                <th className="px-3 py-2">Kode Akun</th>
-                <th className="px-3 py-2">Account</th>
-                <th className="px-3 py-2">Debit</th>
-                <th className="px-3 py-2">Kredit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {editJournal.entries.map((entry, i) => (
-                <tr key={i} className="border-t">
-                  <td className="px-3 py-2">{entry.code_account}</td>
-                  <td className="px-3 py-2">{entry.account}</td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      value={entry.debit}
-                      onChange={(e) => {
-                        const updated = [...editJournal.entries];
-                        updated[i] = { ...updated[i], debit: e.target.value };
-                        setEditJournal({ ...editJournal, entries: updated });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg p-1 text-right"
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      value={entry.credit}
-                      onChange={(e) => {
-                        const updated = [...editJournal.entries];
-                        updated[i] = { ...updated[i], credit: e.target.value };
-                        setEditJournal({ ...editJournal, entries: updated });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg p-1 text-right"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ===================== BUTTON ACTION ===================== */}
-      <div className="mt-6 flex justify-end gap-3">
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-        >
-          Batal
-        </button>
-        <button
-          onClick={handleSaveEdit}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Simpan Perubahan
-        </button>
-      </div>
-    </div>
-  </div>
-)}
     </>
   );
 };
