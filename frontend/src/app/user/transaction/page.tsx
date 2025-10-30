@@ -400,7 +400,7 @@ const transactionPage = () => {
                             className="w-full p-1 border rounded"
                             disabled={isDraftLocked} // ← tambahin ini
                           >
-                            <option value="">Pilih Akun</option>
+                            <option value="" className="sm:w-sm">Pilih Akun</option>
                             {coaList
                               .filter((a) => a.jenis === "detail")
                               .map((a) => (

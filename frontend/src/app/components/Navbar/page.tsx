@@ -68,9 +68,6 @@ const Navbar: React.FC<NavbarProps> = ({ hideMenu = false }) => {
         {!hideMenu && (
           <ul className="flex space-x-6 text-white text-sm">
             <li>
-              <Link href="/" className="hover:text-green-400">Home</Link>
-            </li>
-            <li>
               <Link href="../../user/home#about" className="hover:text-green-400">About</Link>
             </li>
             {isLoggedIn && (
