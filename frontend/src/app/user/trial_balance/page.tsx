@@ -3,16 +3,41 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
-// Asumsi AxiosCaller dan path-nya benar
+import Image from "next/image";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller"; 
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 // Mendefinisikan interfaces
-interface Coa { id: number; code_account: string; account: string; }
-interface Entry { id: number; id_journal: number; id_coa: number; code_account: string; debit: number; credit: number; }
-interface Journal { id: number; nomor_bukti: string; date: string; description: string; lampiran: string; referensi: string; entries: Entry[]; }
-interface SaldoAkun { code_account: string; account: string; saldoAkhir: number; jenisAkun: string; }
+interface Coa { 
+    id: number; 
+    code_account: string; 
+    account: string; 
+}
+
+interface Entry { 
+    id: number; 
+    id_journal: number; 
+    id_coa: number; 
+    code_account: string; 
+    debit: number; 
+    credit: number; 
+}
+
+interface Journal { 
+    id: number; 
+    nomor_bukti: string; 
+    date: string; 
+    description: string; 
+    lampiran: string; 
+    referensi: string; 
+    entries: Entry[]; 
+}
+
+interface SaldoAkun { 
+    code_account: string; 
+    account: string; 
+    saldoAkhir: number; 
+    jenisAkun: string; 
+}
 
 // Data Bulan untuk konversi label
 const monthLabels: { [key: string]: string } = {
@@ -31,14 +56,13 @@ const NeracaSaldoPage = () => {
   const [totalDebit, setTotalDebit] = useState(0);
   const [totalCredit, setTotalCredit] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   // Ref untuk konten yang akan dicetak (disembunyikan)
   const reportRef = useRef<HTMLDivElement>(null);
-  
   // Data Master
   const [allJournals, setAllJournals] = useState<Journal[]>([]);
   const [coaMap, setCoaMap] = useState<Map<string, string>>(new Map());
-
   // Data untuk Filter
   const [availableYears, setAvailableYears] = useState<string[]>([]);
 
@@ -60,7 +84,6 @@ const NeracaSaldoPage = () => {
             if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
 
             const axiosClient = new AxiosCaller("http://localhost:3001");
-
             const [journalsRes, coaRes] = await Promise.all([
                 axiosClient.call["GET /journals"]({ headers: { authorization: token }, query: { limit: 9999 } }),
                 axiosClient.call["GET /coa"]({ headers: { authorization: token }, query: { limit: 9999 } }),
@@ -204,147 +227,180 @@ const NeracaSaldoPage = () => {
   // =========================================================================
   //                  FUNGSI EXPORT PDF
   // =========================================================================
-  const handleExportPDF = async () => {
-    if (!reportRef.current) return;
-    setIsLoading(true);
+  const handleExportPDF = () => {
+    const content = reportRef.current;
+    if (!content) return;
 
-    const input = reportRef.current;
-    
-    // 1. Tampilkan div laporan sesaat
-    input.style.display = 'block'; 
-
-    // Tambahkan delay minimal untuk memastikan DOM dirender
-    await new Promise(resolve => setTimeout(resolve, 50)); 
-
-    try {
-        const canvas = await html2canvas(input, {
-            scale: 2, 
-            useCORS: true,
-            logging: false,
-        });
-        
-        // 2. Sembunyikan lagi div laporan
-        input.style.display = 'none'; 
-
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdfHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-            heightLeft -= pdfHeight;
-        }
-
-        pdf.save(`Neraca_Saldo_${selectedMonth}_${selectedYear}.pdf`);
-    } catch (error) {
-        console.error("Gagal membuat PDF:", error);
-        alert("Gagal membuat PDF. Cek console log browser untuk detail error.");
-        // Pastikan div disembunyikan kembali jika terjadi error
-        input.style.display = 'none'; 
-    }
-    
-    setIsLoading(false);
+    content.style.display = "block";
+    const newWindow = window.open("", "_blank");
+    newWindow?.document.write(`
+      <html>
+        <head><title>Neraca Saldo</title></head>
+        <body>
+          <h2>${NAMA_PERUSAHAAN}</h2>
+          <h3>Neraca Saldo</h3>
+          <p>Per ${displayLastDay} ${monthLabels[selectedMonth]} ${selectedYear}</p>
+          ${content.innerHTML}
+        </body>
+      </html>
+    `);
+    newWindow?.document.close();
+    newWindow?.print();
+    content.style.display = "none";
   };
+
+  const handleExportExcel = () => {
+    const content = reportRef.current;
+    if (!content) return;
+    const html = `
+      <html><head><meta charset="UTF-8"></head><body>
+      <h2>${NAMA_PERUSAHAAN}</h2>
+      <h3>Neraca Saldo</h3>
+      <p>Per ${displayLastDay} ${monthLabels[selectedMonth]} ${selectedYear}</p>
+      ${content.innerHTML}</body></html>`;
+    const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `Neraca_Saldo_${selectedMonth}_${selectedYear}.xls`;
+    a.click();
+  };
+
+  const handleExportDoc = () => {
+    const content = reportRef.current;
+    if (!content) return;
+    const html = `
+      <html><head><meta charset="UTF-8"></head><body>
+      <h2>${NAMA_PERUSAHAAN}</h2>
+      <h3>Neraca Saldo</h3>
+      <p>Per ${displayLastDay} ${monthLabels[selectedMonth]} ${selectedYear}</p>
+      ${content.innerHTML}</body></html>`;
+    const blob = new Blob([html], { type: "application/msword" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `Neraca_Saldo_${selectedMonth}_${selectedYear}.doc`;
+    a.click();
+  };
+  
   // =========================================================================
 
   return (
     <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
-        <Navbar hideMenu/>
-        
-        {/* JUDUL DAN FILTER */}
+        <Navbar hideMenu />
+
         <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
+          <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Neraca Saldo
           </h1>
-        </div>
-        
-        <main className="flex items-center justify-between space-x-4 mb-8 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold text-gray-700">Periode:</h2>
-                
-                <select
-                    className="p-2 border border-gray-300 rounded-md bg-white shadow-sm focus:ring-green-500 focus:border-green-500"
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    disabled={isLoading}
-                >
-                    {months.map((m) => (<option key={m.value} value={m.value}>{m.label}</option>))}
-                </select>
-
-                <select
-                    className="p-2 border border-gray-300 rounded-md bg-white shadow-sm focus:ring-green-500 focus:border-green-500"
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    disabled={isLoading}
-                >
-                    {availableYears.length === 0 ? (<option value={initialYear}>{initialYear}</option>) : (availableYears.map((y) => (<option key={y} value={y}>{y}</option>)))}
-                </select>
-            </div>
-            
+          <div className="relative">
             <button
-                onClick={handleExportPDF}
-                className={`px-4 py-2 text-white rounded-md transition ${isLoading ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
-                disabled={isLoading}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 text-black px-3 py-1 rounded hover:bg-green-200 text-sm border border-gray-300"
             >
-                {isLoading ? 'Mempersiapkan PDF...' : 'Export PDF'}
+              <Image src="/printer.png" alt="Print Icon" width={28} height={28} />
             </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <button
+                  onClick={() => {
+                    handleExportPDF();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/pdf-file.png" alt="PDF" width={18} height={18} />
+                  PDF
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportDoc();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/document.png" alt="Doc" width={18} height={18} />
+                  Word
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportExcel();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                >
+                  <Image src="/excel.png" alt="Excel" width={18} height={18} />
+                  Excel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <main className="flex items-center justify-between space-x-4 mb-8 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center space-x-4">
+            <h2 className="text-lg font-semibold text-gray-700">Periode:</h2>
+
+            <select
+              className="p-2 border border-gray-300 rounded-md"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="p-2 border border-gray-300 rounded-md"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+            >
+              {availableYears.length === 0 ? (
+                <option value={initialYear}>{initialYear}</option>
+              ) : (
+                availableYears.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
         </main>
-        
+
         <p className="mb-4 text-sm text-gray-600">
-          Neraca Saldo per tanggal **{displayLastDay} {monthLabels[selectedMonth] || 'N/A'} {selectedYear}**.
+          Neraca Saldo per tanggal{" "}
+          <strong>
+            {displayLastDay} {monthLabels[selectedMonth]} {selectedYear}
+          </strong>
+          .
         </p>
-        
-        {/* Konten Laporan yang Akan Dicetak (PDF) - TERSEMBUNYI */}
-        <div 
-            ref={reportRef} 
-            // Style isolasi: Hapus class Tailwind dan gunakan style dasar
-            style={{ display: 'none', padding: '32px', backgroundColor: 'white' }} 
-        >
-            <ReportHeader 
-                companyName={NAMA_PERUSAHAAN} 
-                reportDate={`${displayLastDay} ${monthLabels[selectedMonth] || 'N/A'} ${selectedYear}`} 
-            />
-            
-            {dataNeracaSaldo.length > 0 && (
-                <ReportTable 
-                    data={dataNeracaSaldo} 
-                    totalDebit={totalDebit} 
-                    totalCredit={totalCredit} 
-                    formatRupiah={formatRupiah}
-                />
-            )}
+
+        {/* Hidden untuk export */}
+        <div ref={reportRef} style={{ display: "none" }}>
+          <ReportHeader
+            companyName={NAMA_PERUSAHAAN}
+            reportDate={`${displayLastDay} ${monthLabels[selectedMonth]} ${selectedYear}`}
+          />
+          <ReportTable
+            data={dataNeracaSaldo}
+            totalDebit={totalDebit}
+            totalCredit={totalCredit}
+            formatRupiah={formatRupiah}
+          />
         </div>
-        
-        {/* Tampilan Tabel di Layar (WebTable) - TERLIHAT */}
-        <div className="mt-0">
-            {isLoading ? (
-                <p className="text-gray-500 py-10">Memuat data Neraca Saldo...</p>
-            ) : dataNeracaSaldo.length === 0 ? (
-                <p className="text-gray-500 py-10">
-                    Tidak ada akun dengan saldo yang ditemukan untuk periode ini.
-                </p>
-            ) : (
-                <WebTable 
-                    data={dataNeracaSaldo} 
-                    totalDebit={totalDebit} 
-                    totalCredit={totalCredit} 
-                    formatRupiah={formatRupiah}
-                />
-            )}
-        </div>
+
+        {/* Tabel tampil di layar */}
+        <WebTable
+          data={dataNeracaSaldo}
+          totalDebit={totalDebit}
+          totalCredit={totalCredit}
+          formatRupiah={formatRupiah}
+        />
       </div>
     </div>
   );

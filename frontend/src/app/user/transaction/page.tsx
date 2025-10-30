@@ -299,19 +299,19 @@ const transactionPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-5 py-2.5 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-xl shadow hover:from-gray-500 hover:to-gray-700 transition-all duration-300"
                 >
                   Reset
                 </button>
                 <button
                   onClick={handleSimpanDraft}
-                  className={`px-4 py-2 text-white rounded ${
+                  className={`px-5 py-2.5 font-semibold rounded-xl shadow transition-all duration-300 ${
                     isDraftLocked
-                      ? "bg-gray-600 hover:bg-gray-700"
-                      : "bg-yellow-500 hover:bg-yellow-600"
+                      ? "bg-gradient-to-r from-gray-500 to-gray-700 text-white hover:from-gray-600 hover:to-gray-800"
+                      : "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white hover:from-emerald-500 hover:to-emerald-700"
                   }`}
                 >
                   {isDraftLocked ? "Buka Draft" : "Simpan Draft"}
@@ -319,11 +319,11 @@ const transactionPage = () => {
 
                 <button
                   onClick={handlePosting}
-                  disabled={!isDraftLocked} // cuma bisa posting kalau sudah disimpan
-                  className={`px-4 py-2 rounded font-semibold ${
+                  disabled={!isDraftLocked}
+                  className={`px-5 py-2.5 font-semibold rounded-xl shadow transition-all duration-300 ${
                     isDraftLocked
-                      ? "bg-black text-white hover:bg-gray-800"
-                      : "bg-gray-400 text-white cursor-not-allowed"
+                      ? "bg-gradient-to-r from-green-600 to-green-800 text-white hover:from-green-700 hover:to-green-900"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 >
                   Posting
@@ -337,20 +337,22 @@ const transactionPage = () => {
             <div className="flex gap-3 mb-4">
               <button
                 onClick={handleAddRow}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-5 py-2.5 text-sm font-semibold rounded-lg border border-emerald-600 text-emerald-700 bg-gradient-to-r from-emerald-50 to-white hover:from-emerald-100 hover:to-emerald-50 hover:text-emerald-800 hover:shadow-md transition-all duration-300 flex items-center gap-1"
               >
-                + Tambah Baris
+                <span className="text-lg">
+                  ＋</span> Tambah Baris
               </button>
               <button
                 onClick={handleDeleteSelected}
                 disabled={rows.filter((r) => r.isSelected).length === 0}
-                className={`px-4 py-2 rounded text-white transition ${
+                className={`px-5 py-2.5 text-sm font-semibold rounded-lg border flex items-center gap-1 transition-all duration-300 ${
                   rows.filter((r) => r.isSelected).length === 0
-                    ? "bg-red-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700"
+                    ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                    : "border-red-600 text-red-700 bg-gradient-to-r from-red-50 to-white hover:from-red-100 hover:to-red-50 hover:text-red-800 hover:shadow-md"
                 }`}
               >
-                Hapus Baris
+                <span className="text-lg">
+                  -</span> Hapus Baris
               </button>
             </div>
 
@@ -468,7 +470,7 @@ const transactionPage = () => {
               <span
                 className={`px-2 rounded ${
                   selisih === 0
-                    ? "bg-green-500 text-white"
+                    ? "bg-emerald-500 text-white"
                     : "bg-red-500 text-white"
                 }`}
               >
