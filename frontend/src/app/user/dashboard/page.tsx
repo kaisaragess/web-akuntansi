@@ -208,7 +208,7 @@ const Dashboard = () => {
         <Navbar hideMenu/>
 
       {/* Konten utama */}
-      <main className="container mx-auto pl-6 pt-6 pb-140 pr-31 bg-white rounded-lg shadow-md text-black min-w-lg"> {/* Hapus container mx-auto & style spesifik */}
+      <main className="container mx-auto pl-6 pt-6 pb-140 pr-10 bg-white rounded-lg shadow-md text-black min-w-lg"> {/* Hapus container mx-auto & style spesifik */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Dashboard Ringkasan Keuangan
@@ -221,7 +221,7 @@ const Dashboard = () => {
 
         {/* Tampilkan kartu data jika sudah siap */}
         {!loading && !error && dashboardData && (
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"> {/* Layout responsif */}
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-2"> {/* Layout responsif */}
             
             {/* Kartu Saldo Kas */}
             <div className="bg-white px-6 py-6 rounded-lg border border-gray-200 shadow-md flex items-center space-x-4">
