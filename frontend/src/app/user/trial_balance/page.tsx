@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
-// Asumsi AxiosCaller dan path-nya benar
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller"; 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -259,6 +259,7 @@ const NeracaSaldoPage = () => {
   // =========================================================================
 
   return (
+    <AuthGuard>
     <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
@@ -347,6 +348,7 @@ const NeracaSaldoPage = () => {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 };
 
@@ -382,6 +384,7 @@ const ReportTable: React.FC<TableProps> = ({ data, totalDebit, totalCredit, form
     const isBalanced = totalDebit === totalCredit;
     
     return (
+        
         <table style={{ 
             width: '100%', 
             fontSize: '10px', 

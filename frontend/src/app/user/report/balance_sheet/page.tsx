@@ -5,6 +5,7 @@ import Sidebar from "@/app/components/Sidebar/page";
 import { useRouter } from "next/navigation";
 import React, {useState, useEffect, useCallback} from "react";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
+import AuthGuard from "@/app/components/AuthGuard/page";
 
 // --- INTERFACE (Menggunakan yang sudah ada, ditambah BalanceSheetData) ---
 
@@ -404,6 +405,7 @@ const BalanceSheetReportPage = () => {
   // --- RENDER ---
 
   return (
+    <AuthGuard>
     <>
       <style jsx global>{`
         @media print {
@@ -639,6 +641,7 @@ const BalanceSheetReportPage = () => {
       </div>
       </div>
     </>
+    </AuthGuard>
   );
 }
 

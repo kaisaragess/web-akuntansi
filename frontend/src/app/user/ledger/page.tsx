@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import Image from "next/image";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
@@ -195,6 +196,7 @@ const BukuBesarPage = () => {
   };
 
   return (
+    <AuthGuard>
     <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
@@ -353,6 +355,7 @@ const BukuBesarPage = () => {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 };
 

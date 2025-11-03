@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { useRouter } from "next/navigation";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller"; // Sesuaikan path ini
 import { Banknote, FileText, Landmark, TrendingDown, TrendingUp, Wallet } from "lucide-react"; // Impor ikon
@@ -202,6 +203,7 @@ const Dashboard = () => {
 
   // --- RENDER ---
   return (
+    <AuthGuard>
     <div className="flex min-h-screen pt-15"> {/* Background diubah */}
       <Sidebar />
       <div className="flex-1 ">
@@ -287,6 +289,7 @@ const Dashboard = () => {
       </main>
     </div>
     </div>  
+    </AuthGuard>
   );
 };
 

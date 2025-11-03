@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
 import Image from "next/image";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
 const ArusKasPage = () => {
@@ -167,6 +168,7 @@ interface Coa {
   };
 
   return (
+    <AuthGuard>
     <div className="flex min-h-screen pt-14">
       <Sidebar />
       <div className="flex-1 p-6">
@@ -193,7 +195,7 @@ interface Coa {
                     handleExportPDF();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/pdf-file.png" alt="PDF" width={18} height={18} />
                   PDF
@@ -203,7 +205,7 @@ interface Coa {
                     handleExportDoc();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/document.png" alt="Doc" width={18} height={18} />
                   Word
@@ -213,7 +215,7 @@ interface Coa {
                     handleExportExcel();
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/excel.png" alt="Excel" width={18} height={18} />
                   Excel
@@ -313,6 +315,7 @@ interface Coa {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 };
 

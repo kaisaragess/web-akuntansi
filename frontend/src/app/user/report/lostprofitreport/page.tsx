@@ -3,6 +3,7 @@
 import Navbar from "@/app/components/Navbar/page";
 import Sidebar from "@/app/components/Sidebar/page";
 import { useRouter } from "next/navigation";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
@@ -236,6 +237,7 @@ const LostProfitReportPage = () => {
   // --- RENDER ---
 
   return (
+    <AuthGuard>
     <>
       {/* --- CSS Print --- */}
       <style jsx global>{`
@@ -417,8 +419,9 @@ const LostProfitReportPage = () => {
       </div>
       </div>
     </>
+    </AuthGuard>
   );
 };
 
-export default LostProfitReportPage; // Ganti nama export jika perlu
+export default LostProfitReportPage; 
 

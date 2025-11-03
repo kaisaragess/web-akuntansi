@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 interface Coa {
@@ -218,6 +219,7 @@ const transactionPage = () => {
   };
 
   return (
+    <AuthGuard>
     <>
       <div className="flex min-h-screen pt-14">
           <Sidebar />
@@ -483,6 +485,7 @@ const transactionPage = () => {
         </main>
       </div>
     </>
+    </AuthGuard>
   );
 };
 

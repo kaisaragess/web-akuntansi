@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 const CoaPage = () => {
@@ -168,6 +169,7 @@ const CoaPage = () => {
 
   // ========================= RENDER =========================
   return (
+    <AuthGuard>
     <>
       <div className="flex min-h-screen pt-14">
       <Sidebar />
@@ -481,6 +483,7 @@ const CoaPage = () => {
         </div>
       )}
     </>
+  </AuthGuard>
   );
 };
 

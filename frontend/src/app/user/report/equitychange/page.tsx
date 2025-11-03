@@ -2,6 +2,7 @@
 
 import Navbar from "@/app/components/Navbar/page";
 import Sidebar from "@/app/components/Sidebar/page";
+import AuthGuard from "@/app/components/AuthGuard/page";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
@@ -257,6 +258,7 @@ const EquityChangePage = () => {
 
 
   return (
+    <AuthGuard>
     <>
       {/* --- CSS Print --- */}
       <style jsx global>{`
@@ -410,6 +412,7 @@ const EquityChangePage = () => {
       </div>
       </div>
     </>
+    </AuthGuard>
   );
 };
 
