@@ -10,33 +10,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_GET_coa = implement_GET_coa;
-const Coa_1 = require("../model/table/Coa");
-const verifyToken_1 = require("../../fn/verifyToken");
+const Coa_1 = require("../model/table/Coa"); // Import model Coa dari database
+const verifyToken_1 = require("../../fn/verifyToken"); // Import fungsi verifyToken untuk validasi JWT
 function implement_GET_coa(engine) {
+    // Fungsi utama untuk mendaftarkan endpoint GET /coa
     engine.implement({
-        endpoint: 'GET /coa',
+        endpoint: 'GET /coa', // Menentukan HTTP method dan route endpoint
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
+                // === 1. Ambil dan verifikasi token dari header ===
                 const { authorization } = param.headers;
-                const user = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!user) {
-                    throw new Error("Unauthorized");
+                const user = yield (0, verifyToken_1.verifyToken)(authorization); // Verifikasi JWT
+                if (!user) { // Jika token tidak valid
+                    throw new Error("Unauthorized"); // Lempar error 401
                 }
+                // === 2. Ambil parameter query (limit & page) untuk pagination ===
                 const { limit, page } = param.query;
-                const take = limit ? parseInt(limit, 10) : 10;
-                const parsedPage = page ? parseInt(page, 10) : 1;
-                const skip = (parsedPage - 1) * take; // Hitung offset
+                // === 3. Konversi nilai limit dan page menjadi angka dengan default ===
+                const take = limit ? parseInt(limit, 10) : 10; // Default limit = 10
+                const parsedPage = page ? parseInt(page, 10) : 1; // Default page = 1
+                const skip = (parsedPage - 1) * take; // Hitung offset berdasarkan halaman
                 try {
+                    // === 4. Ambil data COA dari database dengan pagination dan sorting DESC ===
                     const coaRecords = yield Coa_1.Coa.find({
-                        take,
-                        skip,
-                        order: { id: 'DESC' }
+                        take, // Jumlah data yang diambil
+                        skip, // Offset
+                        order: { id: 'DESC' } // Urutkan berdasarkan id descending
                     });
+                    // === 5. Kembalikan daftar COA ke client ===
                     return coaRecords;
                 }
                 catch (error) {
+                    // === 6. Tangani error dan tampilkan pesan di konsol ===
                     console.error('Error fetching Coa records:', error);
-                    throw new Error('Gagal mengambil daftar Chart of Account (Coa).');
+                    throw new Error('Gagal mengambil daftar Chart of Account (Coa).'); // Lempar error ke client
                 }
             });
         }

@@ -13,30 +13,36 @@ exports.implement_DELETE_coa__id = implement_DELETE_coa__id;
 const verifyToken_1 = require("../../fn/verifyToken");
 const Coa_1 = require("../model/table/Coa");
 function implement_DELETE_coa__id(engine) {
+    // Fungsi utama untuk mendaftarkan endpoint DELETE /coa/:id
     engine.implement({
-        endpoint: 'DELETE /coa/:id',
+        endpoint: 'DELETE /coa/:id', // Menentukan HTTP method dan route endpoint
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // 
+                // Ambil header Authorization dari request
                 const { authorization } = param.headers;
+                // Verifikasi token JWT
                 const authheader = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!authheader) {
-                    throw new Error("Unauthorized: Invalid token");
+                if (!authheader) { // Jika token tidak valid
+                    throw new Error("Unauthorized: Invalid token"); // Lempar error 401
                 }
+                // Ambil parameter id dari URL
                 const { id } = param.paths;
-                if (!id) {
-                    throw new Error("Bad Request: Missing COA ID");
+                if (!id) { // Jika ID tidak ada
+                    throw new Error("Bad Request: Missing COA ID"); // Lempar error 400
                 }
                 try {
+                    // Cari COA berdasarkan ID
                     const CoaToDelete = yield Coa_1.Coa.findOneBy({ id: Number(id) });
-                    if (!CoaToDelete) {
-                        throw new Error("Not Found: COA record does not exist");
+                    if (!CoaToDelete) { // Jika COA tidak ditemukan
+                        throw new Error("Not Found: COA record does not exist"); // Lempar error 404
                     }
+                    // Hapus COA dari database
                     yield Coa_1.Coa.remove(CoaToDelete);
+                    // Kembalikan data COA yang berhasil dihapus
                     return CoaToDelete;
                 }
-                catch (error) {
-                    throw new Error('Gagal menghapus Chart of Account (Coa).');
+                catch (error) { // Tangani error saat penghapusan
+                    throw new Error('Gagal menghapus Chart of Account (Coa).'); // Lempar error umum
                 }
             });
         }

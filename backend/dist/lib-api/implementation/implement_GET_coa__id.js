@@ -13,30 +13,38 @@ exports.implement_GET_coa__id = implement_GET_coa__id;
 const Coa_1 = require("../model/table/Coa");
 const verifyToken_1 = require("../../fn/verifyToken");
 function implement_GET_coa__id(engine) {
+    // Fungsi utama untuk mendaftarkan endpoint GET /coa/:id
     engine.implement({
-        endpoint: 'GET /coa/:id',
+        endpoint: 'GET /coa/:id', // Menentukan HTTP method dan route endpoint
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
+                // === 1. Ambil token dari header dan verifikasi ===
                 const { authorization } = param.headers;
-                const user = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!user) {
-                    throw new Error("Unauthorized");
+                const user = yield (0, verifyToken_1.verifyToken)(authorization); // Verifikasi JWT
+                if (!user) { // Jika token tidak valid
+                    throw new Error("Unauthorized"); // Lempar error 401
                 }
+                // === 2. Ambil parameter ID dari URL ===
                 const coaId = param.paths.id;
-                if (!coaId) {
-                    throw new Error("Bad Request: Missing Coa ID");
+                if (!coaId) { // Jika ID tidak diberikan
+                    throw new Error("Bad Request: Missing Coa ID"); // Lempar error 400
                 }
                 try {
+                    // === 3. Ambil data COA dari database berdasarkan ID ===
                     const detailCoa = yield Coa_1.Coa.findOne({
-                        where: { id: coaId },
+                        where: { id: coaId }, // Filter berdasarkan ID
                     });
+                    // === 4. Jika data tidak ditemukan, lempar error ===
                     if (!detailCoa) {
-                        throw new Error(`Coa with id ${coaId} not found`);
+                        throw new Error(`Coa with id ${coaId} not found`); // Error 404
                     }
+                    // === 5. Kembalikan data COA ke client ===
                     return detailCoa;
                 }
                 catch (error) {
-                    throw new Error('Failed to retrieve Coa details.' + (error instanceof Error ? ' Detail: ' + error.message : ''));
+                    // === 6. Tangani kesalahan database atau sistem ===
+                    throw new Error('Failed to retrieve Coa details.' +
+                        (error instanceof Error ? ' Detail: ' + error.message : ''));
                 }
             });
         }

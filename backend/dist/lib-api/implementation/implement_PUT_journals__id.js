@@ -10,59 +10,59 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implement_PUT_journals__id = implement_PUT_journals__id;
-const verifyToken_1 = require("../../fn/verifyToken");
-const Journal_Entries_1 = require("../model/table/Journal_Entries");
-const Journals_1 = require("../model/table/Journals");
+const verifyToken_1 = require("../../fn/verifyToken"); // Import fungsi verifyToken untuk validasi JWT
+const Journal_Entries_1 = require("../model/table/Journal_Entries"); // Import model Journal_Entries dari database
+const Journals_1 = require("../model/table/Journals"); // Import model Journals dari database
 function implement_PUT_journals__id(engine) {
+    // Fungsi untuk implementasi endpoint PUT /journals/:id
     engine.implement({
-        endpoint: 'PUT /journals/:id',
+        endpoint: 'PUT /journals/:id', // Menentukan route endpoint
         fn(param) {
             return __awaiter(this, void 0, void 0, function* () {
-                // 
-                const { authorization } = param.headers;
-                const token = yield (0, verifyToken_1.verifyToken)(authorization);
-                if (!token) {
-                    throw new Error("Unauthorized: Missing token");
+                const { authorization } = param.headers; // Ambil header authorization
+                const token = yield (0, verifyToken_1.verifyToken)(authorization); // Verifikasi token JWT
+                if (!token) { // Jika token tidak valid atau tidak ada
+                    throw new Error("Unauthorized: Missing token"); // Lempar error
                 }
-                const id = Number(param.paths.id);
-                if (isNaN(id) || id <= 0) {
-                    throw new Error("Bad Request: Invalid Journal ID format");
+                const id = Number(param.paths.id); // Ambil ID jurnal dari path parameter dan konversi ke number
+                if (isNaN(id) || id <= 0) { // Validasi format ID
+                    throw new Error("Bad Request: Invalid Journal ID format"); // Lempar error jika invalid
                 }
-                const journal = yield Journals_1.Journals.findOne({ where: { id } });
-                if (!journal) {
-                    throw new Error("Jurnal tidak ditemukan");
+                const journal = yield Journals_1.Journals.findOne({ where: { id } }); // Cari jurnal berdasarkan ID
+                if (!journal) { // Jika jurnal tidak ditemukan
+                    throw new Error("Jurnal tidak ditemukan"); // Lempar error
                 }
-                const { date, entries, description, lampiran, referensi } = param.body;
-                if (!date || !entries) {
-                    throw new Error("Bad Request: nomor_bukti, date, and entries are required");
+                const { date, entries, description, lampiran, referensi } = param.body; // Ambil data dari request body
+                if (!date || !entries) { // Validasi date dan entries
+                    throw new Error("Bad Request: nomor_bukti, date, and entries are required"); // Lempar error jika kosong
                 }
-                journal.date = new Date(date);
-                journal.description = description || "";
-                journal.lampiran = lampiran || "";
-                journal.referensi = referensi || "";
-                yield journal.save();
-                yield Journal_Entries_1.Journal_Entries.delete({ id_journal: journal.id });
-                for (const entry of entries) {
-                    const newEntry = new Journal_Entries_1.Journal_Entries();
-                    newEntry.id_journal = journal.id;
-                    newEntry.id_coa = entry.id_coa;
-                    newEntry.debit = entry.debit;
-                    newEntry.credit = entry.credit;
-                    yield newEntry.save();
+                journal.date = new Date(date); // Update tanggal jurnal
+                journal.description = description || ""; // Update deskripsi atau kosong jika tidak ada
+                journal.lampiran = lampiran || ""; // Update lampiran atau kosong jika tidak ada
+                journal.referensi = referensi || ""; // Update referensi atau kosong jika tidak ada
+                yield journal.save(); // Simpan perubahan jurnal
+                yield Journal_Entries_1.Journal_Entries.delete({ id_journal: journal.id }); // Hapus semua entries lama jurnal
+                for (const entry of entries) { // Loop setiap entry baru
+                    const newEntry = new Journal_Entries_1.Journal_Entries(); // Buat instance Journal_Entries baru
+                    newEntry.id_journal = journal.id; // Set ID jurnal
+                    newEntry.id_coa = entry.id_coa; // Set ID COA
+                    newEntry.debit = entry.debit; // Set debit
+                    newEntry.credit = entry.credit; // Set credit
+                    yield newEntry.save(); // Simpan entry baru ke database
                 }
                 // 🔁 Ambil ulang jurnal beserta entries
                 const updatedEntries = yield Journal_Entries_1.Journal_Entries.find({ where: { id_journal: journal.id } });
                 const result = {
-                    id: journal.id,
-                    id_user: journal.id_user,
-                    nomor_bukti: journal.nomor_bukti,
-                    date: date,
-                    description: journal.description,
-                    lampiran: journal.lampiran,
-                    referensi: journal.referensi,
-                    entries: entries
+                    id: journal.id, // ID jurnal
+                    id_user: journal.id_user, // ID user pemilik jurnal
+                    nomor_bukti: journal.nomor_bukti, // Nomor bukti jurnal
+                    date: date, // Tanggal jurnal
+                    description: journal.description, // Deskripsi jurnal
+                    lampiran: journal.lampiran, // Lampiran jurnal
+                    referensi: journal.referensi, // Referensi jurnal
+                    entries: entries // Entries jurnal yang baru
                 };
-                return result;
+                return result; // Kembalikan data jurnal yang telah diperbarui
             });
         }
     });
