@@ -7,7 +7,26 @@ import Navbar from "@/app/components/Navbar/page";
 import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
+/**
+ * ============================================================
+ * 📘 Komponen: CoaPage (Charts of Account)
+ * ============================================================
+ * Komponen ini berfungsi sebagai halaman utama untuk mengelola
+ * daftar akun (Chart of Accounts) dalam sistem akuntansi pengguna.
+ * 
+ * Fitur-fitur utama:
+ *  - Menampilkan daftar akun yang diambil dari API
+ *  - Menambahkan, mengedit, dan menghapus data akun
+ *  - Fitur pencarian akun berdasarkan kode atau nama
+ *  - Menampilkan detail akun lewat pop-up
+ *  - Tampilan modern dengan gaya dashboard hijau lembut
+ */
+
 const CoaPage = () => {
+  // ========================= INTERFACE =========================
+  /**
+   * Interface Coa digunakan untuk mendefinisikan struktur data akun.
+   */
   interface Coa {
     id: number;
     code_account: string;
@@ -17,6 +36,18 @@ const CoaPage = () => {
     normal_balance: string;
   }
 
+  // ========================= STATE =========================
+  /**
+   * - coaList: Menyimpan daftar akun dari server
+   * - isOpen: Mengontrol tampilan modal tambah/edit akun
+   * - loading: Status pemuatan data
+   * - error: Menyimpan pesan error validasi
+   * - searchTerm: Nilai input pencarian
+   * - dropdownOpen: Menentukan ID dropdown aksi yang terbuka
+   * - selectedCoa: Menyimpan akun yang dipilih untuk detail
+   * - form: Menyimpan data form tambah/edit akun
+   * - editId: Menandakan apakah sedang dalam mode edit
+   */
   const [coaList, setCoaList] = useState<Coa[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -36,6 +67,9 @@ const CoaPage = () => {
   const router = useRouter();
 
   // ========================= FETCH DATA =========================
+  /**
+   * mengambil daftar akun dari API
+   */
   const fetchCoa = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -67,11 +101,15 @@ const CoaPage = () => {
     }
   };
 
+  // Panggil fetchCoa saat halaman pertama kali dimuat
   useEffect(() => {
     fetchCoa();
   }, []);
 
   // ========================= HANDLE FORM =========================
+  /**
+   * Fungsi untuk memperbarui nilai form ketika pengguna mengetik.
+   */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -79,6 +117,11 @@ const CoaPage = () => {
   };
 
   // ========================= SUBMIT (POST / PUT) =========================
+  /**
+   * Fungsi untuk mengirim data form.
+   * - Jika editId ada → mode Edit (PUT)
+   * - Jika tidak → mode Tambah (POST)
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -133,6 +176,10 @@ const CoaPage = () => {
   };
 
   // ========================= DELETE =========================
+  /**
+   * Fungsi untuk menghapus data akun berdasarkan ID.
+   * Akan muncul konfirmasi terlebih dahulu sebelum menghapus.
+   */
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus akun ini?")) return;
 
@@ -154,6 +201,9 @@ const CoaPage = () => {
   };
 
   // ========================= BUKA EDIT =========================
+  /**
+   * Fungsi untuk menampilkan data akun ke dalam form edit.
+   */
   const handleEdit = (coa: Coa) => {
     setForm({
       code_account: coa.code_account,
@@ -168,11 +218,19 @@ const CoaPage = () => {
   };
 
   // ========================= RENDER =========================
+  /**
+   * Menampilkan tampilan utama halaman COA:
+   * - Navbar dan Sidebar
+   * - Tabel data COA
+   * - Modal detail akun
+   * - Modal tambah/edit akun
+   */
   return (
     <AuthGuard>
     <>
-      <div className="flex min-h-screen pt-14">
+      <div className="flex min-h-screen pt-15">
       <Sidebar />
+      <div className="flex-1 ">
         <Navbar hideMenu/>
         <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
           {/* Navbar di atas */}
@@ -216,7 +274,7 @@ const CoaPage = () => {
           </div>
 
           {/* === TABEL UTAMA (Modern Soft Green Dashboard Style) === */}
-          <div className="overflow-x-auto overflow-visible relative bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-lg border border-green-100">
+          <div className="overflow-x-auto overflow-visible relative bg-gradient-to-b from-green-50 to-white rounded-xl shadow-lg border border-green-100">
             <table className="min-w-full text-sm text-black rounded-xl relative z-0">
               <thead>
                 <tr className="bg-stone-900 border-b border-green-200 text-white">
@@ -270,8 +328,8 @@ const CoaPage = () => {
                     return (
                       <tr
                         key={coa.id}
-                        className={`${rowColor} border-b border-green-200 transition-all duration-300`}
-                      >
+                        className={`${rowColor} border-b border-green-200 transition-all duration-300}`}
+                        >
                         <td className="px-6 py-3 font-semibold text-gray-700">
                           {index + 1}
                         </td>
@@ -325,6 +383,7 @@ const CoaPage = () => {
           </div>
         </main>
 
+      </div>
       </div>
 
       {/* ====== POPUP DETAIL COA ====== */}

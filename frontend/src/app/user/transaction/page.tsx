@@ -6,6 +6,9 @@ import Navbar from "@/app/components/Navbar/page";
 import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
+/**
+ * Interface untuk struktur data akun (COA)
+ */
 interface Coa {
   id: number;
   code_account: string;
@@ -15,6 +18,9 @@ interface Coa {
   normal_balance: string;
 }
 
+/**
+ * Interface untuk struktur data entri transaksi yang akan dikirim ke backend
+ */
 interface Entry {
   id_coa: number;
   code_account: string;
@@ -22,6 +28,9 @@ interface Entry {
   credit: number;
 }
 
+/**
+ * Interface untuk setiap baris transaksi di tabel input
+ */
 interface TransactionRow {
   id: number;
   akunId: number | null;
@@ -31,11 +40,12 @@ interface TransactionRow {
 }
 
 const transactionPage = () => {
+    // ======== STATE MANAGEMENT ========
   const [isOpen, setIsOpen] = useState(false);
   const [tanggalTransaksi, setTanggalTransaksi] = useState(
-    new Date().toISOString().substring(0, 10)
+    new Date().toISOString().substring(0, 10) // tanggal transaksi default: hari ini
   );
-  const [referensi, setReferensi] = useState("");
+  const [referensi, setReferensi] = useState("");  // nomor referensi transaksi (invoice/PO)
   const [deskripsiUmum, setDeskripsiUmum] = useState("");
   const [lampiran, setLampiran] = useState<string>("");
   const [rows, setRows] = useState<TransactionRow[]>([]);
@@ -43,13 +53,13 @@ const transactionPage = () => {
   const [isDraftLocked, setIsDraftLocked] = useState(false);
   const [nomorBukti, setNomorBukti] = useState("");
 
-  // Logic
+  // ======== PERHITUNGAN TOTAL ========
   const totalDebit = rows.reduce((sum, row) => sum + row.debit, 0);
   const totalCredit = rows.reduce((sum, row) => sum + row.credit, 0);
   const selisih = totalDebit - totalCredit;
 
 
-  // === Responsif Sidebar ===
+   // ======== RESPONSIF SIDEBAR ========
   useEffect(() => {
     const handleResize = () => {
       if (typeof window !== "undefined" && window.innerWidth >= 768) {
@@ -66,7 +76,7 @@ const transactionPage = () => {
     }
   }, []);
 
-  // === Ambil data akun dari backend ===
+   // ======== FETCH DATA COA (AKUN) DARI BACKEND ========
   useEffect(() => {
     const fetchAkun = async () => {
       const token = localStorage.getItem("token");
@@ -88,6 +98,9 @@ const transactionPage = () => {
     fetchAkun();
   }, []);
 
+  /**
+   * Fungsi untuk menangani perubahan input di tabel (akun, debit, kredit)
+   */
   const handleInputChange = (
     id: number,
     field: keyof TransactionRow,
@@ -99,6 +112,7 @@ const transactionPage = () => {
           let newDebit = row.debit;
           let newCredit = row.credit;
 
+          // Pastikan hanya satu sisi (debit/kredit) yang bernilai > 0
           if (field === "debit") {
             newDebit = Number(value) || 0;
             newCredit = newDebit > 0 ? 0 : newCredit;
@@ -114,12 +128,18 @@ const transactionPage = () => {
     );
   };
 
+   /**
+   * Menandai baris transaksi yang dipilih (untuk hapus)
+   */
   const handleSelectRow = (id: number) => {
     setRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, isSelected: !r.isSelected } : r))
     );
   };
 
+    /**
+   * Menambahkan baris transaksi baru
+   */
   const handleAddRow = () => {
     const newId = rows.length > 0 ? rows[rows.length - 1].id + 1 : 1;
     setRows((prev) => [
@@ -128,12 +148,18 @@ const transactionPage = () => {
     ]);
   };
 
+  /**
+   * Menghapus baris transaksi yang dipilih
+   */
   const handleDeleteSelected = () => {
     setRows((prev) => prev.filter((r) => !r.isSelected));
   };
 
+   /**
+   * Menyimpan draft transaksi sementara di localStorage
+   * dan mengunci form agar tidak dapat diubah
+   */
   const handleSimpanDraft = () => {
-
     if (!isDraftLocked) {
       // ✅ Simpan draft di lokal saja, bukan ke database
       const entries: Entry[] = rows
@@ -165,6 +191,10 @@ const transactionPage = () => {
     }
   };
 
+    /**
+   * Mengirim data transaksi ke backend (POST /journals)
+   * hanya bisa dilakukan saat form terkunci (draft disimpan)
+   */
   const handlePosting = async () => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Token tidak ditemukan. Silakan login ulang.");
@@ -210,6 +240,9 @@ const transactionPage = () => {
     }
   };
 
+  /**
+   * Reset seluruh input ke kondisi awal
+   */
   const handleReset = () => {
     setTanggalTransaksi(new Date().toISOString().substring(0, 10));
     setReferensi("");
@@ -218,11 +251,13 @@ const transactionPage = () => {
     setRows([]);
   };
 
+    // ======== RENDERING UI ========
   return (
     <AuthGuard>
     <>
-      <div className="flex min-h-screen pt-14">
+      <div className="flex min-h-screen pt-15">
           <Sidebar />
+          <div className="flex-1 ">
           <Navbar hideMenu />
 
         {/* Konten utama */}
@@ -252,7 +287,7 @@ const transactionPage = () => {
                 <label className="block text-sm font-medium">Nomor Bukti</label>
                 <input
                   type="text"
-                  placeholder={nomorBukti}
+                  placeholder={"Dibuat secara otomatis... "}
                   disabled
                   className="mt-1 p-2 w-full border bg-gray-200 text-gray-600 rounded"
                 />
@@ -301,61 +336,71 @@ const transactionPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              {/* Tombol aksi utama */}
+              <div className="flex gap-3 flex-wrap">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-5 py-2.5 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-xl shadow hover:from-gray-500 hover:to-gray-700 transition-all duration-300"
                 >
                   Reset
                 </button>
+
+                {/* Tombol simpan draft */}
                 <button
                   onClick={handleSimpanDraft}
-                  className={`px-4 py-2 text-white rounded ${
+                  className={`px-5 py-2.5 font-semibold rounded-xl shadow transition-all duration-300 ${
                     isDraftLocked
-                      ? "bg-gray-600 hover:bg-gray-700"
-                      : "bg-yellow-500 hover:bg-yellow-600"
+                      ? "bg-gradient-to-r from-gray-500 to-gray-700 text-white hover:from-gray-600 hover:to-gray-800"
+                      : "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white hover:from-emerald-500 hover:to-emerald-700"
                   }`}
                 >
                   {isDraftLocked ? "Buka Draft" : "Simpan Draft"}
                 </button>
 
+                {/* Tombol posting */}
                 <button
                   onClick={handlePosting}
-                  disabled={!isDraftLocked} // cuma bisa posting kalau sudah disimpan
-                  className={`px-4 py-2 rounded font-semibold ${
+                  disabled={!isDraftLocked}
+                  className={`px-5 py-2.5 font-semibold rounded-xl shadow transition-all duration-300 ${
                     isDraftLocked
-                      ? "bg-black text-white hover:bg-gray-800"
-                      : "bg-gray-400 text-white cursor-not-allowed"
+                      ? "bg-gradient-to-r from-green-600 to-green-800 text-white hover:from-green-700 hover:to-green-900"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 >
                   Posting
                 </button>
               </div>
             </div>
+                <p className="mt-3 text-base text-gray-500 italic text-right">
+                  Simpan draft terlebih dahulu sebelum memposting transaksi.
+                </p>
           </div>
 
-          {/* === Tabel Transaksi === */}
+          {/* === TABEL TRANSAKSI === */}
           <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
             <div className="flex gap-3 mb-4">
               <button
                 onClick={handleAddRow}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-5 py-2.5 text-sm font-semibold rounded-lg border border-emerald-600 text-emerald-700 bg-gradient-to-r from-emerald-50 to-white hover:from-emerald-100 hover:to-emerald-50 hover:text-emerald-800 hover:shadow-md transition-all duration-300 flex items-center gap-1"
               >
-                + Tambah Baris
+                <span className="text-lg">
+                  ＋</span> Tambah Baris
               </button>
               <button
                 onClick={handleDeleteSelected}
                 disabled={rows.filter((r) => r.isSelected).length === 0}
-                className={`px-4 py-2 rounded text-white transition ${
+                className={`px-5 py-2.5 text-sm font-semibold rounded-lg border flex items-center gap-1 transition-all duration-300 ${
                   rows.filter((r) => r.isSelected).length === 0
-                    ? "bg-red-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700"
+                    ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                    : "border-red-600 text-red-700 bg-gradient-to-r from-red-50 to-white hover:from-red-100 hover:to-red-50 hover:text-red-800 hover:shadow-md"
                 }`}
               >
-                Hapus Baris
+                <span className="text-lg">
+                  -</span> Hapus Baris
               </button>
             </div>
 
+            {/* Tabel utama */}
             <div className="overflow-x-auto">
               <table className="min-w-full border border-gray-300">
                 <thead className="border border-gray-200 bg-gray-100">
@@ -387,6 +432,8 @@ const transactionPage = () => {
                           />
                           {i + 1}
                         </td>
+
+                        {/* Dropdown akun */}
                         <td className="p-2">
                           <select
                             value={row.akunId ?? ""}
@@ -410,6 +457,8 @@ const transactionPage = () => {
                               ))}
                           </select>
                         </td>
+
+                        {/* Input debit */}
                         <td className="p-2">
                           <input
                             type="number"
@@ -421,6 +470,8 @@ const transactionPage = () => {
                             disabled={isDraftLocked}
                           />
                         </td>
+
+                        {/* Input kredit */}
                         <td className="p-2">
                           <input
                             type="number"
@@ -452,6 +503,7 @@ const transactionPage = () => {
               </table>
             </div>
 
+            {/* Total debit, kredit, dan selisih */}
             <div className="flex justify-end gap-4 mt-4 font-semibold">
               <span>
                 Total Debit:{" "}
@@ -470,7 +522,7 @@ const transactionPage = () => {
               <span
                 className={`px-2 rounded ${
                   selisih === 0
-                    ? "bg-green-500 text-white"
+                    ? "bg-emerald-500 text-white"
                     : "bg-red-500 text-white"
                 }`}
               >
@@ -483,6 +535,7 @@ const transactionPage = () => {
             </div>
           </div>
         </main>
+        </div>
       </div>
     </>
     </AuthGuard>

@@ -1,3 +1,11 @@
+/**
+ * @file JournalDetail.tsx
+ * @description Halaman untuk menampilkan detail seluruh jurnal beserta entri akunnya.
+ * Komponen ini menampilkan data dari API /journals dan /coa, lalu menggabungkan keduanya
+ * agar setiap entri jurnal memiliki nama akun dan kode akun dari COA.
+ */
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -6,7 +14,17 @@ import Sidebar from "@/app/components/Sidebar/page";
 import Navbar from "@/app/components/Navbar/page";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
+/**
+ * Komponen utama untuk halaman Detail Jurnal.
+ * Menampilkan daftar semua jurnal (dari API backend) dengan COA terhubung.
+ */
+
 const JournalDetail = () => {
+    /**
+   * Interface untuk struktur data Entry (entri jurnal).
+   * Setiap entri memiliki id akun, kode akun, nama akun, debit, dan kredit.
+   */
+
   interface Entry {
     id_coa: number;
     code_account: string;
@@ -14,6 +32,11 @@ const JournalDetail = () => {
     debit: string;
     credit: string;
   }
+
+    /**
+   * Interface untuk struktur data Journal.
+   * Berisi informasi utama jurnal seperti tanggal, deskripsi, referensi, lampiran, dan daftar entry.
+   */
 
   interface Journal {
     id: number;
@@ -32,7 +55,10 @@ const JournalDetail = () => {
 
   const router = useRouter();
 
-  // 🔹 Ambil semua data jurnal + COA
+  /**
+   * 🔹 Fungsi untuk mengambil semua data jurnal dan COA dari backend,
+   * lalu menggabungkannya agar tiap entri jurnal punya nama akun dan kode akun.
+   */
   const fetchJournals = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -44,6 +70,7 @@ const JournalDetail = () => {
     try {
       setLoading(true);
 
+            // Ambil data jurnal dari endpoint /journals
       const journalRes = await new AxiosCaller("http://localhost:3001").call[
         "GET /journals"
       ]({
@@ -58,7 +85,10 @@ const JournalDetail = () => {
         query: { limit: 9999 },
       });
 
-      // Buat map id_coa -> nama akun
+      /**
+       * Buat peta (map) untuk menghubungkan id_coa dengan nama dan kode akun.
+       * Ini akan memudahkan penggabungan antara data jurnal dan COA.
+       */
       const coaMap = new Map<
         number,
         { account: string; code_account: string }
@@ -67,7 +97,10 @@ const JournalDetail = () => {
         coaMap.set(c.id, { account: c.account, code_account: c.code_account });
       });
 
-      // Gabungkan COA ke entries
+      /**
+       * Gabungkan data COA dengan entries di setiap jurnal.
+       * Setiap entry akan mendapatkan nama akun dan kode akun dari coaMap.
+       */
       const merged = (journalRes as any[]).map((journal) => ({
         ...journal,
         entries: journal.entries.map((entry: any) => ({
@@ -87,14 +120,21 @@ const JournalDetail = () => {
     }
   };
 
+    /**
+   * 🔹 useEffect()
+   * Dipanggil saat komponen pertama kali dimuat untuk mengambil data jurnal.
+   */
   useEffect(() => {
     fetchJournals();
   }, []);
 
   return (
-    <div className="flex min-h-screen pt-14">
+    <div className="flex min-h-screen pt-15">
+            {/* Sidebar dan Navbar tetap ditampilkan */}
       <Sidebar />
       <Navbar hideMenu />
+
+      {/* === MAIN CONTENT === */}
       <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
@@ -118,6 +158,7 @@ const JournalDetail = () => {
           </div>
         </div>
 
+{/* === Tabel Data Jurnal === */}
         <div className="overflow-x-auto overflow-visible relative bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-lg border border-green-100">
           <table className="min-w-full text-sm text-black rounded-xl relative z-0">
             <thead>
@@ -143,6 +184,7 @@ const JournalDetail = () => {
               </tr>
             </thead>
             <tbody>
+               {/* Gabungkan semua jurnal ke dalam 1 daftar entry */}
               {journals
                 .flatMap((journal) =>
                   journal.entries.map((entry) => ({
@@ -151,6 +193,7 @@ const JournalDetail = () => {
                     description: journal.description,
                   }))
                 )
+                 // Filter pencarian berdasarkan akun, deskripsi, atau kode akun
                 .filter(
                   (e) =>
                     e.account
@@ -163,6 +206,7 @@ const JournalDetail = () => {
                       .toLowerCase()
                       .includes(searchTerm.toLowerCase())
                 )
+                // Render hasil ke tabel
                 .map((entry, i) => (
                   <tr
                     key={i}
@@ -184,6 +228,7 @@ const JournalDetail = () => {
           </table>
         </div>
 
+        {/* Pesan loading atau error */}
         {loading && (
           <p className="text-center text-gray-500 mt-4">Memuat data...</p>
         )}

@@ -7,42 +7,69 @@ import Image from "next/image";
 import AuthGuard from "@/app/components/AuthGuard/page";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
+/**
+ * 📄 Komponen ArusKasPage
+ * Halaman ini menampilkan laporan arus kas berdasarkan data jurnal dan COA dari server.
+ * Dapat melakukan filter berdasarkan tanggal, serta ekspor ke PDF, Excel, dan Word.
+ */
 const ArusKasPage = () => {
-interface Entry {
-  id: number;
-  id_journal: number;
-  id_coa: number;
-  code_account: string;
-  debit: number;
-  credit: number;
-}
 
-interface Journal {
-  id: number;
-  date: string;
-  description: string;
-  entries: Entry[];
-}
+  // 📚 Interface untuk struktur data jurnal dan entri transaksi
+  interface Entry {
+    id: number;
+    id_journal: number;
+    id_coa: number;
+    code_account: string;
+    debit: number;
+    credit: number;
+  }
 
-interface Coa {
-  id: number;
-  code_account: string;
-  account: string;
-}
+  interface Journal {
+    id: number;
+    date: string;
+    description: string;
+    entries: Entry[];
+  }
 
+  interface Coa {
+    id: number;
+    code_account: string;
+    account: string;
+  }
+
+  // ===============================
+  // 🧠 STATE MANAGEMENT
+  // ===============================
+
+  // Menyimpan data arus kas hasil pengolahan
   const [arusKas, setArusKas] = useState<{ tanggal: string; deskripsi: string; debit: number; credit: number }[]>([]);
+
+  // Menyimpan total kas masuk dan keluar
   const [totalMasuk, setTotalMasuk] = useState(0);
   const [totalKeluar, setTotalKeluar] = useState(0);
+
+  // Status loading data
   const [isloading, setIsLoading] = useState(false);
+
+  // Status untuk membuka/menutup dropdown export
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // 🗓️ filter tanggal
+  // 🗓️ State untuk filter tanggal
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // ===============================
+  // 🚀 USE EFFECT
+  // ===============================
+
+  // Menjalankan fetch data arus kas saat komponen pertama kali dimuat
   useEffect(() => {
     fetchArusKas();
   }, []);
+
+  // ===============================
+  // 🔄 FUNGSI FETCH DATA ARUS KAS
+  // ===============================
 
   const fetchArusKas = async () => {
     try {
@@ -55,26 +82,26 @@ interface Coa {
 
       const axiosClient = new AxiosCaller("http://localhost:3001");
 
-      // Ambil semua jurnal
+      // 🔹 Ambil semua data jurnal dari API
       const journalsRes = await axiosClient.call["GET /journals"]({
         headers: { authorization: token },
         query: { limit: 9999 },
       });
       const journals = journalsRes as unknown as Journal[];
 
-      // Ambil daftar COA
+      // 🔹 Ambil semua data COA dari API
       const coaRes = await axiosClient.call["GET /coa"]({
         headers: { authorization: token },
         query: { limit: 9999 },
       });
       const coaList = coaRes as unknown as Coa[];
 
-      // Filter akun kas & bank (1xx)
+      // 🔹 Filter akun kas & bank (kode akun diawali dengan "1")
       const kasBankAccounts = coaList.filter((c) =>
         c.code_account.startsWith("1")
       );
 
-      // Gabungkan jurnal dan entri untuk akun kas/bank saja
+      // 🔹 Gabungkan jurnal dan entri hanya untuk akun kas/bank
       let kasEntries = journals.flatMap((journal) =>
         journal.entries
           .filter((e) =>
@@ -88,7 +115,7 @@ interface Coa {
           }))
       );
 
-      // 🔍 Filter berdasarkan tanggal jika ada input
+      // 🔍 Filter berdasarkan tanggal jika diinputkan oleh user
       if (startDate && endDate) {
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -98,10 +125,11 @@ interface Coa {
         });
       }
 
-      // Hitung total masuk & keluar
+      // 💰 Hitung total kas masuk dan keluar
       const masuk = kasEntries.reduce((sum, e) => sum + e.debit, 0);
       const keluar = kasEntries.reduce((sum, e) => sum + e.credit, 0);
 
+      // Simpan hasil ke state
       setArusKas(kasEntries);
       setTotalMasuk(masuk);
       setTotalKeluar(keluar);
@@ -112,7 +140,11 @@ interface Coa {
     }
   };
 
-  // === EXPORT FUNCTIONS ===
+  // ===============================
+  // 📤 FUNGSI EXPORT LAPORAN
+  // ===============================
+
+  /** 📄 Export laporan ke PDF */
   const handleExportPDF = () => {
     const content = document.getElementById("arus-kas-content");
     if (!content) return;
@@ -139,6 +171,7 @@ interface Coa {
     newWindow?.print();
   };
 
+  /** 📘 Export laporan ke Excel */
   const handleExportExcel = () => {
     const content = document.getElementById("arus-kas-content");
     if (!content) return;
@@ -152,6 +185,7 @@ interface Coa {
     URL.revokeObjectURL(url);
   };
 
+  /** 📗 Export laporan ke Word */
   const handleExportDoc = () => {
     const content = document.getElementById("arus-kas-content");
     if (!content) return;
@@ -167,19 +201,25 @@ interface Coa {
     URL.revokeObjectURL(url);
   };
 
+  // ===============================
+  // 🎨 RENDER UI
+  // ===============================
   return (
     <AuthGuard>
     <div className="flex min-h-screen pt-14">
       <Sidebar />
+
       <div className="flex-1 p-6">
+        {/* Navbar di bagian atas halaman */}
         <Navbar hideMenu/>
 
+        {/* Judul halaman dan dropdown export */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Laporan Arus Kas
           </h1>
 
-          {/* Dropdown export */}
+          {/* Dropdown tombol export */}
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -188,6 +228,7 @@ interface Coa {
               <Image src="/printer.png" alt="Print Icon" width={30} height={30} />
             </button>
 
+            {/* Daftar opsi export (PDF, Word, Excel) */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <button
@@ -253,15 +294,17 @@ interface Coa {
           </button>
         </div>
 
+        {/* 🌀 Loading state */}
         {isloading ? (
           <p className="text-gray-500">Memuat data arus kas...</p>
         ) : (
+          // 📊 Tabel laporan arus kas
           <div
             id="arus-kas-content"
             className="bg-white shadow-md border border-gray-200 rounded-xl overflow-hidden p-4"
           >
             <table className="w-full text-sm border-collapse">
-              <thead className="bg-stone-800 text-green-200">
+              <thead className="bg-stone-800 text-green-200 rounded-lg">
                 <tr>
                   <th className="px-4 py-2 text-left">Tanggal</th>
                   <th className="px-4 py-2 text-left">Deskripsi</th>
