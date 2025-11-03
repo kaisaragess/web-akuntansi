@@ -237,9 +237,6 @@ const NeracaSaldoPage = () => {
       <html>
         <head><title>Neraca Saldo</title></head>
         <body>
-          <h2>${NAMA_PERUSAHAAN}</h2>
-          <h3>Neraca Saldo</h3>
-          <p>Per ${displayLastDay} ${monthLabels[selectedMonth]} ${selectedYear}</p>
           ${content.innerHTML}
         </body>
       </html>
@@ -281,10 +278,9 @@ const NeracaSaldoPage = () => {
     a.click();
   };
   
-  // =========================================================================
-
+  // =========================== RENDERING UI ==============================
   return (
-    <div className="flex min-h-screen pt-14">
+    <div className="flex min-h-screen pt-15">
       <Sidebar />
       <div className="flex-1 p-6">
         <Navbar hideMenu />
@@ -516,12 +512,12 @@ const WebTable: React.FC<TableProps> = ({ data, totalDebit, totalCredit, formatR
         <div className="bg-white shadow-xl border border-gray-200 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-green-700 text-white border-b">
+                <thead className="bg-stone-900 text-green-200">
                   <tr>
-                    <th className="px-4 py-3 text-left w-1/12">Kode Akun</th>
-                    <th className="px-4 py-3 text-left w-5/12">Nama Akun</th>
-                    <th className="px-4 py-3 text-right w-3/12">Debit (Rp)</th>
-                    <th className="px-4 py-3 text-right w-3/12">Kredit (Rp)</th>
+                    <th className="px-4 py-3 text-left w-1/12 border-r border-green-200">Kode Akun</th>
+                    <th className="px-4 py-3 text-left w-5/12 border-r border-green-200">Nama Akun</th>
+                    <th className="px-4 py-3 text-right w-3/12 border-r border-green-200">Debit (Rp)</th>
+                    <th className="px-4 py-3 text-right w-3/12 border-r border-green-200">Kredit (Rp)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -532,15 +528,15 @@ const WebTable: React.FC<TableProps> = ({ data, totalDebit, totalCredit, formatR
                         index % 2 === 0 ? "bg-white" : "bg-gray-50"
                       }`}
                     >
-                      <td className="px-4 py-2 font-mono">
+                      <td className="px-4 py-2 font-mono border-r border-gray-200">
                         {akun.code_account}
                       </td>
-                      <td className="px-4 py-2">{akun.account}</td>
-                      <td className="px-4 py-2 text-right text-green-700 font-medium">
+                      <td className="px-4 py-2 border-r border-gray-200">{akun.account}</td>
+                      <td className="px-4 py-2 text-right text-green-700 font-medium border-r border-gray-200">
                         {/* Menggunakan strip untuk nol */}
                         {akun.saldoAkhir > 0 ? formatRupiah(akun.saldoAkhir, false) : "-"}
                       </td>
-                      <td className="px-4 py-2 text-right text-red-700 font-medium">
+                      <td className="px-4 py-2 text-right text-red-700 font-medium border-r border-gray-200">
                         {/* Menggunakan strip untuk nol */}
                         {akun.saldoAkhir < 0 ? formatRupiah(akun.saldoAkhir, false) : "-"}
                       </td>
@@ -549,28 +545,28 @@ const WebTable: React.FC<TableProps> = ({ data, totalDebit, totalCredit, formatR
                 </tbody>
                 {/* Bagian Total */}
                 <tfoot>
-                  <tr className="bg-green-100 border-t-2 border-green-700 font-bold text-base">
-                    <td colSpan={2} className="px-4 py-3 text-right text-gray-800">
+                  <tr className="bg-green-200 font-bold text-base">
+                    <td colSpan={2} className="px-4 py-3 text-center text-gray-800 border-r border-gray-300 ">
                       TOTAL KESELURUHAN
                     </td>
-                    <td className="px-4 py-3 text-right text-green-700">
+                    <td className="px-4 py-3 text-right text-green-700 border-r border-gray-300 ">
                       {formatRupiah(totalDebit, false)}
                     </td>
-                    <td className="px-4 py-3 text-right text-red-700">
+                    <td className="px-4 py-3 text-right text-red-700 border-r border-gray-200 ">
                       {formatRupiah(totalCredit, false)}
                     </td>
                   </tr>
                   <tr
                     className={`font-bold text-center ${
                       isBalanced
-                        ? "bg-teal-500 text-white"
+                        ? "bg-stone-900 text-white"
                         : "bg-red-200 text-red-800"
                     }`}
                   >
                     <td colSpan={4} className="px-4 py-2">
                       {isBalanced
-                        ? "Neraca Saldo Seimbang (BALANCE) ✅"
-                        : `PERHATIAN: Neraca Saldo TIDAK Seimbang! Selisih: ${formatRupiah(
+                        ? "NERACA SALDO SEIMBANG (BALANCE) ✅"
+                        : `PERHATIAN: NERACA SALDO TIDAK SEIMBANG! SELISIH: ${formatRupiah(
                             totalDebit - totalCredit, false
                           )} ❌`}
                     </td>

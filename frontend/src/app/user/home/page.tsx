@@ -1,3 +1,10 @@
+/**
+ * @file HomePage.tsx
+ * @description Halaman utama aplikasi "Kasku" yang menampilkan hero section,
+ * fitur utama, dan bagian tentang aplikasi. Halaman ini menggunakan animasi
+ * dari Framer Motion serta komponen Navbar dan Footer.
+ */
+
 "use client";
 
 import Link from "next/link";
@@ -6,7 +13,19 @@ import { AiOutlineTransaction, AiOutlineFileText, AiOutlineBarChart } from "reac
 import Navbar from "@/app/components/Navbar/page";
 import Footer from "@/app/components/Footer/page";
 
+/**
+ * Komponen utama halaman beranda aplikasi.
+ * Menampilkan beberapa section:
+ * - Hero Section (promosi utama)
+ * - Features Section (fitur unggulan)
+ * - About Section (penjelasan singkat aplikasi)
+ */
 const HomePage = () => {
+  /**
+   * Array fitur utama aplikasi.
+   * Berisi judul, deskripsi, dan ikon yang akan ditampilkan
+   * dalam bagian fitur di halaman.
+   */
   const features = [
     {
       title: "Transaksi Otomatis",
@@ -27,11 +46,14 @@ const HomePage = () => {
 
   return (
     <>
+      {/* === Navbar === */}
       <Navbar />
 
-      {/* Hero Section */}
+      {/* === Hero Section === */}
+      {/* Bagian utama halaman dengan background gambar dan animasi teks */}
       <section className="relative flex items-center justify-end min-h-screen bg-cover bg-center bg-[url('/bg.jpg')]" >
         <div className="max-w-2xl text-right px-6 sm:px-12">
+          {/* Judul utama dengan animasi fade-in */}
           <motion.h1
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -42,6 +64,7 @@ const HomePage = () => {
             <span className="text-green-400">Kasku</span>
           </motion.h1>
 
+          {/* Deskripsi singkat aplikasi */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -52,6 +75,7 @@ const HomePage = () => {
             dimonitor dengan mudah dalam satu platform terintegrasi.
           </motion.p>
 
+          {/* Tombol CTA (Call To Action) dengan animasi pulse */}
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: [1, 1.05, 1] }}
@@ -67,7 +91,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* === Features Section === */}
+      {/* Menampilkan fitur unggulan aplikasi dalam bentuk card */}
       <section className="bg-green-200 py-24 overflow-hidden text-gray-800" id="about">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 px-6">
           {features.map((feature, idx) => (
@@ -87,9 +112,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* === About Section === */}
+      {/* Penjelasan singkat mengenai keunggulan aplikasi Kasku */}
       <section id="about" className="bg-gray-100 py-24 overflow-hidden">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-6">
+          {/* Gambar ilustrasi dashboard */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -104,6 +131,7 @@ const HomePage = () => {
             />
           </motion.div>
 
+          {/* Teks penjelasan aplikasi */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -125,6 +153,7 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* === Footer === */}
       <Footer />
     </>
   );

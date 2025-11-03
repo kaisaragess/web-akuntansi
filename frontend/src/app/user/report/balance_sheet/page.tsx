@@ -7,7 +7,6 @@ import React, {useState, useEffect, useCallback} from "react";
 import { AxiosCaller } from "../../../../../axios-client/axios-caller/AxiosCaller";
 
 // --- INTERFACE (Menggunakan yang sudah ada, ditambah BalanceSheetData) ---
-
 interface Entry {
   id_coa: number;
   code_account: string;
@@ -444,7 +443,7 @@ const BalanceSheetReportPage = () => {
         }
       `}</style>
 
-      <div className="flex min-h-screen pt-14">
+      <div className="flex min-h-screen pt-15">
       <Sidebar />
       <div className="flex-1 p-6">
         <Navbar hideMenu/>
@@ -497,10 +496,10 @@ const BalanceSheetReportPage = () => {
               <h3 className="text-lg mb-4 text-center">Per {selectedPeriod}</h3>
 
                <th
-                    className={`mb-3 font-bold text-center ${
+                    className={`mb-3 font-bold text-center rounded text-shadow-xs text-shadow-black ${
                       reportData.isBalanced
-                        ? "bg-teal-500 text-white"
-                        : "bg-red-200 text-red-800"
+                        ? "bg-red-200 text-red-800" 
+                        : "bg-teal-500 text-white"
                     }`}
                 >
                     <td colSpan={4} className="px-4 py-2">

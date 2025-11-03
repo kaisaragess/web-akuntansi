@@ -7,12 +7,17 @@ import Image from "next/image";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 
 const BukuBesarPage = () => {
+  // ==============================
+  // 🧩 INTERFACE DATA STRUCTURE
+  // ==============================
+  // Struktur data untuk tabel COA (Chart of Account)
   interface Coa {
     id: number;
     code_account: string;
     account: string;
   }
 
+  // Struktur data untuk setiap entri jurnal
   interface Entry {
     id: number;
     id_journal: number;
@@ -22,6 +27,7 @@ const BukuBesarPage = () => {
     credit: number;
   }
 
+  // Struktur data untuk jurnal umum
   interface Journal {
     id: number;
     date: string;
@@ -31,6 +37,7 @@ const BukuBesarPage = () => {
     entries: Entry[];
   }
 
+  // Struktur Buku Besar per akun
   interface BukuBesarPerAkun {
     code_account: string;
     account: string;
@@ -43,13 +50,18 @@ const BukuBesarPage = () => {
     }[];
   }
 
+  // ==============================
+  // ⚙️ STATE MANAGEMENT
+  // ==============================
   const [dataBukuBesar, setDataBukuBesar] = useState<BukuBesarPerAkun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // === Ambil Data Buku Besar ===
+  // ======================================================
+  // 🔄 FUNGSI: Ambil Data Buku Besar dari API (Fetch Data)
+  // ======================================================
   const fetchBukuBesar = async () => {
     try {
       setIsLoading(true);
@@ -61,20 +73,24 @@ const BukuBesarPage = () => {
 
       const axiosClient = new AxiosCaller("http://localhost:3001");
 
+      // 🔹 Ambil data jurnal dari backend
       const journalsRes = await axiosClient.call["GET /journals"]({
         headers: { authorization: token },
         query: { limit: 9999 },
       });
       const journals = journalsRes as unknown as Journal[];
 
+      // 🔹 Ambil daftar akun COA dari backend
       const coaRes = await axiosClient.call["GET /coa"]({
         headers: { authorization: token },
         query: { limit: 9999 },
       });
       const coaList = coaRes as unknown as Coa[];
 
+      // 🔹 Buat map kode akun → nama akun
       const coaMap = new Map(coaList.map((c) => [c.code_account, c.account]));
 
+      // 🔹 Satukan semua entries dari jurnal
       const allEntries = journals.flatMap((j) =>
         j.entries.map((e) => ({
           code_account: e.code_account,
@@ -86,14 +102,18 @@ const BukuBesarPage = () => {
         }))
       );
 
+      // 🔹 Filter data berdasarkan tanggal jika user mengisi filter
       let filteredEntries = allEntries;
       if (startDate && endDate) {
         filteredEntries = allEntries.filter((e) => {
           const date = new Date(e.tanggal);
-          return date >= new Date(startDate) && date <= new Date(endDate);
+          return (
+            date >= new Date(startDate) && date <= new Date(endDate)
+          );
         });
       }
 
+      // 🔹 Kelompokkan data berdasarkan akun
       const grouped = new Map<string, BukuBesarPerAkun>();
       for (const item of filteredEntries) {
         const key = `${item.code_account}-${item.account}`;
@@ -114,6 +134,7 @@ const BukuBesarPage = () => {
         });
       }
 
+      // 🔹 Hitung saldo berjalan (saldo normal = debit - kredit)
       const finalData: BukuBesarPerAkun[] = [];
       for (const [, akun] of grouped) {
         let saldo = 0;
@@ -135,11 +156,18 @@ const BukuBesarPage = () => {
     }
   };
 
+  // ======================================================
+  // ⚡ useEffect: Panggil data Buku Besar saat komponen dimuat
+  // ======================================================
   useEffect(() => {
     fetchBukuBesar();
   }, []);
 
-  // === Export ===
+  // ======================================================
+  // 📤 FUNGSI EXPORT DATA: PDF / EXCEL / WORD
+  // ======================================================
+
+  // 🔸 Export ke PDF
   const handleExportPDF = () => {
     const content = document.getElementById("all-ledger-content");
     if (!content) return;
@@ -153,11 +181,11 @@ const BukuBesarPage = () => {
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #444; padding: 6px 8px; font-size: 12px; }
             th { background: #eee; }
-            h2 { text-align: center; }
+            h1 { text-align: center; }
           </style>
         </head>
         <body>
-          <h2>Buku Besar Semua Akun</h2>
+          <h1>Buku Besar Semua Akun</h1>
           ${content.innerHTML}
         </body>
       </html>
@@ -166,6 +194,7 @@ const BukuBesarPage = () => {
     newWindow?.print();
   };
 
+  // 🔸 Export ke Excel
   const handleExportExcel = () => {
     const content = document.getElementById("all-ledger-content");
     if (!content) return;
@@ -179,6 +208,7 @@ const BukuBesarPage = () => {
     URL.revokeObjectURL(url);
   };
 
+  // 🔸 Export ke Word (DOC)
   const handleExportDoc = () => {
     const content = document.getElementById("all-ledger-content");
     if (!content) return;
@@ -194,26 +224,33 @@ const BukuBesarPage = () => {
     URL.revokeObjectURL(url);
   };
 
+  // ======================================================
+  // 🖥️ RENDER UI HALAMAN BUKU BESAR
+  // ======================================================
   return (
-    <div className="flex min-h-screen pt-14">
+    <div className="flex min-h-screen bg-gray-50 text-black mt-15">
+      {/* Sidebar navigasi kiri */}
       <Sidebar />
-      <div className="flex-1 p-6">
-        <Navbar hideMenu />
+      <div className="flex-1 p-6 relative">
+        {/* Navbar atas */}
+        <Navbar hideMenu/>
 
-        {/* === Header === */}
+        {/* === Header Judul + Tombol Export === */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-green-200 px-6 py-2 rounded-md shadow-sm">
             Buku Besar
           </h1>
 
+          {/* Tombol export dropdown */}
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 text-black px-3 py-1 rounded hover:bg-green-200 text-sm border border-gray-300"
+              className="flex items-center gap-2 text-white px-3 py-1 rounded hover:bg-stone-200 text-sm"
             >
-              <Image src="/printer.png" alt="Print Icon" width={28} height={28} />
+              <Image src="/printer.png" alt="Print Icon" width={30} height={30} />
             </button>
 
+            {/* Dropdown export PDF, Word, Excel */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <button
@@ -221,7 +258,7 @@ const BukuBesarPage = () => {
                     handleExportPDF();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/pdf-file.png" alt="PDF" width={18} height={18} />
                   PDF
@@ -231,7 +268,7 @@ const BukuBesarPage = () => {
                     handleExportDoc();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/document.png" alt="Doc" width={18} height={18} />
                   Word
@@ -241,7 +278,7 @@ const BukuBesarPage = () => {
                     handleExportExcel();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <Image src="/excel.png" alt="Excel" width={18} height={18} />
                   Excel
@@ -251,8 +288,9 @@ const BukuBesarPage = () => {
           </div>
         </div>
 
-        {/* === Filter === */}
+        {/* === Filter tanggal === */}
         <div className="flex items-center gap-3 mb-4">
+          {/* Filter tanggal mulai */}
           <div>
             <label className="text-sm mr-2 font-semibold">Mulai Dari:</label>
             <input
@@ -262,6 +300,8 @@ const BukuBesarPage = () => {
               className="border border-gray-300 rounded px-2 py-1 text-sm"
             />
           </div>
+
+          {/* Filter tanggal akhir */}
           <div>
             <label className="text-sm mr-2 font-semibold">Sampai Dengan:</label>
             <input
@@ -271,6 +311,8 @@ const BukuBesarPage = () => {
               className="border border-gray-300 rounded px-2 py-1 text-sm"
             />
           </div>
+
+          {/* Tombol tampilkan */}
           <button
             onClick={fetchBukuBesar}
             className="bg-green-600 text-white text-sm px-3 py-1 rounded hover:bg-green-700"
@@ -284,60 +326,73 @@ const BukuBesarPage = () => {
           <p className="text-gray-500">Memuat data Buku Besar...</p>
         ) : (
           <div id="all-ledger-content" className="space-y-10">
+            {/* Looping akun buku besar */}
             {dataBukuBesar.map((akun) => (
               <div
                 key={akun.code_account}
                 className="bg-white shadow-md border border-gray-200 rounded-xl overflow-hidden"
               >
+                {/* Header nama akun */}
                 <div className="flex justify-between items-center bg-green-200 px-4 py-2 border-b">
                   <h2 className="font-semibold text-gray-800">
                     {akun.code_account} - {akun.account}
                   </h2>
                 </div>
 
+                {/* Tabel isi Buku Besar */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm border border-gray-300">
-                    <thead>
-                      <tr className="bg-stone-800 text-green-200">
-                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                  <table className="w-full text-sm">
+                    <thead className="bg-stone-800 text-green-200 border-b">
+                      <tr>
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r border-green-200">
                           Tanggal
                         </th>
-                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r border-green-200">
                           Deskripsi
                         </th>
-                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r border-green-200">
                           Debit
                         </th>
-                        <th rowSpan={2} className="px-4 py-2 text-center border-r">
+                        <th rowSpan={2} className="px-4 py-2 text-center border-r border-green-200">
                           Kredit
                         </th>
                         <th colSpan={2} className="px-4 py-2 text-center">
                           Saldo
                         </th>
                       </tr>
-                      <tr className="bg-stone-800 text-green-200 border-b">
-                        <th className="px-4 py-2 text-center border">Debit</th>
-                        <th className="px-4 py-2 text-center border">Kredit</th>
+                      <tr>
+                        <th className="px-4 py-2 text-center border-r border-green-200">
+                          Debit
+                        </th>
+                        <th className="px-4 py-2 text-center">Kredit</th>
                       </tr>
                     </thead>
-
                     <tbody>
+                      {/* Looping setiap transaksi */}
                       {akun.entries.map((entry, index) => (
                         <tr key={index} className="border-b hover:bg-gray-50">
-                          <td className="px-4 py-2">
+                          {/* Kolom tanggal */}
+                          <td className="px-4 py-2 border-r border-gray-200">
                             {new Date(entry.tanggal).toLocaleDateString("id-ID")}
                           </td>
-                          <td className="px-4 py-2">{entry.deskripsi}</td>
-                          <td className="px-4 py-2 text-right">
+                          {/* Kolom deskripsi */}
+                          <td className="px-4 py-2 border-r border-gray-200">
+                            {entry.deskripsi}
+                          </td>
+                          {/* Kolom debit */}
+                          <td className="px-4 py-2 text-center border-r border-gray-200">
                             {entry.debit ? entry.debit.toLocaleString() : "-"}
                           </td>
-                          <td className="px-4 py-2 text-right">
+                          {/* Kolom kredit */}
+                          <td className="px-4 py-2 text-center border-r border-gray-200">
                             {entry.credit ? entry.credit.toLocaleString() : "-"}
                           </td>
-                          <td className="px-4 py-2 text-right text-green-600">
+                          {/* Kolom saldo debit */}
+                          <td className="px-4 py-2 text-center text-green-600 border-r border-gray-200">
                             {entry.saldo > 0 ? entry.saldo.toLocaleString() : "-"}
                           </td>
-                          <td className="px-4 py-2 text-right text-red-600">
+                          {/* Kolom saldo kredit */}
+                          <td className="px-4 py-2 text-center text-red-600">
                             {entry.saldo < 0
                               ? Math.abs(entry.saldo).toLocaleString()
                               : "-"}

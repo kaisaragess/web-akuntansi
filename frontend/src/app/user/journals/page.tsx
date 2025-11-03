@@ -1,3 +1,10 @@
+// ==========================================
+// File: JournalPage.tsx
+// Deskripsi: Halaman utama untuk menampilkan daftar jurnal umum,
+// menampilkan detail jurnal, serta mengedit atau menghapus jurnal.
+// Menggunakan React + Next.js + AxiosCaller.
+// ==========================================
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,6 +14,9 @@ import Navbar from "@/app/components/Navbar/page";
 import { AxiosCaller } from "../../../../axios-client/axios-caller/AxiosCaller";
 import Link from "next/link";
 
+
+// ================== INTERFACE ==================
+// Struktur data untuk entri jurnal
 interface Entry {
   id_coa: number;
   code_account: string;
@@ -15,6 +25,7 @@ interface Entry {
   credit: number;
 }
 
+// Struktur data untuk jurnal utama
 interface Journal {
   id: number;
   date: string;
@@ -25,6 +36,7 @@ interface Journal {
   entries: Entry[];
 }
 
+// Struktur data untuk Chart of Account (COA)
 interface Coa {
   id: number;
   code_account: string;
@@ -32,6 +44,8 @@ interface Coa {
   jenis: string;
 }
 
+
+// ================== KOMPONEN UTAMA ==================
 const JournalPage = () => {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [coaList, setCoaList] = useState<Coa[]>([]);
@@ -48,11 +62,13 @@ const JournalPage = () => {
   const router = useRouter();
 
   // ================== UTILS ==================
+  // Fungsi untuk mencari detail akun COA berdasarkan id
   const findCoaDetail = (id_coa: number) => {
     return coaList.find((c) => c.id === id_coa);
   };
 
   // ================== FETCH DATA ==================
+  // Mengambil data jurnal dan COA dari server menggunakan AxiosCaller
   const fetchJournals = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -63,11 +79,14 @@ const JournalPage = () => {
 
     try {
       setLoading(true);
+
+      // Ambil semua jurnal dari endpoint /journals
       const journalRes = await new AxiosCaller("http://localhost:3001").call["GET /journals"]({
         headers: { authorization: token },
         query: { limit: 9999 },
       });
 
+      // Ambil semua akun COA dari endpoint /coa
       const coaRes = await new AxiosCaller("http://localhost:3001").call["GET /coa"]({
         headers: { authorization: token },
         query: { limit: 9999 },
@@ -75,11 +94,13 @@ const JournalPage = () => {
 
       setCoaList(coaRes as Coa[]);
 
+      // Mapping COA agar mudah digunakan
       const coaMap = new Map<number, { account: string; code_account: string }>();
       coaRes.forEach((c: any) => {
         coaMap.set(c.id, { account: c.account, code_account: c.code_account });
       });
 
+      // Gabungkan data jurnal dan COA agar setiap entry punya nama akun & kode akun
       const merged = (journalRes as any[]).map((journal) => ({
         ...journal,
         entries: journal.entries.map((entry: any) => ({
@@ -98,6 +119,7 @@ const JournalPage = () => {
     }
   };
 
+  // Panggil fetch data saat komponen pertama kali dimuat
   useEffect(() => {
     fetchJournals();
   }, []);
@@ -141,6 +163,7 @@ const JournalPage = () => {
       if (i === index) {
         let newEntry = { ...entry };
 
+        // Jika mengubah id_coa, maka ubah juga nama & kode akun
         if (field === "id_coa") {
           const coa = findCoaDetail(Number(value));
           newEntry = {
@@ -180,6 +203,7 @@ const JournalPage = () => {
     setEditData({ ...editData, entries: [...editData.entries, newEntry] });
   };
 
+  // Simpan hasil edit ke server
   const handleSaveEdit = async () => {
     if (!editData) return;
     const token = localStorage.getItem("token");
@@ -229,8 +253,9 @@ const JournalPage = () => {
   // ================== RENDER ==================
   return (
     <>
-      <div className="flex min-h-screen pt-14">
+      <div className="flex min-h-screen pt-15">
         <Sidebar />
+              <div className="flex-1 ">
         <Navbar hideMenu />
         <main className="container mx-auto p-6 bg-white rounded-lg shadow-md text-black">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
@@ -255,17 +280,18 @@ const JournalPage = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-lg border border-green-100">
+{/* ================== TABEL DATA JURNAL ================== */}
+          <div className="overflow-x-auto bg-gradient-to-b from-green-50 to-white rounded-xl shadow-lg border border-gray-200">
             <table className="min-w-full text-sm text-black">
               <thead>
-                <tr className="bg-stone-900 text-white">
-                  <th className="px-6 py-4 text-left">No</th>
-                  <th className="px-6 py-4 text-left">Nomor Bukti</th>
-                  <th className="px-6 py-4 text-left">Tanggal</th>
-                  <th className="px-6 py-4 text-left">Deskripsi</th>
-                  <th className="px-6 py-4 text-left">Referensi</th>
-                  <th className="px-6 py-4 text-left">Lampiran</th>
-                  <th className="px-6 py-4 text-center">Aksi</th>
+                <tr className="bg-black text-green-200 ">
+                  <th className="px-6 py-4 text-center border border-green-100">No</th>
+                  <th className="px-6 py-4 text-center border border-green-100">Nomor Bukti</th>
+                  <th className="px-6 py-4 text-center border border-green-100">Tanggal</th>
+                  <th className="px-6 py-4 text-center border border-green-100">Deskripsi</th>
+                  <th className="px-6 py-4 text-center border border-green-100">Referensi</th>
+                  <th className="px-6 py-4 text-center border border-green-100">Lampiran</th>
+                  <th className="px-6 py-4 text-center br-1">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -279,14 +305,14 @@ const JournalPage = () => {
                   .map((journal, index) => (
                     <tr
                       key={journal.id}
-                      className="bg-green-100 hover:bg-green-200/70 border-b border-green-200 transition-all duration-300"
+                      className="bg-white hover:bg-green-200/70 border-b-1 border-black transition-all duration-300"
                     >
-                      <td className="px-6 py-3">{index + 1}</td>
-                      <td className="px-6 py-3 font-semibold">{journal.nomor_bukti}</td>
-                      <td className="px-6 py-3">{journal.date}</td>
-                      <td className="px-6 py-3">{journal.description}</td>
-                      <td className="px-6 py-3">{journal.referensi}</td>
-                      <td className="px-6 py-3">
+                      <td className="px-6 py-3 border-r-1 border-gray-200">{index + 1}</td>
+                      <td className="px-6 py-3 font-semibold border-r-1 border-gray-200">{journal.nomor_bukti}</td>
+                      <td className="px-6 py-3 border-r-1 border-gray-200">{journal.date}</td>
+                      <td className="px-6 py-3 border-r-1 border-gray-200">{journal.description}</td>
+                      <td className="px-6 py-3 border-r-1 border-gray-200">{journal.referensi}</td>
+                      <td className="px-6 py-3 border-r-1 border-gray-200">
                         {journal.lampiran ? (
                           <Link
                             href={journal.lampiran}
@@ -340,9 +366,11 @@ const JournalPage = () => {
               </tbody>
             </table>
           </div>
+                          {/* Jika data masih dimuat */}
           {loading && <p className="text-center mt-4 text-gray-500">Memuat data...</p>}
           {error && <p className="text-center mt-4 text-red-500">{error}</p>}
         </main>
+        </div>
       </div>
 
       {/* ============ MODAL DETAIL (Lihat Semua Detail) ============ */}
@@ -436,6 +464,7 @@ const JournalPage = () => {
               Edit Jurnal #{editData.nomor_bukti}
             </h2>
 
+{/* Form utama edit jurnal */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">Tanggal</label>
@@ -477,6 +506,8 @@ const JournalPage = () => {
             {/* === Entries === */}
             <h3 className="font-semibold text-green-700 mb-2">Rincian Entri</h3>
             <div className="overflow-x-auto">
+
+              {/* Entri akun COA (Debit/Kredit) */}
                 <table className="w-full text-sm border border-green-200 rounded-lg mb-4">
                 <thead className="bg-green-100">
                     <tr>
@@ -554,6 +585,7 @@ const JournalPage = () => {
                 </table>
             </div>
 
+{/* Tombol tambah dan simpan */}
             <button
               onClick={handleAddRow}
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mb-4 transition"
